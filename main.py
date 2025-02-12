@@ -1,68 +1,9 @@
-import tkinter as tk
-from tkinter import ttk
 import random
 import math
+from application import *
+from coordinate import *
 
-class Coordinate:
-    """Represents a 2D coordinate."""
 
-    def __init__(self, x=0.0, y=0.0):
-        """Initialize the coordinate with x and y values."""
-        self.x = x
-        self.y = y
-    def midpoint(self, x2, y2):
-        mx = (self.x + x2) / 2
-        my = (self.y + y2) / 2
-        return (mx, my)
-
-class Application(ttk.Frame):
-    """Main application class for the Tkinter GUI."""
-
-    def __init__(self, title="root", geometry="512x512", **kwargs):
-        """Initialize the application window."""
-        self.root = tk.Tk()
-        self.root.title(title)
-        self.root.geometry(geometry)
-
-        self.frame = tk.Frame(self.root, **kwargs)
-        self.frame.grid(row=0, column=0, sticky="NESW")
-        self.frame.grid_rowconfigure(0, weight=1)
-        self.frame.grid_columnconfigure(0, weight=1)
-
-        self.root.grid_rowconfigure(0, weight=1)
-        self.root.grid_columnconfigure(0, weight=1)
-
-    def run(self):
-        """Run the main loop of the application."""
-        self.root.mainloop()
-
-    def do_exit(self):
-        """Exit the application."""
-        self.root.destroy()
-
-    def add_widget(self, widget_name, grid_options=None, **kwargs):
-        """Add a widget to the application frame."""
-        if grid_options is None:
-            grid_options = {"column": 0, "columnspan": 1, "row": 0}
-
-        widget_class = getattr(ttk, widget_name, None)
-
-        if widget_class is None:
-            widget_class = getattr(tk, widget_name, None)
-            if widget_class is None:
-                print(f"Widget '{widget_name}' not found.")
-                return None
-
-        widget = widget_class(self.frame, **kwargs)
-
-        if widget is not None:
-            widget.grid(**grid_options)
-        return widget
-
-    def draw_canvas_object(self, canvas_name, object_name, *args, **kwargs):
-        """Draw an object on the canvas."""
-        obj_id = getattr(canvas_name, object_name)(*args, **kwargs)
-        return obj_id
 
 def draw_angle(canvas_name, width=1024, height=1024, scale=100):
     """Draw an angle on the given canvas."""
@@ -86,7 +27,6 @@ def draw_angle(canvas_name, width=1024, height=1024, scale=100):
                            *arc_points, extent=angle, start=0,
                            outline="white", style=tk.ARC)
 
-    arm_l1 = arm_l2 = None
     ## Bad implementation, but looks cool :)
     # for line in "l1", "l2":
     #     arm_points = [
@@ -116,17 +56,34 @@ def draw_angle(canvas_name, width=1024, height=1024, scale=100):
         **line_properties
     )
 
+    offset = 20
+    p1 = Coordinate(center.x-offset, center.y)
+    p2 = Coordinate(l2_end.x-offset, l2_end.y)
 
-    text_1 = app.draw_canvas_object(
+    midpoint = p1.midpoint(p2)
+
+    
+    app.draw_canvas_object(
         canvas_name,
         "create_text",
-        100, 100,
-        text=angle,
+        *midpoint,
+        text=center.distance(l2_end),
         fill='white',
         angle=angle
     )
+    midpoint = center.midpoint(l1_end)
+    midpoint.y += offset
 
-    return arm_1, arm_2, text_1
+    app.draw_canvas_object(
+        canvas_name,
+        "create_text",
+        *midpoint,
+        text=center.distance(l1_end),
+        fill='white',
+        angle=0
+    )
+
+    return arm_1, arm_2
 
 line_properties = {
     'fill': "white",
