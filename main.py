@@ -10,6 +10,10 @@ class Coordinate:
         """Initialize the coordinate with x and y values."""
         self.x = x
         self.y = y
+    def midpoint(self, x2, y2):
+        mx = (self.x + x2) / 2
+        my = (self.y + y2) / 2
+        return (mx, my)
 
 class Application(ttk.Frame):
     """Main application class for the Tkinter GUI."""
@@ -96,15 +100,15 @@ def draw_angle(canvas_name, width=1024, height=1024, scale=100):
     #        **line_properties
     #     )
     # Less concise but probably more perfomant
-    arm_l1 = app.draw_canvas_object(
+    arm_1 = app.draw_canvas_object(
         canvas_name,
         "create_line",
         center.x, center.y,
         l1_end.x, l1_end.y,
         **line_properties
     )
-    
-    arm_l2 = app.draw_canvas_object(
+
+    arm_2 = app.draw_canvas_object(
         canvas_name,
         "create_line",
         center.x, center.y,
@@ -112,7 +116,17 @@ def draw_angle(canvas_name, width=1024, height=1024, scale=100):
         **line_properties
     )
 
-    return arm_l1, arm_l2
+
+    text_1 = app.draw_canvas_object(
+        canvas_name,
+        "create_text",
+        100, 100,
+        text=angle,
+        fill='white',
+        angle=angle
+    )
+
+    return arm_1, arm_2, text_1
 
 line_properties = {
     'fill': "white",
