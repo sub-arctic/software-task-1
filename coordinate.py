@@ -32,10 +32,12 @@ class Coordinate:
         return iter((self.x, self.y))
     
     def midpoint(self, p2):
+        """Return the midpoint of this and another coordinate."""
         mx = (self.x + p2.x) / 2
         my = (self.y + p2.y) / 2
         return Coordinate(mx, my)
 
     def distance(self, p2):
+        """Return the distance to another coordinate."""
         return math.sqrt((p2.x - self.x) ** 2 + (p2.y - self.y) ** 2)
 
