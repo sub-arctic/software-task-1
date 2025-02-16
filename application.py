@@ -1,51 +1,64 @@
 import tkinter as tk
 from tkinter import ttk
-class Application(ttk.Frame):
-    """Main application class for the Tkinter GUI."""
+from physics import *
 
-    def __init__(self, title="root", geometry="512x512", **kwargs):
-        """Initialize the application window."""
-        self.root = tk.Tk()
-        self.root.title(title)
-        self.root.geometry(geometry)
+class MainFrame(ttk.Frame):
+    lastId = 0
+    def __init__(self, container):
+        super().__init__(container)
 
-        self.frame = tk.Frame(self.root, **kwargs)
-        self.frame.grid(row=0, column=0, sticky="NESW")
-        self.frame.grid_rowconfigure(0, weight=1)
-        self.frame.grid_columnconfigure(0, weight=1)
+        gravity = tk.DoubleVar()
+        self.physics = Physics(gravity=9.811)
 
-        self.root.grid_rowconfigure(0, weight=1)
-        self.root.grid_columnconfigure(0, weight=1)
+        self.canvas = tk.Canvas(self, width=512, height=512, bg='black')
+        self.canvas.grid(column=0, row=0, padx=24, pady=24, sticky='N')
 
-    def run(self):
-        """Run the main loop of the application."""
-        self.root.mainloop()
+        self.label = ttk.Label(self, textvariable=gravity)
+        self.label.grid(column=0, row=1)
 
-    def do_exit(self):
-        """Exit the application."""
-        self.root.destroy()
+        self.slider = ttk.Scale(
+            self,
+            command=self.physics.update_gravity,
+            from_=0, to=100,
+            value=9.8,
+            orient=tk.HORIZONTAL,
+            length=512,
+            variable=gravity
+            )
+        self.slider.grid(column=0, row=2)
 
-    def add_widget(self, widget_name, grid_options=None, **kwargs):
-        """Add a widget to the application frame."""
-        if grid_options is None:
-            grid_options = {"column": 0, "columnspan": 1, "row": 0}
+        self.play_button = ttk.Button(self, text='Play', command=self.get_physics_object_states)
+        self.play_button.grid(column=0, row=3)
 
-        widget_class = getattr(ttk, widget_name, None)
+        square_x = 100
+        square_y = 100
+        self.squareId = self.draw_square(100, 100, 100)
+        square = PhysicsObject(100, self.canvas.bbox(self.squareId), (0, 0), (square_x, square_y))
+        self.physics.add_object(square)
 
-        if widget_class is None:
-            widget_class = getattr(tk, widget_name, None)
-            if widget_class is None:
-                print(f"Widget '{widget_name}' not found.")
-                return None
+        # self.canvas.bind('<B1-Motion>', self.drag_object)
 
-        widget = widget_class(self.frame, **kwargs)
+        self.grid(padx=5, pady=10, sticky=tk.NSEW)
 
-        if widget is not None:
-            widget.grid(**grid_options)
-        return widget
+    def get_physics_object_states(self):
+        self.physics.update(time=0.1)
+        self.canvas.move(self.squareId, *self.physics.get_position(self.squareId))
 
-    def draw_canvas_object(self, canvas_name, object_name, *args, **kwargs):
-        """Draw an object on the canvas."""
-        obj_id = getattr(canvas_name, object_name)(*args, **kwargs)
-        return obj_id
+    def draw_square(self, x, y, size):
+        id = self.canvas.create_rectangle(x, y, x+size, y+size, outline="white")
+        return id
 
+    def is_within_bbox(self, event_x, event_y, x1, y1, x2, y2, tolerance=10):
+        x1_t = x1 - tolerance
+        y1_t = y1 - tolerance
+        x2_t = x2 + tolerance
+        y2_t = y2 + tolerance
+        return x1_t <= event_x <= x2_t and y1_t <= event_y <= y2_t
+
+class App(tk.Tk):
+    def __init__(self, title="root", geometry="1024x1024"):
+        super().__init__()
+
+        self.title(title)
+        self.geometry(geometry)
+        self.resizable(True, True)
