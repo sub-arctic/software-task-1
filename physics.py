@@ -51,6 +51,8 @@ class Vector2D:
     def __repr__(self):
         return f"Vector2D({self.x}, {self.y})"
 
+## TODO:
+## Implement arbitrary bbox calculations for complex polygons
 class RigidBody:
     def __init__(
         self,
@@ -83,7 +85,7 @@ class RigidBody:
             r = point - self.position
             self.torque += r.cross(force)
 
-    def apply_gravity(self, gravity, dt):
+    def apply_gravity(self, gravity):
         self.apply_force(Vector2D(0, self.mass * gravity))
 
     def update(self, dt):
@@ -127,11 +129,13 @@ def sat_collision(body_a, body_b):
     corners_a = body_a.get_corners()
     corners_b = body_b.get_corners()
     axes = []
-    for i in range(len(corners_a)):
-        edge = corners_a[(i + 1) % len(corners_a)] - corners_a[i]
+    for i, corner in enumerate(corners_a):
+        next_corner = corners_a[(i + 1) % len(corners_a)]
+        edge = next_corner - corner
         axes.append(edge.perp().normalized())
-    for i in range(len(corners_b)):
-        edge = corners_b[(i + 1) % len(corners_b)] - corners_b[i]
+    for i, corner in enumerate(corners_b):
+        next_corner = corners_b[(i + 1) % len(corners_b)]
+        edge = next_corner - corner
         axes.append(edge.perp().normalized())
     mtv_overlap = float("inf")
     mtv_axis = None
@@ -192,7 +196,7 @@ class PhysicsEngine:
     def update(self, dt):
         for item in self.rigid_bodies:
             body = item["body"]
-            body.apply_gravity(self.gravity, dt)
+            body.apply_gravity(self.gravity)
             body.update(dt)
         self.resolve_collisions()
 

@@ -63,7 +63,7 @@ class MainFrame(ttk.Frame):
         )
         body3 = RigidBody(
             mass=50,
-            bbox=(60, 20),
+            bbox=(100, 100),
             position=Vector2D(200, 300),
             velocity=Vector2D(0, -15),
             restitution=0.6
@@ -132,7 +132,7 @@ class MainFrame(ttk.Frame):
                 self.debug_canvas_ids[body_id].append(line_vy)
 
                 # Calculate the magnitude and angle of the applied force (if any).
-                force = body.force  # after update, normally force resets to 0. For demo purposes you may want to display gravity contribution.
+                force = body.force  # after update, normally force resets to 0
                 force_magnitude = force.magnitude()
                 # get angle in degrees for readability
                 force_angle = math.degrees(math.atan2(force.y, force.x)) if force_magnitude != 0 else 0
