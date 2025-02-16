@@ -3,8 +3,6 @@ import math
 from application import *
 from coordinate import *
 
-
-
 def draw_angle(canvas_name, width=1024, height=1024, scale=100):
     """Draw an angle on the given canvas."""
     center = Coordinate(width / 2, height / 2)
