@@ -29,7 +29,7 @@ def compute_polygon_inertia(vertices, mass):
     return (mass * sum_val) / (6 * area)
 
 class Vector2D:
-    def __init__(self, x=0, y=0):
+    def __init__(self, x=0.0, y=0.0):
         self.x = x
         self.y = y
 
@@ -189,7 +189,8 @@ def sat_collision(body_a, body_b):
             mtv_axis = axis
     d = body_b.position - body_a.position
     if d.dot(mtv_axis) < 0:
-        mtv_axis = mtv_axis * -1
+        if mtv_axis is not None:
+            mtv_axis = mtv_axis * -1
     contact_point = (body_a.position + body_b.position) * 0.5
     return True, mtv_axis, mtv_overlap, contact_point, d
 
