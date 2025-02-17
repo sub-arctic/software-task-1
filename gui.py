@@ -343,11 +343,31 @@ class MainFrame(ttk.Frame):
         self.update_property_panel()
         self.update_canvas()
 
+class WelcomeFrame(ttk.Frame):
+    """Initial popup dialog. Instantializes tkinter frame and spawns main application"""
+    def __init__(self, container):
+        super().__init__(container)
+
+        self.control_frame = ttk.Frame(self)
+        self.control_frame.pack()
+        welcome_text = """
+            In this application you will be able to play around with rigid body polygons and simulate physics.
+            \n Click "Play" to start the simulation.
+            \n Click a shape to adjust parameters.
+            \n If you want further instructions, click the "?" button to display more information about an element.
+        """
+        self.welcome_label = ttk.Label(justify=tk.CENTER, text=welcome_text).pack()
+
+        self.ok_button = ttk.Button(text="Continue", command=self.callback).pack()
+    def callback(self):
+        print("called")
+
+
 class App(tk.Tk):
-    def __init__(self, title="Rigid Body Simulator", geometry="1024x768"):
+    def __init__(self, frame, title="Rigid Body Simulator", geometry="1024x768"):
         super().__init__()
         self.title(title)
         self.geometry(geometry)
         self.resizable(True, True)
-        MainFrame(self).pack(fill="both", expand=True)
+        frame(self).pack(fill="both", expand=True)
 

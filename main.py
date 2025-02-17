@@ -1,6 +1,7 @@
-from gui import App
+from gui import *
+
 
 if __name__ == "__main__":
-    app = App()
+    app = App(MainFrame)
     app.mainloop()
 
