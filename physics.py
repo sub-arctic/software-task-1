@@ -102,25 +102,33 @@ class PhysicsEngine:
                 resolve_collision(body_a, body_b, normal, penetration, contact_point)
 
     def enforce_bounds(self, dt, canvas_width, canvas_height, friction_coefficient=0.2):
+        def check_boundary(position, radius, canvas_limit, velocity):
+            if position - radius < 0:
+                position = radius
+                if velocity < 0:
+                    velocity = -velocity * body.restitution
+            elif position + radius > canvas_limit:
+                position = canvas_limit - radius
+                if velocity > 0:
+                    velocity = -velocity * body.restitution
+            return position, velocity
+
         for item in self.rigid_bodies:
             body = item["body"]
             radius = body.get_bounding_radius()
-            if body.position.x - radius < 0:
-                body.position.x = radius
-                if body.velocity.x < 0:
-                    body.velocity.x = -body.velocity.x * body.restitution
-            if body.position.x + radius > canvas_width:
-                body.position.x = canvas_width - radius
-                if body.velocity.x > 0:
-                    body.velocity.x = -body.velocity.x * body.restitution
-            if body.position.y - radius < 0:
-                body.position.y = radius
-                if body.velocity.y < 0:
-                    body.velocity.y = -body.velocity.y * body.restitution
-            if body.position.y + radius > canvas_height:
-                body.position.y = canvas_height - radius
-                if body.velocity.y > 0:
-                    body.velocity.y = -body.velocity.y * body.restitution
+
+            # Check x boundaries
+            body.position.x, body.velocity.x = check_boundary(
+                body.position.x, radius, canvas_width, body.velocity.x
+            )
+
+            # Check y boundaries
+            body.position.y, body.velocity.y = check_boundary(
+                body.position.y, radius, canvas_height, body.velocity.y
+                )
+
+            # Apply friction to the x velocity if it hits the bottom boundary
+            if body.position.y + radius >= canvas_height:
                 body.velocity.x *= (1 - friction_coefficient * dt)
 
     def get_body_state(self, body_id):
