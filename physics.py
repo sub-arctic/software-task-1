@@ -135,6 +135,7 @@ class PhysicsEngine:
             if item["id"] == body_id:
                 return item["body"].get_state()
         return None
+
     def get_bodies(self):
         return {item["id"]: item["body"].get_corners() for item in self.rigid_bodies}
 
