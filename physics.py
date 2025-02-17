@@ -5,10 +5,9 @@ import itertools
 def compute_polygon_area(vertices):
     # loop over each edge and sum up the cross products
     area = 0
-    n = len(vertices)
-    for i in range(n):
-        j = (i + 1) % n  # wrap index to create a closed polygon
-        area += vertices[i].cross(vertices[j])
+    for i, vertex in enumerate(vertices):
+        j = (i + 1) % len(vertices)  # wrap index to create a closed polygon
+        area += vertex.cross(vertices[j])
     return abs(area) / 2
 
 # compute moment of inertia for a uniform polygon relative to its centroid
@@ -20,11 +19,11 @@ def compute_polygon_inertia(vertices, mass):
         return 0
     n = len(vertices)
     sum_val = 0
-    for i in range(n):
+    for i, vertex in enumerate(vertices):
         j = (i + 1) % n
-        cross_val = abs(vertices[i].cross(vertices[j]))
-        sum_val += cross_val * (vertices[i].dot(vertices[i]) +
-                                vertices[i].dot(vertices[j]) +
+        cross_val = abs(vertex.cross(vertices[j]))
+        sum_val += cross_val * (vertex.dot(vertex) +
+                                vertex.dot(vertices[j]) +
                                 vertices[j].dot(vertices[j]))
     return (mass * sum_val) / (6 * area)
 
@@ -237,7 +236,7 @@ def sat_collision(body_a, body_b):
     axes = []
     # loop over both sets of polygon corners
     for poly in (corners_a, corners_b):
-        for i in range(len(poly)):
+        for i, _ in enumerate(poly):
             edge = poly[(i + 1) % len(poly)] - poly[i]
             axes.append(edge.perp().normalized())
     mtv_overlap = float("inf")
