@@ -43,7 +43,7 @@ class SimulationScreen(Application):
         self.physics_engine = physics.PhysicsEngine()
         self.speed_factor = 2
 
-        bodies = [
+        shapes = [
             physics.RigidBody(mass=2, bbox=(50, 30), position=physics.Vector2D(100, 50),
                               velocity=physics.Vector2D(30, 0), restitution=0.7),
             physics.RigidBody(mass=1, bbox=(40, 40), position=physics.Vector2D(300, 100),
@@ -51,7 +51,7 @@ class SimulationScreen(Application):
             physics.RigidBody(mass=50, bbox=(100, 100), position=physics.Vector2D(200, 300),
                               velocity=physics.Vector2D(0, -15), restitution=0.6)
         ]
-        for body in bodies:
+        for body in shapes:
             self.physics_engine.add_rigid_body(body)
 
     def draw_shape(self, vertices, *args, **kwargs):
@@ -75,11 +75,14 @@ class SimulationScreen(Application):
             self.parent.after(int(dt * 1000 / self.speed_factor), self.step_simulation)
 
     def update_canvas(self):
+        # probably should move this
+        def get_coordinates(v):
+            return (v.x, v.y)
         self.bodies = self.physics_engine.get_bodies()
         self.canvas.delete("all")
         for _, vectors in self.bodies.items():
-            self.draw_shape([(lambda v: (v.x, v.y))(i) for i in vectors], outline="white")
-
+            coordinates = [get_coordinates(i) for i in vectors]
+            self.draw_shape(coordinates, outline="white")
 
 if __name__ == "__main__":
     root = tk.Tk()
