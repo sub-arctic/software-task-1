@@ -26,6 +26,7 @@ class Application(ttk.Frame):
 ### allow adding constant force arrows to shapes
 ### make cursor have physics
 ### make shapes draggable (reimplement from old program)
+### standardise passed datatypes into potential classes
 class SimulationScreen(Application):
     def __init__(self, parent, width=512, height=512):
         super().__init__(parent)
