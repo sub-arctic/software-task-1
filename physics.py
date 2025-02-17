@@ -75,9 +75,6 @@ class Vector2D:
             return self.y
         raise IndexError("index out of range for vector2d")
 
-    def __repr__(self):
-        return f"Vector2D({self.x}, {self.y})"
-
 class RigidBody:
     def __init__(self, mass, bbox=None, vertices=None, position=None, velocity=None,
                  angle=0, angular_velocity=0, moment_of_inertia=None, restitution=0.5):
@@ -282,6 +279,3 @@ class PhysicsEngine:
         return None
     def get_bodies(self):
         return {item["id"]: item["body"].get_corners() for item in self.rigid_bodies}
-
-
-
