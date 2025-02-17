@@ -75,6 +75,62 @@ class Vector2D:
             return self.y
         raise IndexError("index out of range for vector2d")
 
+class PhysicsEngine:
+    def __init__(self, gravity=9.81):
+        self.rigid_bodies = []
+        self.gravity = gravity
+        self.next_id = 1
+
+    def add_rigid_body(self, body):
+        self.rigid_bodies.append({"id": self.next_id, "body": body})
+        self.next_id += 1
+
+    def update(self, dt, canvas_width, canvas_height):
+        for item in self.rigid_bodies:
+            body = item["body"]
+            body.apply_gravity(self.gravity)
+            body.update(dt)
+        self.resolve_collisions()
+        self.enforce_bounds(dt, canvas_width, canvas_height)
+
+    def resolve_collisions(self):
+        for a, b in itertools.combinations(self.rigid_bodies, 2):
+            body_a = a["body"]
+            body_b = b["body"]
+            colliding, normal, penetration, contact_point, _ = sat_collision(body_a, body_b)
+            if colliding:
+                resolve_collision(body_a, body_b, normal, penetration, contact_point)
+
+    def enforce_bounds(self, dt, canvas_width, canvas_height, friction_coefficient=0.2):
+        for item in self.rigid_bodies:
+            body = item["body"]
+            radius = body.get_bounding_radius()
+            if body.position.x - radius < 0:
+                body.position.x = radius
+                if body.velocity.x < 0:
+                    body.velocity.x = -body.velocity.x * body.restitution
+            if body.position.x + radius > canvas_width:
+                body.position.x = canvas_width - radius
+                if body.velocity.x > 0:
+                    body.velocity.x = -body.velocity.x * body.restitution
+            if body.position.y - radius < 0:
+                body.position.y = radius
+                if body.velocity.y < 0:
+                    body.velocity.y = -body.velocity.y * body.restitution
+            if body.position.y + radius > canvas_height:
+                body.position.y = canvas_height - radius
+                if body.velocity.y > 0:
+                    body.velocity.y = -body.velocity.y * body.restitution
+                body.velocity.x *= (1 - friction_coefficient * dt)
+
+    def get_body_state(self, body_id):
+        for item in self.rigid_bodies:
+            if item["id"] == body_id:
+                return item["body"].get_state()
+        return None
+    def get_bodies(self):
+        return {item["id"]: item["body"].get_corners() for item in self.rigid_bodies}
+
 class RigidBody:
     def __init__(self, mass, bbox=None, vertices=None, position=None, velocity=None,
                  angle=0, angular_velocity=0, moment_of_inertia=None, restitution=0.5):
@@ -224,59 +280,3 @@ def resolve_collision(body_a, body_b, normal, penetration, contact_point):
     body_b.velocity = body_b.velocity + impulse * (1 / body_b.mass)
     body_a.angular_velocity -= inv_inertia_a * r_a.cross(impulse)
     body_b.angular_velocity += inv_inertia_b * r_b.cross(impulse)
-
-class PhysicsEngine:
-    def __init__(self, gravity=9.81):
-        self.rigid_bodies = []
-        self.gravity = gravity
-        self.next_id = 1
-
-    def add_rigid_body(self, body):
-        self.rigid_bodies.append({"id": self.next_id, "body": body})
-        self.next_id += 1
-
-    def update(self, dt, canvas_width, canvas_height):
-        for item in self.rigid_bodies:
-            body = item["body"]
-            body.apply_gravity(self.gravity)
-            body.update(dt)
-        self.resolve_collisions()
-        self.enforce_bounds(dt, canvas_width, canvas_height)
-
-    def resolve_collisions(self):
-        for a, b in itertools.combinations(self.rigid_bodies, 2):
-            body_a = a["body"]
-            body_b = b["body"]
-            colliding, normal, penetration, contact_point, _ = sat_collision(body_a, body_b)
-            if colliding:
-                resolve_collision(body_a, body_b, normal, penetration, contact_point)
-
-    def enforce_bounds(self, dt, canvas_width, canvas_height, friction_coefficient=0.2):
-        for item in self.rigid_bodies:
-            body = item["body"]
-            radius = body.get_bounding_radius()
-            if body.position.x - radius < 0:
-                body.position.x = radius
-                if body.velocity.x < 0:
-                    body.velocity.x = -body.velocity.x * body.restitution
-            if body.position.x + radius > canvas_width:
-                body.position.x = canvas_width - radius
-                if body.velocity.x > 0:
-                    body.velocity.x = -body.velocity.x * body.restitution
-            if body.position.y - radius < 0:
-                body.position.y = radius
-                if body.velocity.y < 0:
-                    body.velocity.y = -body.velocity.y * body.restitution
-            if body.position.y + radius > canvas_height:
-                body.position.y = canvas_height - radius
-                if body.velocity.y > 0:
-                    body.velocity.y = -body.velocity.y * body.restitution
-                body.velocity.x *= (1 - friction_coefficient * dt)
-
-    def get_body_state(self, body_id):
-        for item in self.rigid_bodies:
-            if item["id"] == body_id:
-                return item["body"].get_state()
-        return None
-    def get_bodies(self):
-        return {item["id"]: item["body"].get_corners() for item in self.rigid_bodies}
