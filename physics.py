@@ -218,7 +218,7 @@ class RigidBody:
             self.bbox = None
         elif bbox is not None:
             self.bbox = bbox
-            w, h = bbox
+            w, h = bbox.x, bbox.y
             hw, hh = w / 2, h / 2
             self.original_vertices = [Vector2D(-hw, -hh), Vector2D(hw, -hh),
                                         Vector2D(hw,  hh), Vector2D(-hw, hh)]
