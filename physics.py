@@ -27,6 +27,33 @@ def compute_polygon_inertia(vertices, mass):
                                 vertices[j].dot(vertices[j]))
     return (mass * sum_val) / (6 * area)
 
+def calculate_velocity(data_points):
+    if len(data_points) < 2:
+        return Vector2D(0, 0)
+
+    dp1 = data_points[-2]
+    dp2 = data_points[-1]
+
+    dx = dp2.x - dp1.x
+    dy = dp2.y - dp1.y
+
+    dt = (dp2.time - dp1.time) / 1_000_000_000
+
+    if dt > 0:
+        vx = dx / dt
+        vy = dy / dt
+
+        max_velocity = 800
+        speed = (vx**2 + vy**2) ** 0.5
+
+        if speed > max_velocity:
+            vx = (vx / speed) * max_velocity
+            vy = (vy / speed) * max_velocity
+
+        return Vector2D(vx, vy)
+    else:
+        return Vector2D(0, 0)
+
 class Vector2D:
     def __init__(self, x=0.0, y=0.0):
         self._x = x
@@ -83,20 +110,29 @@ class Vector2D:
         # get a perpendicular vector
         return Vector2D(-self._y, self._x)
 
-    # def __getitem__(self, index):
-    #     if index == 0:
-    #         return self.x
-    #     if index == 1:
-    #         return self.y
-    #     raise IndexError("index out of range for vector2d")
-class Body(Vector2D):
-    def __init__(self, vertices, id):
-        self._vertices = vertices
-        self.id = id
+class DataPoint:
+    def __init__(self, time, position):
+        self.time = time
+        self.x = position.x
+        self.y = position.y
+
+class DataPointList:
+    def __init__(self, max_entries):
+        self.max_entries = max_entries
+        self.data_points = []
+
+    def __len__(self):
+        return len(self.data_points)
+
+    def add_data_point(self, time, position):
+        new_point = DataPoint(time, position)
+        self.data_points.append(new_point)
+
+        if len(self.data_points) > self.max_entries:
+            self.data_points.pop(0)
 
     def __getitem__(self, index):
-        return self._vertices[index]
-
+        return self.data_points[index]
 
 class PhysicsEngine:
     def __init__(self, gravity=9.81):
@@ -107,6 +143,13 @@ class PhysicsEngine:
     def add_rigid_body(self, body):
         self.rigid_bodies.append({"id": self.next_id, "body": body})
         self.next_id += 1
+
+    def update_id(self, id, new_id):
+        for item in self.rigid_bodies:
+            if item.get('id') == id:
+                item['id'] = new_id
+            return True
+        return False
 
     def update(self, dt, canvas_width, canvas_height):
         for item in self.rigid_bodies:
@@ -140,17 +183,14 @@ class PhysicsEngine:
             body = item["body"]
             radius = body.get_bounding_radius()
 
-            # Check x boundaries
             body.position.x, body.velocity.x = check_boundary(
                 body.position.x, radius, canvas_width, body.velocity.x
             )
 
-            # Check y boundaries
             body.position.y, body.velocity.y = check_boundary(
                 body.position.y, radius, canvas_height, body.velocity.y
                 )
 
-            # Apply friction to the x velocity if it hits the bottom boundary
             if body.position.y + radius >= canvas_height:
                 body.velocity.x *= (1 - friction_coefficient * dt)
 
@@ -162,6 +202,11 @@ class PhysicsEngine:
 
     def get_bodies(self):
         return {item["id"]: item["body"].get_corners() for item in self.rigid_bodies}
+
+    def get_body(self, id):
+        for item in self.rigid_bodies:
+            if item['id'] == id:
+                return item['body']
 
 class RigidBody:
     def __init__(self, mass, bbox=None, vertices=None, position=None, velocity=None,
@@ -196,9 +241,15 @@ class RigidBody:
             self.moment_of_inertia = moment_of_inertia
         self.force = Vector2D(0, 0)
         self.torque = 0
-        self.constant_force = Vector2D(0, 0)  # persistent force applied by user
+        self.constant_force = Vector2D(0, 0)
         self.restitution = restitution
-        self.drag_coefficient = 0.1  # air resistance coefficient
+        self.drag_coefficient = 0.1
+        
+    def move(self, position=None, velocity=None):
+        if position is not None:
+            self.position = position
+        if velocity is not None:
+            self.velocity = velocity
 
     def get_corners(self):
         # rotate and translate each vertex

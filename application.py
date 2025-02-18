@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 import physics
+import math
+import time
 class Defaults:
     TITLE = "root"
     WINDOW_GEOMETRY="1920x1080"
@@ -26,7 +28,6 @@ class Application(ttk.Frame):
 ### allow adding constant force arrows to shapes
 ### make cursor have physics
 ### make shapes draggable (reimplement from old program)
-### standardise passed datatypes into potential classes
 class SimulationScreen(Application):
     def __init__(self, parent, width=512, height=512):
         super().__init__(parent)
@@ -50,14 +51,40 @@ class SimulationScreen(Application):
             physics.RigidBody(mass=1, bbox=(40, 40), position=physics.Vector2D(300, 100),
                               velocity=physics.Vector2D(-20, 10), restitution=0.7),
             physics.RigidBody(mass=50, bbox=(100, 100), position=physics.Vector2D(200, 300),
-                              velocity=physics.Vector2D(0, -15), restitution=0.6)
+                              velocity=physics.Vector2D(0, -15), restitution=0.6)t
         ]
         for body in shapes:
             self.physics_engine.add_rigid_body(body)
 
+        self.mouse_positions = physics.DataPointList(2)
+        self.canvas.tag_bind("body", "<ButtonPress-1>", self.body_press)
+        self.canvas.tag_bind("body", "<B1-Motion>", self.body_drag_motion)
+        self.canvas.tag_bind("body", "<ButtonRelease-1>", self.body_drag_release)
+
+    def body_press(self, event):
+        self.pressed_body_id = self.canvas.find_withtag("current")[0]
+
+    def body_drag_motion(self, event):
+        self.current_body = self.physics_engine.get_body(self.pressed_body_id)
+        if self.current_body is not None:
+            new_position = physics.Vector2D(event.x, event.y)
+            new_velocity = physics.Vector2D(0, 0)
+
+            self.current_body.move(new_position, new_velocity)
+
+            time_ = time.perf_counter_ns()
+
+            self.mouse_positions.add_data_point(time_, new_position)
+    
+    def body_drag_release(self, event):
+        new_velocity = physics.calculate_velocity(self.mouse_positions)
+        if self.current_body is not None:
+            self.current_body.move(velocity=new_velocity)
+
     def draw_shape(self, vertices, *args, **kwargs):
-        id = self.canvas.create_polygon(vertices, *args, **kwargs)
-        return id
+        return self.canvas.create_polygon(
+            *vertices, tags=("body", f"body_{id}"), *args, **kwargs
+        )
 
     def start_simulation(self, dt=0.016):
         if not self.simulation_running:
@@ -74,16 +101,19 @@ class SimulationScreen(Application):
         if self.simulation_running:
             self.update_canvas()
             self.parent.after(int(dt * 1000 / self.speed_factor), self.step_simulation)
-
+    
     def update_canvas(self):
-        # probably should move this
-        def get_coordinates(v):
-            return (v.x, v.y)
         self.bodies = self.physics_engine.get_bodies()
-        self.canvas.delete("all")
-        for _, vectors in self.bodies.items():
-            coordinates = [get_coordinates(i) for i in vectors]
-            self.draw_shape(coordinates, outline="white")
+        for id, body in self.bodies.items():
+            vertices = []
+            for vec in body:
+                vertices.extend([vec.x, vec.y])
+            if not self.canvas.find_withtag(id):
+                new_id = self.draw_shape(vertices, outline="white")
+                self.physics_engine.update_id(id, new_id)
+                print("created new object")
+            else:
+                self.canvas.coords(id, *vertices)
 
 if __name__ == "__main__":
     root = tk.Tk()
