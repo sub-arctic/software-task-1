@@ -51,7 +51,7 @@ class SimulationScreen(Application):
             physics.RigidBody(mass=1, bbox=(40, 40), position=physics.Vector2D(300, 100),
                               velocity=physics.Vector2D(-20, 10), restitution=0.7),
             physics.RigidBody(mass=50, bbox=(100, 100), position=physics.Vector2D(200, 300),
-                              velocity=physics.Vector2D(0, -15), restitution=0.6)t
+                              velocity=physics.Vector2D(0, -15), restitution=0.6)
         ]
         for body in shapes:
             self.physics_engine.add_rigid_body(body)
