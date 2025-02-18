@@ -89,6 +89,14 @@ class Vector2D:
     #     if index == 1:
     #         return self.y
     #     raise IndexError("index out of range for vector2d")
+class Body(Vector2D):
+    def __init__(self, vertices, id):
+        self._vertices = vertices
+        self.id = id
+
+    def __getitem__(self, index):
+        return self._vertices[index]
+
 
 class PhysicsEngine:
     def __init__(self, gravity=9.81):
