@@ -125,15 +125,13 @@ class SimulationScreen(Application):
         self.canvas = simulation_canvas
 
         self.start_button = ttk.Button(self, text="Start", command=self.canvas.start_simulation)
-        self.start_button.pack(pady=10)
+        self.start_button.grid(row=1, column=0)
 
         self.stop_button = ttk.Button(self, text="Stop", command=self.canvas.stop_simulation)
-        self.stop_button.pack(padx=10)
+        self.stop_button.grid(row=1, column=2)
 
         self.add_square_button = ttk.Button(self, text="Add square", command=self.canvas.create_square)
-        self.add_square_button.pack(pady=10)
-
-
+        self.add_square_button.grid(row=1, column=3)
 
 if __name__ == "__main__":
     root = tk.Tk()
