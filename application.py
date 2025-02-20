@@ -29,10 +29,15 @@ class Application(ttk.Frame):
 ### allow adding constant force arrows to shapes
 ### make cursor have physics
 ### potentially make simulationscreen just a canvas
+### refactor shape drawing methods to increase maintainability
 
 class SimulationCanvas(tk.Canvas):
     def __init__(self, parent, width=512, height=512):
-        self.canvas = tk.Canvas(parent, bg=Defaults.BACKGROUND, width=width, height=height)
+        self.canvas = tk.Canvas(
+            parent,
+            bg=Defaults.BACKGROUND,
+            width=width, height=height
+        )
         self.canvas.pack(fill=tk.BOTH, expand=True)
 
         self.parent = parent
@@ -43,8 +48,13 @@ class SimulationCanvas(tk.Canvas):
         self.physics_engine = physics.PhysicsEngine()
         self.speed_factor = 2
 
+        self.draw_mode = False
+        self.draw_square_start = None
+
         for _ in range(2):
-            self.create_square()
+            id, shape = self.create_square()
+            new_id = self.draw_shape(shape, outline="white")
+            self.physics_engine.update_id(id, new_id)
 
         self.mouse_positions = physics.DataPointList(2)
         self.canvas.tag_bind("body", "<ButtonPress-1>", self.body_press)
@@ -52,16 +62,19 @@ class SimulationCanvas(tk.Canvas):
         self.canvas.tag_bind("body", "<ButtonRelease-1>", self.body_drag_release)
 
     def create_square(self):
-            size_x = random.randint(30, 100)
-            size_y = random.randint(30, 100)
-            shape = shapes.draw_square(
-                int(self.canvas_width)/2, int(self.canvas_height)/2, size_x, size_y
-            )
+        size_x = random.randint(30, 100)
+        size_y = random.randint(30, 100)
+        shape = shapes.draw_square(
+            int(self.canvas_width)/2, int(self.canvas_height)/2, size_x, size_y
+        )
+        self.physics_engine.add_rigid_body(shape)
 
-            self.physics_engine.add_rigid_body(shape)
+        id = self.physics_engine.add_rigid_body(shape)
+        return id, shape.get_corners()
 
-    def body_press(self, event):
+    def body_press(self, _):
         self.pressed_body_id = self.canvas.find_withtag("current")[0]
+        self.canvas.itemconfigure(self.pressed_body_id, dash=(3, 5))
 
     def body_drag_motion(self, event):
         self.current_body = self.physics_engine.get_body(self.pressed_body_id)
@@ -75,14 +88,15 @@ class SimulationCanvas(tk.Canvas):
 
             self.mouse_positions.add_data_point(time_, new_position)
     
-    def body_drag_release(self, event):
+    def body_drag_release(self, _):
         new_velocity = physics.calculate_velocity(self.mouse_positions)
         if self.current_body is not None:
             self.current_body.move(velocity=new_velocity)
 
     def draw_shape(self, vertices, *args, **kwargs):
+        tags = ("body", f"body_{id}")
         return self.canvas.create_polygon(
-            *vertices, tags=("body", f"body_{id}"), *args, **kwargs
+            *vertices, tags=tags, *args, **kwargs
         )
 
     def start_simulation(self, dt=0.016):
@@ -112,10 +126,8 @@ class SimulationCanvas(tk.Canvas):
             vertices = []
             for vec in body:
                 vertices.extend([vec.x, vec.y])
-            if not self.canvas.find_withtag(id):
-                new_id = self.draw_shape(vertices, outline="white")
-                self.physics_engine.update_id(id, new_id)
-            else:
+            if self.canvas.find_withtag(id):
+
                 self.canvas.coords(id, *vertices)
 
 class SimulationScreen(Application):

@@ -141,8 +141,11 @@ class PhysicsEngine:
         self.next_id = 1
 
     def add_rigid_body(self, body):
-        self.rigid_bodies.append({"id": self.next_id, "body": body})
+        id = self.next_id
+        self.rigid_bodies.append({"id": id, "body": body})
         self.next_id += 1
+
+        return id
 
     def update_id(self, id, new_id):
         for item in self.rigid_bodies:
