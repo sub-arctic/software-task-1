@@ -141,8 +141,11 @@ class PhysicsEngine:
         self.next_id = 1
 
     def add_rigid_body(self, body):
-        self.rigid_bodies.append({"id": self.next_id, "body": body})
+        id = self.next_id
+        self.rigid_bodies.append({"id": id, "body": body})
         self.next_id += 1
+
+        return id
 
     def update_id(self, id, new_id):
         for item in self.rigid_bodies:
@@ -235,10 +238,12 @@ class RigidBody:
         self.velocity = velocity if velocity is not None else Vector2D(0, 0)
         self.angle = angle
         self.angular_velocity = angular_velocity
+
         if moment_of_inertia is None:
             self.moment_of_inertia = compute_polygon_inertia(self.vertices, mass)
         else:
             self.moment_of_inertia = moment_of_inertia
+
         self.force = Vector2D(0, 0)
         self.torque = 0
         self.constant_force = Vector2D(0, 0)
@@ -254,6 +259,15 @@ class RigidBody:
     def get_corners(self):
         # rotate and translate each vertex
         return [v.rotated(self.angle) + self.position for v in self.vertices]
+
+    def get_vertices(self):
+        vertices = []
+        corners = self.get_corners()
+        for corner in corners:
+            vertices.append(corner.x)
+            vertices.append(corner.y)
+
+        return vertices
 
     def get_bounding_radius(self):
         # compute maximum distance from center
