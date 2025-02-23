@@ -14,3 +14,13 @@ def draw_square(x, y, size_x, size_y, mass=5):
         velocity=velocity,
         restitution=restitution,
     )
+
+
+def draw_velocity_arrows(x, y, velocity):
+    x2 = x + velocity.x
+    y2 = y - velocity.y
+
+    x_component_line = [x, y, x2, y]
+    y_component_line = [x, y, x, y2]
+
+    return x_component_line, y_component_line

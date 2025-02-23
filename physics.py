@@ -147,10 +147,13 @@ class PhysicsEngine:
         self.gravity = gravity
         self.next_id = 1
 
-    def add_rigid_body(self, body):
-        id = self.next_id
+    def add_rigid_body(self, body, id=None):
+        if id is not None:
+            id = id
+        else:
+            id = self.next_id
+            self.next_id += 1
         self.rigid_bodies.append({"id": id, "body": body})
-        self.next_id += 1
 
         return id
 
@@ -213,7 +216,7 @@ class PhysicsEngine:
         return None
 
     def get_bodies(self):
-        return {item["id"]: item["body"].get_corners() for item in self.rigid_bodies}
+        return {item["id"]: item["body"] for item in self.rigid_bodies}
 
     def get_body(self, id):
         for item in self.rigid_bodies:
@@ -357,6 +360,7 @@ def overlap_intervals(min_a, max_a, min_b, max_b):
 
 
 def sat_collision(body_a, body_b):
+    # https://en.wikipedia.org/wiki/Hyperplane_separation_theorem
     corners_a = body_a.get_corners()
     corners_b = body_b.get_corners()
     axes = []
