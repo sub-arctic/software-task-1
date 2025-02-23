@@ -7,10 +7,9 @@ import physics
 
 # TODO:
 # implement basic "toolbar", for shape creation, relocation etc.
+# potentially refactor SimulationCanvas into other classes
+# split into simulation control, rendering, and event handling
 # allow adding constant force arrows to shapes
-# make cursor have physics
-# potentially make simulationscreen just a canvas
-# refactor shape drawing methods to increase maintainability
 
 
 class Application(ttk.Frame):
@@ -55,6 +54,12 @@ class Toolbar(ttk.Frame):
             textvariable=self.parent.play_pause_text,
             command=self.simulation_canvas.play_pause_simulation,
         )
+
+        self.force_arrows_toggle = ttk.Checkbutton(
+            self, text="Force Arrows", variable=self.simulation_canvas.force_arrows
+        )
+
+        self.force_arrows_toggle.grid(column=2, row=1)
         self.play_pause_button.grid(column=0, row=1)
         self.add_square_button.grid(column=1, row=1)
 
@@ -93,6 +98,8 @@ class SimulationCanvas(tk.Canvas):
 
         self.current_body = None
         self.bodies = None
+
+        self.force_arrows = tk.IntVar(value=1)
 
         self.simulation_running = False
         self.physics_engine = physics.PhysicsEngine()
@@ -160,8 +167,12 @@ class SimulationCanvas(tk.Canvas):
             self.parent.properties_frame.update_properties()
             self.draw_vector_lines()
 
+    def clean_force_arrows(self):
+        self.delete("vec_line")
+
     def draw_vector_lines(self):
-        if self.bodies is None:
+        if self.bodies is None or self.force_arrows.get() == 0:
+            self.clean_force_arrows()
             return
         for id, body in self.bodies.items():
             state = body.get_state()
@@ -178,10 +189,13 @@ class SimulationCanvas(tk.Canvas):
                     *x,
                     fill="green",
                     arrow=tk.LAST,
-                    tags=(f"{id}_vec_line_x", f"{id}_vec_line"),
+                    tags=("vec_line", f"{id}_vec_line_x", f"{id}_vec_line"),
                 )
                 self.create_line(
-                    *y, fill="red", arrow=tk.LAST, tags=(f"{id}_vec_line_y", "vec_line")
+                    *y,
+                    fill="red",
+                    arrow=tk.LAST,
+                    tags=("vec_line", f"{id}_vec_line_y", "vec_line"),
                 )
 
     def update(self):
