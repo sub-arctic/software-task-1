@@ -1,5 +1,6 @@
-import math
 import itertools
+import math
+
 
 # compute the area of a polygon using the shoelace formula
 def compute_polygon_area(vertices):
@@ -10,10 +11,10 @@ def compute_polygon_area(vertices):
         area += vertex.cross(vertices[j])
     return abs(area) / 2
 
+
 # compute moment of inertia for a uniform polygon relative to its centroid
 def compute_polygon_inertia(vertices, mass):
     # formula:
-    # i = (mass/(6*area)) * sum(|cross(v_i, v_(i+1))| * (v_i·v_i + v_i·v_(i+1) + v_(i+1)·v_(i+1)))
     area = compute_polygon_area(vertices)
     if area == 0:
         return 0
@@ -22,10 +23,11 @@ def compute_polygon_inertia(vertices, mass):
     for i, vertex in enumerate(vertices):
         j = (i + 1) % n
         cross_val = abs(vertex.cross(vertices[j]))
-        sum_val += cross_val * (vertex.dot(vertex) +
-                                vertex.dot(vertices[j]) +
-                                vertices[j].dot(vertices[j]))
+        sum_val += cross_val * (
+            vertex.dot(vertex) + vertex.dot(vertices[j]) + vertices[j].dot(vertices[j])
+        )
     return (mass * sum_val) / (6 * area)
+
 
 def calculate_velocity(data_points):
     if len(data_points) < 2:
@@ -53,6 +55,7 @@ def calculate_velocity(data_points):
         return Vector2D(vx, vy)
     else:
         return Vector2D(0, 0)
+
 
 class Vector2D:
     def __init__(self, x=0.0, y=0.0):
@@ -103,18 +106,21 @@ class Vector2D:
     def rotated(self, angle):
         # rotate by angle using basic trig functions
         cos_a, sin_a = math.cos(angle), math.sin(angle)
-        return Vector2D(self._x * cos_a - self._y * sin_a,
-                        self._x * sin_a + self._y * cos_a)
+        return Vector2D(
+            self._x * cos_a - self._y * sin_a, self._x * sin_a + self._y * cos_a
+        )
 
     def perp(self):
         # get a perpendicular vector
         return Vector2D(-self._y, self._x)
+
 
 class DataPoint:
     def __init__(self, time, position):
         self.time = time
         self.x = position.x
         self.y = position.y
+
 
 class DataPointList:
     def __init__(self, max_entries):
@@ -134,6 +140,7 @@ class DataPointList:
     def __getitem__(self, index):
         return self.data_points[index]
 
+
 class PhysicsEngine:
     def __init__(self, gravity=9.81):
         self.rigid_bodies = []
@@ -149,8 +156,8 @@ class PhysicsEngine:
 
     def update_id(self, id, new_id):
         for item in self.rigid_bodies:
-            if item.get('id') == id:
-                item['id'] = new_id
+            if item.get("id") == id:
+                item["id"] = new_id
             return True
         return False
 
@@ -166,7 +173,9 @@ class PhysicsEngine:
         for a, b in itertools.combinations(self.rigid_bodies, 2):
             body_a = a["body"]
             body_b = b["body"]
-            colliding, normal, penetration, contact_point, _ = sat_collision(body_a, body_b)
+            colliding, normal, penetration, contact_point, _ = sat_collision(
+                body_a, body_b
+            )
             if colliding:
                 resolve_collision(body_a, body_b, normal, penetration, contact_point)
 
@@ -192,10 +201,10 @@ class PhysicsEngine:
 
             body.position.y, body.velocity.y = check_boundary(
                 body.position.y, radius, canvas_height, body.velocity.y
-                )
+            )
 
             if body.position.y + radius >= canvas_height:
-                body.velocity.x *= (1 - friction_coefficient * dt)
+                body.velocity.x *= 1 - friction_coefficient * dt
 
     def get_body_state(self, body_id):
         for item in self.rigid_bodies:
@@ -208,12 +217,23 @@ class PhysicsEngine:
 
     def get_body(self, id):
         for item in self.rigid_bodies:
-            if item['id'] == id:
-                return item['body']
+            if item["id"] == id:
+                return item["body"]
+
 
 class RigidBody:
-    def __init__(self, mass, bbox=None, vertices=None, position=None, velocity=None,
-                 angle=0, angular_velocity=0, moment_of_inertia=None, restitution=0.5):
+    def __init__(
+        self,
+        mass,
+        bbox=None,
+        vertices=None,
+        position=None,
+        velocity=None,
+        angle=0,
+        angular_velocity=0,
+        moment_of_inertia=None,
+        restitution=0.5,
+    ):
         self.mass = mass
         # if vertices are provided, use them; otherwise, if bbox is provided, use a rectangle
         if vertices is not None:
@@ -223,13 +243,21 @@ class RigidBody:
             self.bbox = bbox
             w, h = bbox.x, bbox.y
             hw, hh = w / 2, h / 2
-            self.original_vertices = [Vector2D(-hw, -hh), Vector2D(hw, -hh),
-                                        Vector2D(hw,  hh), Vector2D(-hw, hh)]
+            self.original_vertices = [
+                Vector2D(-hw, -hh),
+                Vector2D(hw, -hh),
+                Vector2D(hw, hh),
+                Vector2D(-hw, hh),
+            ]
         else:
             self.bbox = (50, 50)
             hw, hh = 25, 25
-            self.original_vertices = [Vector2D(-hw, -hh), Vector2D(hw, -hh),
-                                        Vector2D(hw, hh), Vector2D(-hw, hh)]
+            self.original_vertices = [
+                Vector2D(-hw, -hh),
+                Vector2D(hw, -hh),
+                Vector2D(hw, hh),
+                Vector2D(-hw, hh),
+            ]
         # allow uniform scaling for arbitrary polygons
         self.scale = 1.0
         self.vertices = [v * self.scale for v in self.original_vertices]
@@ -249,7 +277,7 @@ class RigidBody:
         self.constant_force = Vector2D(0, 0)
         self.restitution = restitution
         self.drag_coefficient = 0.1
-        
+
     def move(self, position=None, velocity=None):
         if position is not None:
             self.position = position
@@ -293,7 +321,7 @@ class RigidBody:
         # update rotational motion
         angular_acc = self.torque / self.moment_of_inertia
         self.angular_velocity += angular_acc * dt
-        self.angular_velocity *= (1 - self.drag_coefficient * dt)
+        self.angular_velocity *= 1 - self.drag_coefficient * dt
         self.angle += self.angular_velocity * dt
 
         # reset forces for next step
@@ -301,24 +329,30 @@ class RigidBody:
         self.torque = 0
 
     def get_state(self):
-        return {"position": self.position,
-                "velocity": self.velocity,
-                "angle": self.angle,
-                "angular_velocity": self.angular_velocity}
+        return {
+            "position": self.position,
+            "velocity": self.velocity,
+            "angle": self.angle,
+            "angular_velocity": self.angular_velocity,
+        }
 
     def update_moment_of_inertia(self):
         self.moment_of_inertia = compute_polygon_inertia(self.vertices, self.mass)
 
+
 # --- collision helper functions ---
+
 
 def project_polygon(axis, points):
     # project each point on axis; return (min, max) dot products
     dots = [p.dot(axis) for p in points]
     return min(dots), max(dots)
 
+
 def overlap_intervals(min_a, max_a, min_b, max_b):
     # calculate overlap length of two intervals
     return min(max_a, max_b) - max(min_a, min_b)
+
 
 def sat_collision(body_a, body_b):
     corners_a = body_a.get_corners()
@@ -347,6 +381,7 @@ def sat_collision(body_a, body_b):
     contact_point = (body_a.position + body_b.position) * 0.5
     return True, mtv_axis, mtv_overlap, contact_point, d
 
+
 def resolve_collision(body_a, body_b, normal, penetration, contact_point):
     total_inv_mass = (1 / body_a.mass) + (1 / body_b.mass)
     if total_inv_mass == 0:
@@ -357,10 +392,12 @@ def resolve_collision(body_a, body_b, normal, penetration, contact_point):
     body_b.position = body_b.position + correction * (1 / body_b.mass)
     r_a = contact_point - body_a.position
     r_b = contact_point - body_b.position
-    vel_a = body_a.velocity + Vector2D(-body_a.angular_velocity * r_a.y,
-                                         body_a.angular_velocity * r_a.x)
-    vel_b = body_b.velocity + Vector2D(-body_b.angular_velocity * r_b.y,
-                                         body_b.angular_velocity * r_b.x)
+    vel_a = body_a.velocity + Vector2D(
+        -body_a.angular_velocity * r_a.y, body_a.angular_velocity * r_a.x
+    )
+    vel_b = body_b.velocity + Vector2D(
+        -body_b.angular_velocity * r_b.y, body_b.angular_velocity * r_b.x
+    )
     rv = vel_b - vel_a
     vel_normal = rv.dot(normal)
     if vel_normal > 0:
@@ -370,7 +407,11 @@ def resolve_collision(body_a, body_b, normal, penetration, contact_point):
     rb_cross_n = r_b.cross(normal)
     inv_inertia_a = 1 / body_a.moment_of_inertia
     inv_inertia_b = 1 / body_b.moment_of_inertia
-    denom = total_inv_mass + (ra_cross_n ** 2) * inv_inertia_a + (rb_cross_n ** 2) * inv_inertia_b
+    denom = (
+        total_inv_mass
+        + (ra_cross_n**2) * inv_inertia_a
+        + (rb_cross_n**2) * inv_inertia_b
+    )
     j = -(1 + restitution) * vel_normal / denom
     impulse = normal * j
     body_a.velocity = body_a.velocity - impulse * (1 / body_a.mass)

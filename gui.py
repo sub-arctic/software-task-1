@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
-from physics import Vector2D, RigidBody, PhysicsEngine
+
+from physics import PhysicsEngine, RigidBody, Vector2D
+
 
 class MainFrame(ttk.Frame):
     def __init__(self, container):
@@ -16,15 +18,20 @@ class MainFrame(ttk.Frame):
         self.gravity_var = tk.DoubleVar(value=9.81)
         self.physics = PhysicsEngine(gravity=9.81)
 
-        self.play_button = ttk.Button(self.control_frame, text="Play", command=self.start_simulation)
+        self.play_button = ttk.Button(
+            self.control_frame, text="Play", command=self.start_simulation)
         self.play_button.pack(pady=2)
-        self.pause_button = ttk.Button(self.control_frame, text="Pause", command=self.pause_simulation)
+        self.pause_button = ttk.Button(
+            self.control_frame, text="Pause", command=self.pause_simulation)
         self.pause_button.pack(pady=2)
-        self.new_shape_button = ttk.Button(self.control_frame, text="New Rectangle", command=self.create_new_shape)
+        self.new_shape_button = ttk.Button(
+            self.control_frame, text="New Rectangle", command=self.create_new_shape)
         self.new_shape_button.pack(pady=2)
-        self.new_polygon_button = ttk.Button(self.control_frame, text="New Polygon", command=self.create_new_polygon)
+        self.new_polygon_button = ttk.Button(
+            self.control_frame, text="New Polygon", command=self.create_new_polygon)
         self.new_polygon_button.pack(pady=2)
-        self.reset_button = ttk.Button(self.control_frame, text="Reset Canvas", command=self.reset_canvas)
+        self.reset_button = ttk.Button(
+            self.control_frame, text="Reset Canvas", command=self.reset_canvas)
         self.reset_button.pack(pady=2)
 
         ttk.Label(self.control_frame, text="Gravity").pack(pady=2)
@@ -32,9 +39,11 @@ class MainFrame(ttk.Frame):
                                         orient=tk.HORIZONTAL, variable=self.gravity_var,
                                         command=lambda val: self.update_gravity(val))
         self.gravity_slider.pack(pady=2)
-        self.gravity_val_label = ttk.Label(self.control_frame, text=f"{self.gravity_var.get():.2f}")
+        self.gravity_val_label = ttk.Label(
+            self.control_frame, text=f"{self.gravity_var.get():.2f}")
         self.gravity_val_label.pack(pady=2)
-        self.gravity_var.trace("w", lambda *args: self.gravity_val_label.config(text=f"{self.gravity_var.get():.2f}"))
+        self.gravity_var.trace(
+            "w", lambda *args: self.gravity_val_label.config(text=f"{self.gravity_var.get():.2f}"))
 
         ttk.Label(self.control_frame, text="Air Resistance").pack(pady=2)
         self.air_resistance_var = tk.DoubleVar(value=0.1)
@@ -42,9 +51,11 @@ class MainFrame(ttk.Frame):
                                                orient=tk.HORIZONTAL, variable=self.air_resistance_var,
                                                command=lambda val: self.update_air_resistance(val))
         self.air_resistance_slider.pack(pady=2)
-        self.air_resistance_val_label = ttk.Label(self.control_frame, text=f"{self.air_resistance_var.get():.2f}")
+        self.air_resistance_val_label = ttk.Label(
+            self.control_frame, text=f"{self.air_resistance_var.get():.2f}")
         self.air_resistance_val_label.pack(pady=2)
-        self.air_resistance_var.trace("w", lambda *args: self.air_resistance_val_label.config(text=f"{self.air_resistance_var.get():.2f}"))
+        self.air_resistance_var.trace(
+            "w", lambda *args: self.air_resistance_val_label.config(text=f"{self.air_resistance_var.get():.2f}"))
 
         ttk.Label(self.control_frame, text="Friction Coefficient").pack(pady=2)
         self.friction_var = tk.DoubleVar(value=0.2)
@@ -52,16 +63,20 @@ class MainFrame(ttk.Frame):
                                          orient=tk.HORIZONTAL, variable=self.friction_var,
                                          command=lambda val: self.update_friction(val))
         self.friction_slider.pack(pady=2)
-        self.friction_val_label = ttk.Label(self.control_frame, text=f"{self.friction_var.get():.2f}")
+        self.friction_val_label = ttk.Label(
+            self.control_frame, text=f"{self.friction_var.get():.2f}")
         self.friction_val_label.pack(pady=2)
-        self.friction_var.trace("w", lambda *args: self.friction_val_label.config(text=f"{self.friction_var.get():.2f}"))
+        self.friction_var.trace(
+            "w", lambda *args: self.friction_val_label.config(text=f"{self.friction_var.get():.2f}"))
         self.friction_coefficient = self.friction_var.get()
 
         self.debug_mode = tk.BooleanVar(value=False)
-        self.debug_checkbox = ttk.Checkbutton(self.control_frame, text="Debug Mode", variable=self.debug_mode)
+        self.debug_checkbox = ttk.Checkbutton(
+            self.control_frame, text="Debug Mode", variable=self.debug_mode)
         self.debug_checkbox.pack(pady=2)
 
-        self.prop_panel = ttk.LabelFrame(self.control_frame, text="Selected Object Properties")
+        self.prop_panel = ttk.LabelFrame(
+            self.control_frame, text="Selected Object Properties")
         self.prop_panel.pack(fill="both", expand=True, pady=10)
 
         self.selected_body_id = None
@@ -140,7 +155,8 @@ class MainFrame(ttk.Frame):
     def draw_body(self, body, body_id):
         corners = body.get_corners()
         # use a list comprehension to flatten the corner coordinates
-        points = [coord for corner in corners for coord in (corner.x, corner.y)]
+        points = [coord for corner in corners for coord in (
+            corner.x, corner.y)]
         return self.canvas.create_polygon(points, outline="white",
                                           fill="", tags=("body", f"body_{body_id}"))
 
@@ -150,7 +166,8 @@ class MainFrame(ttk.Frame):
             body_id = item["id"]
             canvas_id = self.object_canvas_ids.get(body_id)
             if canvas_id:
-                points = [coord for corner in body.get_corners() for coord in (corner.x, corner.y)]
+                points = [coord for corner in body.get_corners()
+                          for coord in (corner.x, corner.y)]
                 self.canvas.coords(canvas_id, *points)
                 fill_color = "red" if self.selected_body_id == body_id else ""
                 self.canvas.itemconfig(canvas_id, fill=fill_color)
@@ -222,25 +239,29 @@ class MainFrame(ttk.Frame):
 
     def on_body_press(self, event):
         clicked_items = self.canvas.find_withtag("current")
-        if not clicked_items: 
+        if not clicked_items:
             return
         item = clicked_items[0]
         tags = self.canvas.gettags(item)
-        body_id = next((int(tag.split("_")[1]) for tag in tags if tag.startswith("body_")), None)
+        body_id = next(
+            (int(tag.split("_")[1]) for tag in tags if tag.startswith("body_")), None)
         if body_id is None:
             return
         self.selected_body_id = body_id
-        body = next((d["body"] for d in self.physics.rigid_bodies if d["id"] == body_id), None)
+        body = next(
+            (d["body"] for d in self.physics.rigid_bodies if d["id"] == body_id), None)
         if not body:
             return
-        self.drag_offset = Vector2D(event.x - body.position.x, event.y - body.position.y)
+        self.drag_offset = Vector2D(
+            event.x - body.position.x, event.y - body.position.y)
         body.velocity = Vector2D(0, 0)
         self.update_property_panel()
 
     def on_drag_motion(self, event):
         if self.selected_body_id is None or not self.drag_offset:
             return
-        new_pos = Vector2D(event.x - self.drag_offset.x, event.y - self.drag_offset.y)
+        new_pos = Vector2D(event.x - self.drag_offset.x,
+                           event.y - self.drag_offset.y)
         for d in self.physics.rigid_bodies:
             if d["id"] == self.selected_body_id:
                 d["body"].position = new_pos
@@ -262,7 +283,8 @@ class MainFrame(ttk.Frame):
         frame = ttk.Frame(frm)
         frame.pack(fill="x", pady=2)
         ttk.Label(frame, text=label_text).pack(side="left")
-        slider = ttk.Scale(frame, from_=frm_range[0], to=frm_range[1], variable=var, command=command)
+        slider = ttk.Scale(
+            frame, from_=frm_range[0], to=frm_range[1], variable=var, command=command)
         slider.pack(side="left", fill="x", expand=True, padx=5)
         value_label = ttk.Label(frame, text=fmt.format(var.get()))
         value_label.pack(side="right")
@@ -275,7 +297,8 @@ class MainFrame(ttk.Frame):
         if self.selected_body_id is None:
             ttk.Label(self.prop_panel, text="No shape selected").pack()
             return
-        body = next((d["body"] for d in self.physics.rigid_bodies if d["id"] == self.selected_body_id), None)
+        body = next((d["body"] for d in self.physics.rigid_bodies if d["id"]
+                    == self.selected_body_id), None)
         if not body:
             return
 
@@ -302,7 +325,8 @@ class MainFrame(ttk.Frame):
         force_y_var = tk.DoubleVar(value=body.constant_force.y)
         self.create_slider("Force Y", force_y_var, self.prop_panel, (-1000, 1000),
                            lambda val: self.update_body_force(body, body.constant_force.x, float(val)))
-        del_button = ttk.Button(self.prop_panel, text="Delete Shape", command=self.delete_selected_shape)
+        del_button = ttk.Button(
+            self.prop_panel, text="Delete Shape", command=self.delete_selected_shape)
         del_button.pack(pady=5)
 
     def update_body_mass(self, body, mass):
@@ -317,7 +341,8 @@ class MainFrame(ttk.Frame):
         if body.bbox is not None:
             body.bbox = (width, height)
             hw, hh = width / 2, height / 2
-            body.original_vertices = [Vector2D(-hw, -hh), Vector2D(hw, -hh), Vector2D(hw, hh), Vector2D(-hw, hh)]
+            body.original_vertices = [
+                Vector2D(-hw, -hh), Vector2D(hw, -hh), Vector2D(hw, hh), Vector2D(-hw, hh)]
             body.vertices = [v * body.scale for v in body.original_vertices]
             body.moment_of_inertia = body.mass * (width**2 + height**2) / 12
 
@@ -335,7 +360,8 @@ class MainFrame(ttk.Frame):
     def delete_selected_shape(self):
         if self.selected_body_id is None:
             return
-        self.physics.rigid_bodies = [d for d in self.physics.rigid_bodies if d["id"] != self.selected_body_id]
+        self.physics.rigid_bodies = [
+            d for d in self.physics.rigid_bodies if d["id"] != self.selected_body_id]
         if self.selected_body_id in self.object_canvas_ids:
             self.canvas.delete(self.object_canvas_ids[self.selected_body_id])
             del self.object_canvas_ids[self.selected_body_id]
@@ -343,8 +369,10 @@ class MainFrame(ttk.Frame):
         self.update_property_panel()
         self.update_canvas()
 
+
 class WelcomeFrame(ttk.Frame):
     """Initial popup dialog. Instantializes tkinter frame and spawns main application"""
+
     def __init__(self, container):
         super().__init__(container)
 
@@ -356,9 +384,12 @@ class WelcomeFrame(ttk.Frame):
             \n Click a shape to adjust parameters.
             \n If you want further instructions, click the "?" button to display more information about an element.
         """
-        self.welcome_label = ttk.Label(justify=tk.CENTER, text=welcome_text).pack()
+        self.welcome_label = ttk.Label(
+            justify=tk.CENTER, text=welcome_text).pack()
 
-        self.ok_button = ttk.Button(text="Continue", command=self.callback).pack()
+        self.ok_button = ttk.Button(
+            text="Continue", command=self.callback).pack()
+
     def callback(self):
         print("called")
 
@@ -370,4 +401,3 @@ class App(tk.Tk):
         self.geometry(geometry)
         self.resizable(True, True)
         frame(self).pack(fill="both", expand=True)
-

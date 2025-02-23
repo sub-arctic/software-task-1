@@ -1,14 +1,16 @@
+import time
 import tkinter as tk
 from tkinter import ttk
+
 import physics
 import shapes
-import random
-import time
+
+
 class Defaults:
     TITLE = "root"
-    WINDOW_GEOMETRY="1920x1080"
-    BACKGROUND="black"
-    FOREGROUND="white"
+    WINDOW_GEOMETRY = "1920x1080"
+    BACKGROUND = "black"
+    FOREGROUND = "white"
 
     @classmethod
     def get_defaults(cls):
@@ -16,27 +18,28 @@ class Defaults:
             "title": cls.TITLE,
             "geometry": cls.WINDOW_GEOMETRY,
             "background": cls.BACKGROUND,
-            "foreground": cls.FOREGROUND
+            "foreground": cls.FOREGROUND,
         }
+
 
 class Application(ttk.Frame):
     def __init__(self, parent, *args, **kwargs):
         ttk.Frame.__init__(self, parent, *args, **kwargs)
         self.parent = parent
 
-### TODO:
-### implement basic "toolbar", for shape creation, relocation etc.
-### allow adding constant force arrows to shapes
-### make cursor have physics
-### potentially make simulationscreen just a canvas
-### refactor shape drawing methods to increase maintainability
+
+# TODO:
+# implement basic "toolbar", for shape creation, relocation etc.
+# allow adding constant force arrows to shapes
+# make cursor have physics
+# potentially make simulationscreen just a canvas
+# refactor shape drawing methods to increase maintainability
+
 
 class SimulationCanvas(tk.Canvas):
     def __init__(self, parent, width=512, height=512):
         self.canvas = tk.Canvas(
-            parent,
-            bg=Defaults.BACKGROUND,
-            width=width, height=height
+            parent, bg=Defaults.BACKGROUND, width=width, height=height
         )
         self.canvas.pack(fill=tk.BOTH, expand=True)
 
@@ -60,9 +63,7 @@ class SimulationCanvas(tk.Canvas):
 
     def draw_polygon(self, vertices, *args, **kwargs):
         tags = ("body", f"body_{id}")
-        return self.canvas.create_polygon(
-            *vertices, tags=tags, *args, **kwargs
-        )
+        return self.canvas.create_polygon(*vertices, tags=tags, *args, **kwargs)
 
     def body_press(self, _):
         self.pressed_body_id = self.canvas.find_withtag("current")[0]
@@ -80,7 +81,7 @@ class SimulationCanvas(tk.Canvas):
             time_ = time.perf_counter_ns()
 
             self.mouse_positions.add_data_point(time_, new_position)
-    
+
     def body_drag_release(self, _):
         new_velocity = physics.calculate_velocity(self.mouse_positions)
         if self.current_body is not None:
@@ -90,7 +91,7 @@ class SimulationCanvas(tk.Canvas):
     def play_pause_simulation(self):
         dt = 0.016
 
-        if self.simulation_running == True:
+        if self.simulation_running:
             self.simulation_running = False
             self.parent.play_pause_text.set("Play")
         else:
@@ -107,7 +108,7 @@ class SimulationCanvas(tk.Canvas):
         if self.simulation_running:
             self.update_canvas()
             self.parent.after(int(dt * 1000 / self.speed_factor), self.step_simulation)
-    
+
     def update_canvas(self):
         self.bodies = self.physics_engine.get_bodies()
 
@@ -118,23 +119,31 @@ class SimulationCanvas(tk.Canvas):
                 vertices.extend([vec.x, vec.y])
             if self.canvas.find_withtag(id):
                 self.canvas.coords(id, *vertices)
-                
+
     def update_canvas_dimensions(self):
         self.canvas_width = self.canvas.winfo_width()
         self.canvas_height = self.canvas.winfo_height()
 
+
 class SimulationScreen(Application):
-    def __init__(self, parent, simulation_canvas, width=512, height=512):
+    def __init__(self, parent, simulation_canvas):
         super().__init__(parent)
         self.parent = parent
         self.canvas = simulation_canvas
 
-        self.add_square_button = ttk.Button(self, text="add", command=self.canvas.temp_draw_square)
+        self.add_square_button = ttk.Button(
+            self, text="add", command=self.canvas.temp_draw_square
+        )
         self.add_square_button.grid(row=1, column=0)
 
         self.parent.play_pause_text = tk.StringVar()
         self.parent.play_pause_text.set("Play")
-        self.play_pause_button = ttk.Button(self, text="Start", textvariable=self.parent.play_pause_text, command=self.canvas.play_pause_simulation)
+        self.play_pause_button = ttk.Button(
+            self,
+            text="Start",
+            textvariable=self.parent.play_pause_text,
+            command=self.canvas.play_pause_simulation,
+        )
         self.play_pause_button.grid(row=1, column=1)
 
 
@@ -144,7 +153,7 @@ if __name__ == "__main__":
     root.geometry(Defaults.WINDOW_GEOMETRY)
 
     canvas = SimulationCanvas(root)
-    
+
     app = SimulationScreen(root, canvas)
     app.pack()
 
