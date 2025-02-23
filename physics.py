@@ -334,6 +334,8 @@ class RigidBody:
             "velocity": self.velocity,
             "angle": self.angle,
             "angular_velocity": self.angular_velocity,
+            "mass": self.mass,
+            "force": self.force,
         }
 
     def update_moment_of_inertia(self):
