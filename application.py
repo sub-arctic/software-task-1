@@ -65,7 +65,6 @@ class SimulationController:
 
         self.physics_engine = physics.PhysicsEngine()
         self.bodies = self.physics_engine.get_bodies()
-        pass
 
     def step(self, dt=0.016, speed_factor=2):
         scaled_dt = dt * speed_factor
@@ -95,7 +94,6 @@ class BodyRenderer:
     def __init__(self, canvas, simulation_controller):
         self.canvas = canvas
         self.simulation_controller = simulation_controller
-        pass
 
     def clean_force_arrows(self):
         self.canvas.delete("vec_line")
@@ -132,10 +130,16 @@ class BodyRenderer:
 
     def draw_square(self):
         square = drawing.draw_square(200, 100, 100, 100)
-        id = self.canvas.body_renderer.draw_polygon(
-            square.get_vertices(), outline="white"
-        )
+        id = self.draw_polygon(square.get_vertices(), outline="white")
         self.simulation_controller.physics_engine.add_rigid_body(square, id)
+        self.simulation_controller.bodies = (
+            self.simulation_controller.physics_engine.get_bodies()
+        )
+
+    def test(self):
+        polygon = drawing.draw_polygon(200, 100, 50, 4)
+        id = self.draw_polygon(polygon.get_vertices(), outline="white")
+        self.simulation_controller.physics_engine.add_rigid_body(polygon, id)
         self.simulation_controller.bodies = (
             self.simulation_controller.physics_engine.get_bodies()
         )
@@ -211,7 +215,7 @@ class Toolbar(ttk.Frame):
         self.add_square_button = ttk.Button(
             self,
             text="Add square",
-            command=self.simulation_canvas.body_renderer.draw_square,
+            command=self.simulation_canvas.body_renderer.test,
         )
 
         self.parent.play_pause_text = tk.StringVar()
