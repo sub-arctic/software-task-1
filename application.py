@@ -35,6 +35,137 @@ class Application(ttk.Frame):
         self.grid(sticky="nsew")
 
 
+class SimulationController:
+    def __init__(self, canvas):
+        self.dt = 0.016
+        self.running = False
+
+        self.canvas = canvas
+
+        self.physics_engine = physics.PhysicsEngine()
+        pass
+
+    def step(self, dt, speed_factor):
+        scaled_dt = dt * speed_factor
+
+        # self.update_dimensions()
+
+        self.physics_engine.update(scaled_dt, self.canvas.width, self.canvas.height)
+        if self.running:
+            self.update()
+            self.canvas.after(int(dt * 1000 / speed_factor), self.step)
+            self.canvas.properties_frame.update_properties()
+            self.canvas.draw_vector_lines()
+
+    def update(self):
+        if self.canvas.bodies is None:
+            return
+        for id, body in self.canvas.bodies.items():
+            vertices = []
+
+            for vec in body.get_corners():
+                vertices.extend([vec.x, vec.y])
+            if self.canvas.find_withtag(id):
+                self.canvas.coords(id, *vertices)
+
+
+class BodyRenderer:
+    def __init__(self, canvas, simulation_controller):
+        self.canvas = canvas
+        self.simulation_controller = simulation_controller
+        pass
+
+    def clean_force_arrows(self):
+        self.canvas.delete("vec_line")
+
+    def draw_vector_lines(self):
+        if (
+            self.simulation_controller.bodies is None
+            or self.simulation_controller.force_arrows.get() == 0
+        ):
+            self.clean_force_arrows()
+            return
+        for id, body in self.simulation_controller.bodies.items():
+            state = body.get_state()
+            position = state["position"]
+            velocity = state["velocity"]
+            x, y = drawing.draw_velocity_arrows(position.x, position.y, velocity)
+
+            if self.canvas.find_withtag(f"{id}_vec_line") != ():
+                self.canvas.coords(f"{id}_vec_line_x", *x)
+                self.canvas.coords(f"{id}_vec_line_y", *y)
+            else:
+                self.canvas.create_line(
+                    *x,
+                    fill="green",
+                    tags=("vec_line", f"{id}_vec_line_x", f"{id}_vec_line"),
+                )
+                self.canvas.create_line(
+                    *y,
+                    fill="green",
+                    tags=("vec_line", f"{id}_vec_line_y", f"{id}_vec_line"),
+                )
+
+    def draw_square(self):
+        square = drawing.draw_square(200, 100, 100, 100)
+        id = self.canvas.draw_polygon(square.get_vertices(), outline="white")
+        self.simulation_controller.physics_engine.add_rigid_body(square, id)
+        self.simulation_controller.bodies = (
+            self.simulation_controller.physics_engine.get_bodies()
+        )
+
+    def draw_polygon(self, vertices, *args, **kwargs):
+        tags = ("body", f"body_{id}")
+        return self.canvas.create_polygon(*vertices, tags=tags, *args, **kwargs)
+
+
+class InteractionManager:
+    def __init__(self, canvas, simulation_controller):
+        self.canvas = canvas
+        self.simulation_controller = simulation_controller
+        self.mouse_positions = physics.DataPointList(2)
+        self.dt = 0.016
+
+    def setup_handlers(self):
+        self.canvas.tag_bind("body", "<ButtonPress-1>", self.body_press)
+        self.canvas.tag_bind("body", "<B1-Motion>", self.body_drag_motion)
+        self.canvas.tag_bind("body", "<ButtonRelease-1>", self.body_drag_release)
+
+    def play_pause(self):
+        if self.running:
+            self.running = False
+            # self.parent.play_pause_text.set("Play")
+        else:
+            self.running = True
+            # self.parent.play_pause_text.set("Pause")
+            self.simulation_controller.step(self.dt)
+
+    def body_press(self, _):
+        self.pressed_body_id = self.canvas.find_withtag("current")[0]
+        self.current_body = self.canvas.physics_engine.get_body(self.pressed_body_id)
+        self.canvas.itemconfigure(self.pressed_body_id, dash=(3, 5))
+
+    def body_drag_motion(self, event):
+        self.current_body = self.canvas.physics_engine.get_body(self.pressed_body_id)
+        if self.current_body is None:
+            return
+        new_position = physics.Vector2D(event.x, event.y)
+        new_velocity = physics.Vector2D(0, 0)
+
+        self.current_body.move(new_position, new_velocity)
+
+        time_ = time.perf_counter_ns()
+
+        self.mouse_positions.add_data_point(time_, new_position)
+
+    def body_drag_release(self, _):
+        new_velocity = physics.calculate_velocity(self.mouse_positions)
+        if self.current_body is None:
+            return
+        self.current_body.move(velocity=new_velocity)
+        self.canvas.itemconfigure(self.pressed_body_id, dash=())
+
+
 class Toolbar(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
