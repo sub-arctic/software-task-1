@@ -57,6 +57,29 @@ def calculate_velocity(data_points):
         return Vector2D(0, 0)
 
 
+class VectorList:
+    def __init__(self, vectors):
+        self.vectors = vectors
+        self.index = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.index < len(self.vectors):
+            result = self.vectors[self.index]
+            self.index += 1
+            return result
+        else:
+            raise StopIteration
+
+    def __getitem__(self, index):
+        return self.vectors[index]
+
+    def __len__(self):
+        return len(self.vectors)
+
+
 class Vector2D:
     def __init__(self, x=0.0, y=0.0):
         self._x = x
@@ -89,6 +112,9 @@ class Vector2D:
 
     def __truediv__(self, scalar):
         return Vector2D(self._x / scalar, self._y / scalar)
+
+    def __neg__(self):
+        return Vector2D(-self.x, -self.y)
 
     def dot(self, other):
         return self._x * other.x + self._y * other.y
@@ -183,30 +209,39 @@ class PhysicsEngine:
                 resolve_collision(body_a, body_b, normal, penetration, contact_point)
 
     def enforce_bounds(self, dt, canvas_width, canvas_height, friction_coefficient=0.2):
-        def check_boundary(position, radius, canvas_limit, velocity):
-            if position - radius < 0:
-                position = radius
-                if velocity < 0:
-                    velocity = -velocity * body.restitution
-            elif position + radius > canvas_limit:
-                position = canvas_limit - radius
-                if velocity > 0:
-                    velocity = -velocity * body.restitution
-            return position, velocity
-
+        # Use actual polygon corners rather than a simple bounding circle
         for item in self.rigid_bodies:
             body = item["body"]
-            radius = body.get_bounding_radius()
+            corners = body.get_corners()
+            min_x = min(p.x for p in corners)
+            max_x = max(p.x for p in corners)
+            min_y = min(p.y for p in corners)
+            max_y = max(p.y for p in corners)
 
-            body.position.x, body.velocity.x = check_boundary(
-                body.position.x, radius, canvas_width, body.velocity.x
-            )
+            # Check left boundary
+            if min_x < 0:
+                body.position.x += -min_x
+                if body.velocity.x < 0:
+                    body.velocity.x = -body.velocity.x * body.restitution
 
-            body.position.y, body.velocity.y = check_boundary(
-                body.position.y, radius, canvas_height, body.velocity.y
-            )
+            # Check right boundary
+            if max_x > canvas_width:
+                body.position.x -= max_x - canvas_width
+                if body.velocity.x > 0:
+                    body.velocity.x = -body.velocity.x * body.restitution
 
-            if body.position.y + radius >= canvas_height:
+            # Check top boundary
+            if min_y < 0:
+                body.position.y += -min_y
+                if body.velocity.y < 0:
+                    body.velocity.y = -body.velocity.y * body.restitution
+
+            # Check bottom boundary
+            if max_y > canvas_height:
+                body.position.y -= max_y - canvas_height
+                if body.velocity.y > 0:
+                    body.velocity.y = -body.velocity.y * body.restitution
+                # Apply friction if touching the bottom edge
                 body.velocity.x *= 1 - friction_coefficient * dt
 
     def get_body_state(self, body_id):
@@ -281,6 +316,25 @@ class RigidBody:
         self.restitution = restitution
         self.drag_coefficient = 0.1
 
+    def center(self):
+        area = compute_polygon_area(self.vertices)
+
+        vertices = VectorList(self.get_corners())
+        C_x = 0.0
+        C_y = 0.0
+
+        n = len(vertices)
+        for i in range(n):
+            x_i, y_i = vertices[i]
+            x_next, y_next = vertices[(i + 1) % n]
+
+            C_x += (x_i + x_next) * (x_i & y_next - x_next * y_i)
+            C_x += (x_i + x_next) * (x_i & y_next - x_next * y_i)
+        C_x /= 6 * area
+        C_y /= 6 * area
+
+        return Vector2D(C_x, C_y)
+
     def move(self, position=None, velocity=None):
         if position is not None:
             self.position = position
@@ -295,8 +349,7 @@ class RigidBody:
         vertices = []
         corners = self.get_corners()
         for corner in corners:
-            vertices.append(corner.x)
-            vertices.append(corner.y)
+            vertices.extend([corner.x, corner.y])
 
         return vertices
 
@@ -359,32 +412,51 @@ def overlap_intervals(min_a, max_a, min_b, max_b):
     return min(max_a, max_b) - max(min_a, min_b)
 
 
+# sat collision only works for convex polygons. I should implement gjk
 def sat_collision(body_a, body_b):
-    # https://en.wikipedia.org/wiki/Hyperplane_separation_theorem
+    # Compute corners for both bodies (they include rotation and translation)
     corners_a = body_a.get_corners()
     corners_b = body_b.get_corners()
-    axes = []
-    # loop over both sets of polygon corners
-    for poly in (corners_a, corners_b):
-        for i, _ in enumerate(poly):
-            edge = poly[(i + 1) % len(poly)] - poly[i]
-            axes.append(edge.perp().normalized())
+    # calculate normals for all edges; these will be used for testing
     mtv_overlap = float("inf")
     mtv_axis = None
-    for axis in axes:
-        min_a, max_a = project_polygon(axis, corners_a)
-        min_b, max_b = project_polygon(axis, corners_b)
-        o = overlap_intervals(min_a, max_a, min_b, max_b)
-        if o <= 0:
-            return False, None, None, None, None  # no collision
-        if o < mtv_overlap:
-            mtv_overlap = o
-            mtv_axis = axis
+    for poly in (corners_a, corners_b):
+        for i in range(len(poly)):
+            edge = poly[(i + 1) % len(poly)] - poly[i]
+            axis = edge.perp().normalized()
+
+            min_a, max_a = project_polygon(axis, corners_a)
+            min_b, max_b = project_polygon(axis, corners_b)
+            o = overlap_intervals(min_a, max_a, min_b, max_b)
+            if o <= 0:
+                # No collision on this axis means no collision at all.
+                return False, None, None, None, None
+            if o < mtv_overlap:
+                mtv_overlap = o
+                mtv_axis = axis
+
+    # Ensure the axis points from A to B
     d = body_b.position - body_a.position
     if d.dot(mtv_axis) < 0:
         if mtv_axis is not None:
             mtv_axis = mtv_axis * -1
-    contact_point = (body_a.position + body_b.position) * 0.5
+
+    # Attempt to compute a better contact point:
+    # (Collect vertices from A that lie within the projection range of B along mtv_axis.)
+    contact_points = []
+    min_b, max_b = project_polygon(mtv_axis, corners_b)
+    for p in corners_a:
+        p_proj = p.dot(mtv_axis)
+        if min_b <= p_proj <= max_b:
+            contact_points.append(p)
+    if contact_points:
+        avg_x = sum(p.x for p in contact_points) / len(contact_points)
+        avg_y = sum(p.y for p in contact_points) / len(contact_points)
+        contact_point = Vector2D(avg_x, avg_y)
+    else:
+        # Fallback to the average of the two centers if no vertex qualifies
+        contact_point = (body_a.position + body_b.position) * 0.5
+
     return True, mtv_axis, mtv_overlap, contact_point, d
 
 
@@ -424,3 +496,29 @@ def resolve_collision(body_a, body_b, normal, penetration, contact_point):
     body_b.velocity = body_b.velocity + impulse * (1 / body_b.mass)
     body_a.angular_velocity -= inv_inertia_a * r_a.cross(impulse)
     body_b.angular_velocity += inv_inertia_b * r_b.cross(impulse)
+
+
+def gjk(body_a, body_b):
+    body_a_center = body_a.center()
+    body_b_center = body_b.center()
+    d = Vector2D(body_b_center - body_a_center).normalized()
+    simplex = [support(body_a, d), support(body_b, -d)]
+    d = Vector2D(0, 0) - simplex[0]
+
+    while True:
+        A = [support(body_a, d), support(body_b, -d)]
+        if A.dot(d) < 0:
+            return False
+        simp
+
+
+def support(body, direction):
+    best_point = None
+    best_value = -math.inf
+
+    for point in body:
+        value = point.dot(direction)
+        if value > best_value:
+            best_value = value
+            best_point = point
+    return best_point

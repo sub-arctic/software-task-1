@@ -137,7 +137,7 @@ class BodyRenderer:
         )
 
     def test(self):
-        polygon = drawing.draw_polygon(200, 100, 50, 4)
+        polygon = drawing.draw_polygon(200, 100, 100, 4)
         id = self.draw_polygon(polygon.get_vertices(), outline="white")
         self.simulation_controller.physics_engine.add_rigid_body(polygon, id)
         self.simulation_controller.bodies = (
@@ -215,7 +215,7 @@ class Toolbar(ttk.Frame):
         self.add_square_button = ttk.Button(
             self,
             text="Add square",
-            command=self.simulation_canvas.body_renderer.test,
+            command=self.simulation_canvas.body_renderer.draw_square,
         )
 
         self.parent.play_pause_text = tk.StringVar()
