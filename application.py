@@ -163,10 +163,10 @@ class InteractionManager:
     def play_pause(self):
         if self.simulation_controller.running:
             self.simulation_controller.running = False
-            # self.parent.play_pause_text.set("Play")
+            self.canvas.parent.play_pause_text.set("Play")
         else:
             self.simulation_controller.running = True
-            # self.parent.play_pause_text.set("Pause")
+            self.canvas.parent.play_pause_text.set("Pause")
             self.simulation_controller.step(self.dt)
 
     def body_press(self, _):
@@ -206,6 +206,8 @@ class Toolbar(ttk.Frame):
         self.parent = parent
         self.simulation_canvas = parent.simulation_canvas
 
+        self.parent.play_pause_text = tk.StringVar()
+
         self.add_square_button = ttk.Button(
             self,
             text="Add square",
@@ -221,11 +223,13 @@ class Toolbar(ttk.Frame):
             command=self.simulation_canvas.interaction_manager.play_pause,
         )
 
-        # self.force_arrows_toggle = ttk.Checkbutton(
-        #     self, text="Force Arrows", variable=self.simulation_canvas.force_arrows
-        # )
-        #
-        # self.force_arrows_toggle.grid(column=2, row=1)
+        self.force_arrows_toggle = ttk.Checkbutton(
+            self,
+            text="Force Arrows",
+            variable=self.simulation_canvas.simulation_controller.force_arrows,
+        )
+
+        self.force_arrows_toggle.grid(column=2, row=1)
         self.play_pause_button.grid(column=0, row=1)
         self.add_square_button.grid(column=1, row=1)
 
