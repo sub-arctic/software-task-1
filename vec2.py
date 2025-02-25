@@ -34,6 +34,9 @@ class Vec2:
     def __truediv__(self, scalar):
         return Vec2(self._x / scalar, self._y / scalar)
 
+    def __neg__(self):
+        return Vec2(-self._x, -self._y)
+
     def dot(self, other):
         return self._x * other.x + self._y * other.y
 

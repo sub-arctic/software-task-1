@@ -1,20 +1,68 @@
-from vec2 import *
+import vec2
 
 
 class RigidBody:
-    def __init__(self, vertices, mass, velocity, restitution):
+    def __init__(self, vertices, position, velocity, constant_force):
         self.vertices = vertices
-        self.mass = mass
+        self.position = position
         self.velocity = velocity
-        self.restitution = restitution
-        self.position = Vec2()
+        self.mass = 5
         self.angle = 0
+        self.angular_velocity = 0
+        self.inertia = 1
+        self.force = constant_force
+        self.torque = 0
+        self.constant_force = constant_force
+        self.restitution = 0.5
+        self.update_vertices()
 
     def __getitem__(self, index):
         return self.vertices[index]
 
     def rotate(self, angle):
-        return [vertex.rotate(angle) for vertex in self.vertices]
+        self.angle = angle
+        self.update_vertices()
+
+    def move(self, delta):
+        self.position = delta
+        self.update_vertices()
+
+    def apply_force(self, force, point=None):
+        self.force = self.force + force
+        if point is not None:
+            r = point - self.position
+            self.torque += r.cross(force)
+
+    def update_vertices(self):
+        self.transformed_vertices = []
+        for vertex in self.vertices:
+            new_vertex = vertex.rotated(self.angle) + self.position
+            self.transformed_vertices.append(new_vertex)
+
+    def update(self, delta_time, gravity=9.8):
+        acceleration = self.force / self.mass
+        self.velocity = self.velocity + acceleration * delta_time
+        self.velocity = self.velocity + vec2.Vec2(0, gravity) * delta_time
+        self.position = self.position + self.velocity * delta_time
+
+        angular_acc = self.torque / self.inertia
+        self.angular_velocity += angular_acc * delta_time
+        self.angle += self.angular_velocity * delta_time
+
+        self.update_vertices()
+
+        self.force = self.constant_force
+        self.torque = 0
 
     def get_vertices(self):
-        pass
+        return self.transformed_vertices
+
+    def get_state(self):
+        return {
+            "position": self.position,
+            "velocity": self.velocity,
+            "angle": self.angle,
+            "mass": self.mass,
+            "force": self.force,
+            "restitution": self.restitution,
+        }
