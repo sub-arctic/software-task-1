@@ -4,6 +4,9 @@ from tkinter import ttk
 
 import drawing
 import engine
+import vec2
+
+## need to make mapping canvas ids to object ids
 
 
 class Application(ttk.Frame):
@@ -47,7 +50,6 @@ class SimulationController:
         self.force_arrows = tk.IntVar(value=1)
         self.canvas = canvas
         self.physics_engine = engine.Engine()
-        self.body_map = {}  # Maps engine body ID to canvas item ID
 
     def step(self, dt=0.016, speed_factor=2):
         scaled_dt = dt * speed_factor
@@ -60,13 +62,8 @@ class SimulationController:
             self.canvas.body_renderer.draw_vector_lines()
 
     def update(self):
-        for engine_id, body in self.physics_engine.bodies.items():
-            vertices = []
-            for vec in body.get_vertices():
-                vertices.extend([vec.x, vec.y])
-            canvas_id = self.body_map.get(engine_id)
-            if canvas_id:
-                self.canvas.coords(canvas_id, *vertices)
+        for id, body in self.physics_engine.bodies:
+            self.canvas.coords(f"body_{id}", *body.get_vertices(unpacked=True))
 
 
 class BodyRenderer:
@@ -84,13 +81,13 @@ class BodyRenderer:
         ):
             self.clean_force_arrows()
             return
-        for engine_id, body in self.simulation_controller.physics_engine.bodies.items():
+        for id, body in self.simulation_controller.physics_engine.bodies:
             state = body.get_state()
             position = state["position"]
             velocity = state["velocity"]
             x, y = drawing.draw_velocity_arrows(position.x, position.y, velocity)
-            tag_x = f"{engine_id}_vec_line_x"
-            tag_y = f"{engine_id}_vec_line_y"
+            tag_x = f"{id}_vec_line_x"
+            tag_y = f"{id}_vec_line_y"
             if self.canvas.find_withtag(tag_x):
                 self.canvas.coords(tag_x, *x)
                 self.canvas.coords(tag_y, *y)
@@ -109,13 +106,14 @@ class BodyRenderer:
                 )
 
     def draw_square(self):
-        square = drawing.draw_polygon(200, 100, 100, 3)
+        square = drawing.draw_polygon(0, 0, 100, 3)
         new_id = self.simulation_controller.physics_engine.bodies.add(square)
-        poly_id = self.draw_polygon(new_id, square.get_vertices(), outline="white")
-        self.simulation_controller.body_map[new_id] = poly_id
+        self.draw_polygon(new_id, square.get_vertices(), outline="white")
+        # self.canvas.addtag_withtag(f"body_{poly_id}", poly_id)
+        # self.canvas.dtag(f"body_{new_id}")
 
-    def draw_polygon(self, engine_id, vertices, *args, **kwargs):
-        tags = ("body", f"body_{engine_id}")
+    def draw_polygon(self, id, vertices, *args, **kwargs):
+        tags = ("body", f"body_{id}")
         new_vertices = []
         for vertex in vertices:
             new_vertices.extend([vertex.x, vertex.y])
@@ -143,33 +141,35 @@ class InteractionManager:
             self.canvas.parent.play_pause_text.set("Pause")
             self.simulation_controller.step(self.dt)
 
-    def body_press(self, event):
-        item = self.canvas.find_withtag("current")
-        if not item:
-            return
-        self.pressed_body_canvas_id = item[0]
-        tags = self.canvas.gettags(self.pressed_body_canvas_id)
-        engine_body_id = None
-        for tag in tags:
-            if tag.startswith("body_"):
-                try:
-                    engine_body_id = int(tag.split("_")[1])
-                except:
-                    pass
-                break
-        if engine_body_id is not None:
-            self.current_body = self.simulation_controller.physics_engine.get_body(
-                engine_body_id
-            )
-        self.canvas.itemconfigure(self.pressed_body_canvas_id, dash=(3, 5))
+    def body_press(self, _):
+        self.pressed_body_id = self.canvas.find_withtag("current")[0]
+        self.current_body = self.simulation_controller.physics_engine[
+            self.pressed_body_id
+        ]
+        self.canvas.itemconfigure(self.pressed_body_id, dash=(3, 5))
 
     def body_drag_motion(self, event):
-        # Implement dragging logic as needed.
-        pass
+        self.current_body = self.simulation_controller.physics_engine[
+            self.pressed_body_id
+        ]
+        if self.current_body is None:
+            return
+        new_position = vec2.Vec2(event.x, event.y)
+        new_velocity = vec2.Vec2(0, 0)
+
+        self.current_body.move(new_position)
+        self.current_body.velocity(new_velocity)
+
+        time_ = time.perf_counter_ns()
+
+        # self.mouse_positions.add_data_point(time_, new_position)
 
     def body_drag_release(self, event):
-        self.canvas.itemconfigure(self.pressed_body_canvas_id, dash=())
-        return
+        # new_velocity = physics.calculate_velocity(self.mouse_positions)
+        if self.current_body is None:
+            return
+        # self.current_body.move(velocity=new_velocity)
+        self.canvas.itemconfigure(self.pressed_body_id, dash=())
 
 
 class Toolbar(ttk.Frame):

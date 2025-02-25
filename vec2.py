@@ -22,6 +22,9 @@ class Vec2:
     def y(self, new_y):
         self._y = new_y
 
+    def __iter__(self):
+        return iter((self._x, self._y))
+
     def __add__(self, other):
         return Vec2(self._x + other.x, self._y + other.y)
 

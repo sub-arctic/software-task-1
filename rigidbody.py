@@ -1,3 +1,5 @@
+import math
+
 import vec2
 
 
@@ -7,7 +9,7 @@ class RigidBody:
         self.position = position
         self.velocity = velocity
         self.mass = 5
-        self.angle = 0
+        self.angle = 90
         self.angular_velocity = 0
         self.inertia = 1
         self.force = constant_force
@@ -20,12 +22,16 @@ class RigidBody:
         return self.vertices[index]
 
     def rotate(self, angle):
-        self.angle = angle
+        self._angle = angle
         self.update_vertices()
 
     def move(self, delta):
         self.position = delta
-        self.update_vertices()
+        # self.update_vertices()
+
+    def velocity(self, velocity):
+        self.velocity = velocity
+        # self.update_vertices()
 
     def apply_force(self, force, point=None):
         self.force = self.force + force
@@ -33,10 +39,36 @@ class RigidBody:
             r = point - self.position
             self.torque += r.cross(force)
 
+    def rotate_vertices(self):
+        angle_radians = math.radians(self.angle)
+
+        cx = sum(x for x, y in self.vertices) / len(self.vertices)
+        cy = sum(y for y, y in self.vertices) / len(self.vertices)
+
+        rotated_vertices = []
+
+        for x, y in self.vertices:
+            x_translated = x - cx
+            y_translated = y - cy
+
+            x_rotated = (
+                x_translated * math.cos(angle_radians)
+                - y_translated * math.sin(angle_radians)
+            ) + cx
+            y_rotated = (
+                x_translated * math.sin(angle_radians)
+                + y_translated * math.cos(angle_radians)
+            ) + cy
+
+            rotated_vertices.append(vec2.Vec2(x_rotated, y_rotated))
+
+        return rotated_vertices
+
     def update_vertices(self):
         self.transformed_vertices = []
-        for vertex in self.vertices:
-            new_vertex = vertex.rotated(self.angle) + self.position
+        self.rotated_vertices = self.rotate_vertices()
+        for vertex in self.rotated_vertices:
+            new_vertex = vertex + self.position
             self.transformed_vertices.append(new_vertex)
 
     def update(self, delta_time, gravity=9.8):
@@ -54,7 +86,12 @@ class RigidBody:
         self.force = self.constant_force
         self.torque = 0
 
-    def get_vertices(self):
+    def get_vertices(self, unpacked=False):
+        if unpacked:
+            vertices = []
+            for vertex in self.transformed_vertices:
+                vertices.extend([vertex.x, vertex.y])
+            return vertices
         return self.transformed_vertices
 
     def get_state(self):

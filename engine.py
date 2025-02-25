@@ -6,12 +6,23 @@ class Bodies:
     def __init__(self):
         self.objects = {}
         self.next_id = 0
+        self._iter_index = 0
 
     def __iter__(self):
-        return iter(self.objects.values())
+        self._iter_index = 0
+        self._keys = list(self.objects.keys())
+        return self
 
-    def __getitem__(self, index):
-        return self.objects[index]
+    def __next__(self):
+        if self._iter_index < len(self._keys):
+            key = self._keys[self._iter_index]
+            self._iter_index += 1
+            return key, self.objects[key]
+        else:
+            raise StopIteration
+
+    def __getitem__(self, id):
+        return self.objects[id]
 
     def __len__(self):
         return len(self.objects)
@@ -33,7 +44,7 @@ class Bodies:
     def change_id(self, id, new_id):
         if new_id in self.objects:
             raise ValueError(f"ID {new_id} already exists")
-        self.objects[id] = self.objects.pop(id)
+        self.objects[new_id] = self.objects.pop(id)
 
     def items(self):
         return self.objects.items()
@@ -43,18 +54,16 @@ class Engine:
     def __init__(self, gravity=9.81):
         self.bodies = Bodies()
         self.gravity = gravity
+        self.bounds = False
 
-    def __getitem__(self, index):
-        return self.bodies[index]
+    def __getitem__(self, id):
+        return self.bodies[id]
 
     def get_bodies(self):
         return self.bodies
 
-    def get_body(self, id):
-        return self.bodies.get(id)
-
     def update(self, delta_time):
-        for body in self.bodies:
+        for _, body in self.bodies:
             body.update(delta_time, gravity=self.gravity)
         self.collisions()
 
