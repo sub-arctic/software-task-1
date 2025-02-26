@@ -1,10 +1,13 @@
+from __future__ import annotations
+
 import math
 
+type Real = int | float
 
 class Vec2:
-    def __init__(self, x=0.0, y=0.0):
-        self._x = x
-        self._y = y
+    def __init__(self, x: Real = 0.0, y: Real = 0.0):
+        self._x: Real = x
+        self._y: Real = y
 
     @property
     def x(self):
@@ -15,49 +18,47 @@ class Vec2:
         return self._y
 
     @x.setter
-    def x(self, new_x):
+    def x(self, new_x: Real):
         self._x = new_x
 
     @y.setter
-    def y(self, new_y):
+    def y(self, new_y: Real):
         self._y = new_y
 
     def __iter__(self):
         return iter((self._x, self._y))
 
-    def __add__(self, other):
+    def __add__(self, other: Vec2) -> Vec2:
         return Vec2(self._x + other.x, self._y + other.y)
 
-    def __sub__(self, other):
+    def __sub__(self, other: Vec2) -> Vec2:
         return Vec2(self._x - other.x, self._y - other.y)
 
-    def __mul__(self, scalar):
+    def __mul__(self, scalar: Real) -> Vec2:
         return Vec2(self._x * scalar, self._y * scalar)
 
-    def __truediv__(self, scalar):
+    def __truediv__(self, scalar: Real) -> Vec2:
         return Vec2(self._x / scalar, self._y / scalar)
 
-    def __neg__(self):
-        return Vec2(-self._x, -self._y)
+    def __neg__(self) -> Vec2:
+        return Vec2(-self.x, -self.y)
 
-    def dot(self, other):
-        return self._x * other.x + self._y * other.y
+    def dot(self, other: Vec2) -> Real:
+        return self.x * other.x + self.y * other.y
 
-    def cross(self, other):
-        return self._x * other.y - self._y * other.x
+    def cross(self, other: Vec2) -> Real:
+        return self.x * other.y - self.y * other.x
 
-    def magnitude(self):
-        return math.hypot(self._x, self._y)
+    def magnitude(self) -> Real:
+        return math.hypot(self.x, self.y)
 
-    def normalized(self):
+    def normalized(self) -> Vec2:
         mag = self.magnitude()
         return self / mag if mag else Vec2(0, 0)
 
-    def rotated(self, angle):
+    def rotated(self, angle: Real) -> Vec2:
         cos_a, sin_a = math.cos(angle), math.sin(angle)
-        return Vec2(
-            self._x * cos_a - self._y * sin_a, self._x * sin_a + self._y * cos_a
-        )
+        return Vec2(self.x * cos_a - self.y * sin_a, self.x * sin_a + self.y * cos_a)
 
-    def perpendicular(self):
-        return Vec2(-self._y, self._x)
+    def perpendicular(self) -> Vec2:
+        return Vec2(-self.y, self.x)

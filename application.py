@@ -8,8 +8,6 @@ import engine
 import physics
 import vec2
 
-## need to make mapping canvas ids to object ids
-
 
 class Application(ttk.Frame):
     def __init__(self, parent):
@@ -160,8 +158,8 @@ class InteractionManager:
         new_position = vec2.Vec2(event.x, event.y)
         new_velocity = vec2.Vec2(0, 0)
 
-        self.current_body.move(new_position)
-        # self.current_body.velocity(new_velocity)
+        self.current_body.position = new_position
+        self.current_body.velocity = new_velocity
 
         time_ = time.perf_counter_ns()
 
@@ -171,7 +169,7 @@ class InteractionManager:
         new_velocity = physics.calculate_velocity(self.mouse_positions)
         if self.current_body is None:
             return
-        self.current_body.velocity(new_velocity)
+        # self.current_body.velocity = new_velocity
         self.canvas.itemconfigure(self.pressed_body_id, dash=())
 
 
