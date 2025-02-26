@@ -21,8 +21,8 @@ def sat_collision(body_a: RigidBody, body_b: RigidBody) -> tuple[bool, Vec2 | No
     axes: Vec2List = []
 
     for poly in (corners_a, corners_b):
-        for i, _ in enumerate(poly):
-            edge: Vec2 = poly[(i + 1) % len(poly)] - poly[i]
+        for i, vector in enumerate(poly):
+            edge: Vec2 = poly[(i + 1) % len(poly)] - vector
             axes.append(edge.perpendicular().normalized())
 
     mtv_overlap: Irrational = float("inf")
