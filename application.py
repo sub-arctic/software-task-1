@@ -2,8 +2,10 @@ import time
 import tkinter as tk
 from tkinter import ttk
 
+import datapoint
 import drawing
 import engine
+import physics
 import vec2
 
 ## need to make mapping canvas ids to object ids
@@ -63,7 +65,7 @@ class SimulationController:
 
     def update(self):
         for id, body in self.physics_engine.bodies:
-            self.canvas.coords(f"body_{id}", *body.get_vertices(unpacked=True))
+            self.canvas.coords(id, *body.get_vertices(unpacked=True))
 
 
 class BodyRenderer:
@@ -106,14 +108,14 @@ class BodyRenderer:
                 )
 
     def draw_square(self):
-        square = drawing.draw_polygon(0, 0, 100, 3)
-        new_id = self.simulation_controller.physics_engine.bodies.add(square)
-        self.draw_polygon(new_id, square.get_vertices(), outline="white")
-        # self.canvas.addtag_withtag(f"body_{poly_id}", poly_id)
-        # self.canvas.dtag(f"body_{new_id}")
+        square = drawing.draw_polygon(100, 100, 100, 3)
+        canvas_id = self.draw_polygon(square.get_vertices(), outline="white")
+        engine_id = self.simulation_controller.physics_engine.bodies.add(
+            square, canvas_id
+        )
 
-    def draw_polygon(self, id, vertices, *args, **kwargs):
-        tags = ("body", f"body_{id}")
+    def draw_polygon(self, vertices, *args, **kwargs):
+        tags = "body"
         new_vertices = []
         for vertex in vertices:
             new_vertices.extend([vertex.x, vertex.y])
@@ -124,6 +126,7 @@ class InteractionManager:
     def __init__(self, canvas, simulation_controller):
         self.canvas = canvas
         self.current_body = None
+        self.mouse_positions = datapoint.DataPointList(2)
         self.simulation_controller = simulation_controller
         self.dt = 0.016
 
@@ -143,32 +146,32 @@ class InteractionManager:
 
     def body_press(self, _):
         self.pressed_body_id = self.canvas.find_withtag("current")[0]
-        self.current_body = self.simulation_controller.physics_engine[
+        self.current_body = self.simulation_controller.physics_engine.get_body(
             self.pressed_body_id
-        ]
+        )
         self.canvas.itemconfigure(self.pressed_body_id, dash=(3, 5))
 
     def body_drag_motion(self, event):
-        self.current_body = self.simulation_controller.physics_engine[
+        self.current_body = self.simulation_controller.physics_engine.get_body(
             self.pressed_body_id
-        ]
+        )
         if self.current_body is None:
             return
         new_position = vec2.Vec2(event.x, event.y)
         new_velocity = vec2.Vec2(0, 0)
 
         self.current_body.move(new_position)
-        self.current_body.velocity(new_velocity)
+        # self.current_body.velocity(new_velocity)
 
         time_ = time.perf_counter_ns()
 
-        # self.mouse_positions.add_data_point(time_, new_position)
+        self.mouse_positions.add_data_point(time_, new_position)
 
     def body_drag_release(self, event):
-        # new_velocity = physics.calculate_velocity(self.mouse_positions)
+        new_velocity = physics.calculate_velocity(self.mouse_positions)
         if self.current_body is None:
             return
-        # self.current_body.move(velocity=new_velocity)
+        self.current_body.velocity(new_velocity)
         self.canvas.itemconfigure(self.pressed_body_id, dash=())
 
 

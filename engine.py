@@ -21,8 +21,9 @@ class Bodies:
         else:
             raise StopIteration
 
-    def __getitem__(self, id):
-        return self.objects[id]
+    def __getitem__(self, n):
+        items = list(self.objects.items())
+        return items[n][1]
 
     def __len__(self):
         return len(self.objects)
@@ -61,6 +62,9 @@ class Engine:
 
     def get_bodies(self):
         return self.bodies
+
+    def get_body(self, id):
+        return self.bodies.get(id)
 
     def update(self, delta_time):
         for _, body in self.bodies:
