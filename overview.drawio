@@ -167,6 +167,9 @@
             <mxPoint x="250" y="1240" as="targetPoint" />
           </mxGeometry>
         </mxCell>
+        <mxCell id="rg2TefDTNv2NrTJ3xyoL-69" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="rg2TefDTNv2NrTJ3xyoL-56" target="rg2TefDTNv2NrTJ3xyoL-68">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
         <mxCell id="rg2TefDTNv2NrTJ3xyoL-56" value="Canvas After delay Callback passed Step function async" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
           <mxGeometry x="90" y="1210" width="120" height="60" as="geometry" />
         </mxCell>
@@ -194,6 +197,46 @@
         </mxCell>
         <mxCell id="rg2TefDTNv2NrTJ3xyoL-66" value="to PhysicsEngine" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
           <mxGeometry x="390" y="940" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="rg2TefDTNv2NrTJ3xyoL-74" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="rg2TefDTNv2NrTJ3xyoL-68" target="rg2TefDTNv2NrTJ3xyoL-73">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rg2TefDTNv2NrTJ3xyoL-76" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="rg2TefDTNv2NrTJ3xyoL-68" target="rg2TefDTNv2NrTJ3xyoL-75">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rg2TefDTNv2NrTJ3xyoL-68" value="Call Update" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="90" y="1330" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="rg2TefDTNv2NrTJ3xyoL-72" value="asynchronous to function call" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="160" y="1290" width="180" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="rg2TefDTNv2NrTJ3xyoL-73" value="" style="ellipse;html=1;shape=endState;fillColor=#000000;strokeColor=#ff0000;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="135" y="1430" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="rg2TefDTNv2NrTJ3xyoL-79" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="rg2TefDTNv2NrTJ3xyoL-75" target="rg2TefDTNv2NrTJ3xyoL-84">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="384" y="1440" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rg2TefDTNv2NrTJ3xyoL-75" value="BEGIN Update" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="324" y="1330" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="rg2TefDTNv2NrTJ3xyoL-86" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="rg2TefDTNv2NrTJ3xyoL-81" target="rg2TefDTNv2NrTJ3xyoL-84">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rg2TefDTNv2NrTJ3xyoL-87" value="Repeat for all elements" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="rg2TefDTNv2NrTJ3xyoL-86">
+          <mxGeometry x="-0.1827" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rg2TefDTNv2NrTJ3xyoL-81" value="Call Move bodies[iterator].id to call return body.get_vertices()" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="266" y="1560" width="236" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="rg2TefDTNv2NrTJ3xyoL-85" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="rg2TefDTNv2NrTJ3xyoL-84" target="rg2TefDTNv2NrTJ3xyoL-81">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rg2TefDTNv2NrTJ3xyoL-84" value="Iterate through physics_engine.bodies&#39; ID and body" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="324" y="1450" width="120" height="60" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
