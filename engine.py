@@ -7,7 +7,7 @@ from vec2 import Vec2
 
 type Vec2List = list[Vec2]
 type Real = int | float
-type ObjectsMap = dict[int, Vec2List]
+type ObjectsMap = dict[int, RigidBody]
 
 
 
@@ -21,7 +21,7 @@ class Bodies:
     def objects(self) -> ObjectsMap:
         return self._objects
 
-    def add(self, new_body: Vec2List, id: int | None = None) -> int:
+    def add(self, new_body: RigidBody, id: int | None = None) -> int:
         if id is None:
             id = self.next_id
             self.next_id = 1
@@ -43,7 +43,7 @@ class Bodies:
         self._keys = list(self.objects.keys())
         return self
 
-    def __next__(self) -> tuple[int, Vec2List]:
+    def __next__(self) -> tuple[int, RigidBody]:
         if self._iter_index < len(self._keys):
             key = self._keys[self._iter_index]
             self._iter_index += 1
@@ -51,7 +51,7 @@ class Bodies:
         else:
             raise StopIteration
 
-    def __getitem__(self, index: int) -> Vec2List:
+    def __getitem__(self, index: int) -> RigidBody:
         items = list(self.objects.items())
         return items[index][1]
 
@@ -62,7 +62,7 @@ class Bodies:
         if id in self.objects:
             del self.objects[id]
 
-    def get(self, id: int) -> Vec2List | None:
+    def get(self, id: int) -> RigidBody | None:
         return self.objects.get(id)
 
     def items(self):
@@ -87,13 +87,13 @@ class Engine:
     def gravity(self, new_gravity: Real) -> None:
         self.gravity = new_gravity
 
-    def __getitem__(self, id: int) -> Vec2List:
+    def __getitem__(self, id: int) -> RigidBody:
         return self.bodies[id]
 
     def get_bodies(self) -> Bodies:
         return self.bodies
 
-    def get_body(self, id: int) -> Vec2List | None:
+    def get_body(self, id: int) -> RigidBody | None:
         return self.bodies.get(id)
 
     def update(self, delta_time: Real) -> None:
@@ -110,11 +110,11 @@ class Engine:
 
                 colliding: bool
                 normal: Vec2 | None
-                penetration: float | None
+                penetration: Real | None
                 contact: Vec2 | None
 
                 colliding, normal, penetration, contact, _ = sat.sat_collision(
                     body_a, body_b
                 )
-                if colliding:
+                if colliding and normal and penetration and contact is not None:
                     sat.resolve_collision(body_a, body_b, normal, penetration, contact)
