@@ -151,7 +151,7 @@
           <mxGeometry x="50" y="780" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-58" value="BodyList class is a class storing a dictionary containing id: body mappings. It contains various methods to add and iterate through elements." style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
-          <mxGeometry x="415" y="90" width="770" height="30" as="geometry" />
+          <mxGeometry x="420" y="90" width="770" height="30" as="geometry" />
         </mxCell>
         <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-60" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="Ge-Dk1DaGjdfTxvKBWv9-2" target="Ge-Dk1DaGjdfTxvKBWv9-58">
           <mxGeometry relative="1" as="geometry" />
