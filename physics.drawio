@@ -58,6 +58,9 @@
         <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-13" value="Call body.update" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" vertex="1" parent="1">
           <mxGeometry x="50" y="590" width="120" height="60" as="geometry" />
         </mxCell>
+        <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-57" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Ge-Dk1DaGjdfTxvKBWv9-18" target="Ge-Dk1DaGjdfTxvKBWv9-56">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
         <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-18" value="Call collisions" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" vertex="1" parent="1">
           <mxGeometry x="50" y="690" width="120" height="60" as="geometry" />
         </mxCell>
@@ -73,9 +76,6 @@
         <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-21" value="Set num_bodies to length of bodies" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="250" y="290" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-25" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Ge-Dk1DaGjdfTxvKBWv9-23" target="Ge-Dk1DaGjdfTxvKBWv9-24">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
         <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-23" value="iterate through range num_bodies with i" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="250" y="390" width="120" height="60" as="geometry" />
         </mxCell>
@@ -83,25 +83,25 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-24" value="iterate through range i + 1, num_bodies with j" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="280" y="480" width="160" height="60" as="geometry" />
+          <mxGeometry x="315" y="580" width="160" height="60" as="geometry" />
         </mxCell>
         <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-28" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Ge-Dk1DaGjdfTxvKBWv9-26" target="Ge-Dk1DaGjdfTxvKBWv9-27">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-26" value="Set body_a to bodies[i]" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="320" y="570" width="120" height="60" as="geometry" />
+          <mxGeometry x="330" y="670" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Ge-Dk1DaGjdfTxvKBWv9-27" target="Ge-Dk1DaGjdfTxvKBWv9-30">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-27" value="Set body_b to bodies[j]" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="320" y="660" width="120" height="60" as="geometry" />
+          <mxGeometry x="330" y="760" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-35" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Ge-Dk1DaGjdfTxvKBWv9-30" target="Ge-Dk1DaGjdfTxvKBWv9-33">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-30" value="set colliding, normal, penetration and contact to sat_collision, passing body_a, body_b" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" vertex="1" parent="1">
-          <mxGeometry x="280" y="760" width="200" height="60" as="geometry" />
+          <mxGeometry x="290" y="860" width="200" height="60" as="geometry" />
         </mxCell>
         <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-37" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Ge-Dk1DaGjdfTxvKBWv9-33" target="Ge-Dk1DaGjdfTxvKBWv9-36">
           <mxGeometry relative="1" as="geometry" />
@@ -120,13 +120,13 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-33" value="Is colliding?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="340" y="870" width="80" height="80" as="geometry" />
+          <mxGeometry x="350" y="970" width="80" height="80" as="geometry" />
         </mxCell>
         <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-50" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="Ge-Dk1DaGjdfTxvKBWv9-36" target="Ge-Dk1DaGjdfTxvKBWv9-47">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-36" value="Call resolve_collision, passing body_a, body_b, normal, penetration, contact" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" vertex="1" parent="1">
-          <mxGeometry x="295" y="1010" width="170" height="60" as="geometry" />
+          <mxGeometry x="305" y="1110" width="170" height="60" as="geometry" />
         </mxCell>
         <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-51" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="Ge-Dk1DaGjdfTxvKBWv9-47" target="Ge-Dk1DaGjdfTxvKBWv9-24">
           <mxGeometry relative="1" as="geometry" />
@@ -146,6 +146,45 @@
         </mxCell>
         <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-47" value="More body in bodies?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="500" y="950" width="100" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-56" value="END initialize(gravity)" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="780" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-58" value="BodyList class is a class storing a dictionary containing id: body mappings. It contains various methods to add and iterate through elements." style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="415" y="90" width="770" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-60" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="Ge-Dk1DaGjdfTxvKBWv9-2" target="Ge-Dk1DaGjdfTxvKBWv9-58">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-62" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Ge-Dk1DaGjdfTxvKBWv9-23" target="Ge-Dk1DaGjdfTxvKBWv9-61">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="310" y="450" as="sourcePoint" />
+            <mxPoint x="370" y="580" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-63" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Ge-Dk1DaGjdfTxvKBWv9-61" target="Ge-Dk1DaGjdfTxvKBWv9-24">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-64" value="True" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Ge-Dk1DaGjdfTxvKBWv9-63">
+          <mxGeometry x="0.2632" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-65" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="Ge-Dk1DaGjdfTxvKBWv9-61" target="Ge-Dk1DaGjdfTxvKBWv9-67">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="240" y="1240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-66" value="False" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Ge-Dk1DaGjdfTxvKBWv9-65">
+          <mxGeometry x="-0.8751" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-61" value="More body in bodies?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="260" y="480" width="100" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="Ge-Dk1DaGjdfTxvKBWv9-67" value="END Collisions" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="330" y="1200" width="120" height="60" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
