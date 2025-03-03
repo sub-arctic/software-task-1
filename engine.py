@@ -1,6 +1,5 @@
 from typing import Iterator
 
-import gjk
 import sat
 from rigidbody import RigidBody
 from vec2 import Vec2
@@ -96,7 +95,7 @@ class Engine:
     def get_body(self, id: int) -> RigidBody | None:
         return self.bodies.get(id)
 
-    def update(self, delta_time: Real) -> None:
+    def update(self, delta_time: Real, cwidth: int, cheight: int) -> None:
         for _, body in self.bodies:
             body.update(delta_time, gravity=self.gravity)
         self.collisions()
@@ -118,3 +117,4 @@ class Engine:
                 )
                 if colliding and normal and penetration and contact is not None:
                     sat.resolve_collision(body_a, body_b, normal, penetration, contact)
+    

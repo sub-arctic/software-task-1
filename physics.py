@@ -17,7 +17,7 @@ def calculate_velocity(data_points):
         vx = dx / dt
         vy = dy / dt
 
-        max_velocity = 800
+        max_velocity = 100
         speed = (vx**2 + vy**2) ** 0.5
 
         if speed > max_velocity:

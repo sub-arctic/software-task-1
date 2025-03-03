@@ -54,7 +54,7 @@ class SimulationController:
     def step(self, dt=0.016, speed_factor=2):
         scaled_dt = dt * speed_factor
         self.canvas.update_dimensions()
-        self.physics_engine.update(scaled_dt)
+        self.physics_engine.update(scaled_dt, self.canvas.width, self.canvas.height)
         if self.running:
             self.update()
             self.canvas.after(int(dt * 1000 / speed_factor), self.step)
@@ -169,7 +169,7 @@ class InteractionManager:
         new_velocity = physics.calculate_velocity(self.mouse_positions)
         if self.current_body is None:
             return
-        # self.current_body.velocity = new_velocity
+        self.current_body.velocity = new_velocity
         self.canvas.itemconfigure(self.pressed_body_id, dash=())
 
 
