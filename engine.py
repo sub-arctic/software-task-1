@@ -1,6 +1,5 @@
 from typing import Iterator
 
-import gjk
 import sat
 from rigidbody import RigidBody
 from vec2 import Vec2
