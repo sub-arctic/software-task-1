@@ -1,10 +1,9 @@
+from itertools import combinations
 from typing import Iterator
 
-import drawing
 import sat
 from collision import resolve_collision
 from rigidbody import RigidBody
-from vec2 import Vec2, Vec2List
 
 type Real = int | float
 type ObjectsMap = dict[int, RigidBody]
@@ -94,22 +93,14 @@ class Engine:
         return self.bodies.get(id)
 
     def update(self, delta_time: Real, cwidth: int, cheight: int) -> None:
-        num_bodies = len(self.bodies)
-        floor = drawing.draw_rectangle(cwidth, 10)
-        floor = RigidBody(floor, Vec2(0, cheight-10), Vec2(), mass=float('inf'))
         for _, body in self.bodies:
-            collision, depth, normal, contact = sat.is_colliding(body, floor)
-            if collision and normal is not None:
-                resolve_collision(body, floor, depth, normal, contact)
             body.update(delta_time)
-        for i, body in enumerate(self.bodies):
-            for j in range(i + 1, num_bodies):
-                body_a = body[1]
-                body_b = self.bodies[j]
-
-                collision, depth, normal, contact = sat.is_colliding(body_a, body_b)
-                if (collision) and normal is not None:
-                    resolve_collision(body_a, body_b, depth, normal, contact)
+        for body_a, body_b in combinations(self.bodies, 2):
+            body_a = body_a[1]
+            body_b = body_b[1]
+            collision, depth, normal, contact = sat.is_colliding(body_a, body_b)
+            if (collision) and normal is not None:
+                resolve_collision(body_a, body_b, depth, normal, contact)
 
 
 

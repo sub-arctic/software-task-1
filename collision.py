@@ -1,4 +1,3 @@
-from rigidbody import RigidBody
 from vec2 import Vec2
 
 type Real = int | float

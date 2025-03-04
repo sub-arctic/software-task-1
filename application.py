@@ -38,7 +38,7 @@ class SimulationCanvas(tk.Canvas):
         self.simulation_controller = SimulationController(self)
         self.body_renderer = BodyRenderer(self, self.simulation_controller)
         self.interaction_manager = InteractionManager(self, self.simulation_controller)
-        # self.interaction_manager.setup_handlers()
+        self.interaction_manager.setup_handlers()
 
     def update_dimensions(self):
         self.width = self.winfo_width()
@@ -58,20 +58,6 @@ class SimulationController:
         self.canvas.update_dimensions()
         self.physics_engine.update(scaled_dt, self.canvas.width, self.canvas.height)
         if self.running:
-            self.canvas.create_line(
-                0,
-                self.canvas.height / 2,
-                self.canvas.width,
-                self.canvas.height / 2,
-                fill="red",
-            )
-            self.canvas.create_line(
-                self.canvas.width / 2,
-                0,
-                self.canvas.width / 2,
-                self.canvas.height,
-                fill="red",
-            )
             self.update()
             self.canvas.after(int(dt * 1000 / speed_factor), self.step)
             self.canvas.parent.properties_frame.update_properties()
@@ -91,13 +77,6 @@ class BodyRenderer:
         cheight = self.canvas.winfo_height()
         vertices = drawing.draw_polygon(100, 4)
         position = vec2.Vec2(cwidth / 2, cheight / 2)
-        floor = drawing.draw_rectangle(cwidth, 10)
-
-        floor = rigidbody.RigidBody(
-            floor, vec2.Vec2(0, cheight - 10), vec2.Vec2(), mass=float("inf")
-        )
-        self.draw_polygon(*floor.get_vertices().unpack(), outline="white")
-
         body = rigidbody.RigidBody(vertices, position, vec2.Vec2(0, 0), angle=90)
         canvas_id = self.draw_polygon(*body.get_vertices().unpack(), outline="white")
         self.simulation_controller.physics_engine.bodies.add(body, canvas_id)
@@ -152,7 +131,7 @@ class InteractionManager:
 
         self.mouse_positions.add_data_point(time_, new_position)
 
-    def body_drag_release(self, event):
+    def body_drag_release(self, _):
         new_velocity = physics.calculate_velocity(self.mouse_positions)
         if self.current_body is None:
             return
@@ -178,12 +157,6 @@ class Toolbar(ttk.Frame):
             textvariable=self.parent.play_pause_text,
             command=self.simulation_canvas.interaction_manager.play_pause,
         )
-        self.force_arrows_toggle = ttk.Checkbutton(
-            self,
-            text="Force Arrows",
-            variable=self.simulation_canvas.simulation_controller.force_arrows,
-        )
-        self.force_arrows_toggle.grid(column=2, row=1)
         self.play_pause_button.grid(column=0, row=1)
         self.add_square_button.grid(column=1, row=1)
 
