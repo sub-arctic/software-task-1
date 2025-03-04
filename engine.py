@@ -1,14 +1,12 @@
+from itertools import combinations
 from typing import Iterator
 
 import sat
+from collision import resolve_collision
 from rigidbody import RigidBody
-from vec2 import Vec2
 
-type Vec2List = list[Vec2]
 type Real = int | float
 type ObjectsMap = dict[int, RigidBody]
-
-
 
 class Bodies:
     def __init__(self):
@@ -72,7 +70,6 @@ class Engine:
     def __init__(self, gravity: Real = 9.81) -> None:
         self._bodies = Bodies()
         self._gravity: Real = gravity
-        self.bounds = False
 
     @property
     def bodies(self) -> Bodies:
@@ -97,24 +94,13 @@ class Engine:
 
     def update(self, delta_time: Real, cwidth: int, cheight: int) -> None:
         for _, body in self.bodies:
-            body.update(delta_time, gravity=self.gravity)
-        self.collisions()
+            body.update(delta_time)
+        for body_a, body_b in combinations(self.bodies, 2):
+            body_a = body_a[1]
+            body_b = body_b[1]
+            collision, depth, normal, contact = sat.is_colliding(body_a, body_b)
+            if (collision) and normal is not None:
+                resolve_collision(body_a, body_b, depth, normal, contact)
 
-    def collisions(self) -> None:
-        num_bodies = len(self.bodies)
-        for i in range(num_bodies):
-            for j in range(i + 1, num_bodies):
-                body_a: RigidBody = self.bodies[i]
-                body_b: RigidBody = self.bodies[j]
 
-                colliding: bool
-                normal: Vec2 | None
-                penetration: Real | None
-                contact: Vec2 | None
 
-                colliding, normal, penetration, contact, _ = sat.sat_collision(
-                    body_a, body_b
-                )
-                if colliding and normal and penetration and contact is not None:
-                    sat.resolve_collision(body_a, body_b, normal, penetration, contact)
-    

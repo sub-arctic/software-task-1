@@ -6,6 +6,7 @@ import datapoint
 import drawing
 import engine
 import physics
+import rigidbody
 import vec2
 
 
@@ -16,6 +17,7 @@ class Application(ttk.Frame):
         self.simulation_canvas = SimulationCanvas(self)
         self.properties_frame = PropertiesFrame(self)
         self.toolbar = Toolbar(self)
+        self.simulation_canvas.update_dimensions()
         self.simulation_canvas.grid(row=0, column=0, sticky="nsew")
         self.properties_frame.grid(row=0, column=1, sticky="nsew")
         self.toolbar.grid(row=1, column=0)
@@ -59,11 +61,10 @@ class SimulationController:
             self.update()
             self.canvas.after(int(dt * 1000 / speed_factor), self.step)
             self.canvas.parent.properties_frame.update_properties()
-            self.canvas.body_renderer.draw_vector_lines()
 
     def update(self):
         for id, body in self.physics_engine.bodies:
-            self.canvas.coords(id, *body.get_vertices(unpacked=True))
+            self.canvas.coords(id, *body.get_vertices().unpack())
 
 
 class BodyRenderer:
@@ -71,53 +72,18 @@ class BodyRenderer:
         self.canvas = canvas
         self.simulation_controller = simulation_controller
 
-    def clean_force_arrows(self):
-        self.canvas.delete("vec_line")
-
-    def draw_vector_lines(self):
-        if (
-            self.simulation_controller.physics_engine.bodies is None
-            or self.simulation_controller.force_arrows.get() == 0
-        ):
-            self.clean_force_arrows()
-            return
-        for id, body in self.simulation_controller.physics_engine.bodies:
-            state = body.get_state()
-            position = state["position"]
-            velocity = state["velocity"]
-            x, y = drawing.draw_velocity_arrows(position.x, position.y, velocity)
-            tag_x = f"{id}_vec_line_x"
-            tag_y = f"{id}_vec_line_y"
-            if self.canvas.find_withtag(tag_x):
-                self.canvas.coords(tag_x, *x)
-                self.canvas.coords(tag_y, *y)
-            else:
-                self.canvas.create_line(
-                    *x,
-                    arrow=tk.LAST,
-                    fill="green",
-                    tags=("vec_line", tag_x),
-                )
-                self.canvas.create_line(
-                    *y,
-                    arrow=tk.LAST,
-                    fill="red",
-                    tags=("vec_line", tag_y),
-                )
-
     def draw_square(self):
-        square = drawing.draw_polygon(100, 100, 100, 3)
-        canvas_id = self.draw_polygon(square.get_vertices(), outline="white")
-        engine_id = self.simulation_controller.physics_engine.bodies.add(
-            square, canvas_id
-        )
+        cwidth = self.canvas.winfo_width()
+        cheight = self.canvas.winfo_height()
+        vertices = drawing.draw_polygon(100, 4)
+        position = vec2.Vec2(cwidth / 2, cheight / 2)
+        body = rigidbody.RigidBody(vertices, position, vec2.Vec2(0, 0), angle=90)
+        canvas_id = self.draw_polygon(*body.get_vertices().unpack(), outline="white")
+        self.simulation_controller.physics_engine.bodies.add(body, canvas_id)
 
     def draw_polygon(self, vertices, *args, **kwargs):
         tags = "body"
-        new_vertices = []
-        for vertex in vertices:
-            new_vertices.extend([vertex.x, vertex.y])
-        return self.canvas.create_polygon(*new_vertices, tags=tags, *args, **kwargs)
+        return self.canvas.create_polygon(vertices, tags=tags, *args, **kwargs)
 
 
 class InteractionManager:
@@ -165,7 +131,7 @@ class InteractionManager:
 
         self.mouse_positions.add_data_point(time_, new_position)
 
-    def body_drag_release(self, event):
+    def body_drag_release(self, _):
         new_velocity = physics.calculate_velocity(self.mouse_positions)
         if self.current_body is None:
             return
@@ -191,12 +157,6 @@ class Toolbar(ttk.Frame):
             textvariable=self.parent.play_pause_text,
             command=self.simulation_canvas.interaction_manager.play_pause,
         )
-        self.force_arrows_toggle = ttk.Checkbutton(
-            self,
-            text="Force Arrows",
-            variable=self.simulation_canvas.simulation_controller.force_arrows,
-        )
-        self.force_arrows_toggle.grid(column=2, row=1)
         self.play_pause_button.grid(column=0, row=1)
         self.add_square_button.grid(column=1, row=1)
 

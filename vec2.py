@@ -1,8 +1,40 @@
 from __future__ import annotations
 
 import math
+from typing import Generator
 
 type Real = int | float
+
+class Vec2List:
+    def __init__(self, vectors: list[Vec2] | None = None):
+        if vectors is None:
+            self._vectors = []
+        else:
+            self._vectors = vectors
+
+    @property
+    def vectors(self) -> list[Vec2]:
+        return self._vectors
+
+    @vectors.setter
+    def vectors(self, vectors: list[Vec2]) -> None:
+         self._vectors = vectors
+
+    def __iter__(self) -> Generator[Vec2, None, None]:
+        for vector in self.vectors:
+            yield vector
+
+    def __getitem__(self, index: int) -> Vec2:
+        return self.vectors[index]
+
+    def __len__(self) -> int:
+        return len(self.vectors)
+
+    def append(self, item: Vec2) -> None:
+        self.vectors.append(item)
+
+    def unpack(self):
+        return [vector for vec in self.vectors for vector in (vec.x, vec.y)]
 
 class Vec2:
     def __init__(self, x: Real = 0.0, y: Real = 0.0):
@@ -62,3 +94,6 @@ class Vec2:
 
     def perpendicular(self) -> Vec2:
         return Vec2(-self.y, self.x)
+
+    def length(self) -> Real:
+        return math.sqrt(self.x ** 2 + self.y ** 2)

@@ -1,6 +1,29 @@
 import vec2
 
 
+def compute_polygon_inertia(vertices, mass):
+    area = compute_polygon_area(vertices)
+    if area == 0:
+        return 0
+    n = len(vertices)
+    sum_val = 0
+    for i, vertex in enumerate(vertices):
+        j = (i + 1) % n
+        cross_val = abs(vertex.cross(vertices[j]))
+        sum_val += cross_val * (
+            vertex.dot(vertex) + vertex.dot(vertices[j]) + vertices[j].dot(vertices[j])
+        )
+    return (mass * sum_val) / (6 * area)
+
+
+def compute_polygon_area(vertices):
+    area = 0
+    for i, vertex in enumerate(vertices):
+        j = (i + 1) % len(vertices)
+        area += vertex.cross(vertices[j])
+    return abs(area) / 2
+
+
 def calculate_velocity(data_points):
     if len(data_points) < 2:
         return vec2.Vec2(0, 0)
