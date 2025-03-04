@@ -8,8 +8,6 @@ from vec2 import Vec2, Vec2List
 type Real = int | float
 type ObjectsMap = dict[int, RigidBody]
 
-
-
 class Bodies:
     def __init__(self):
         self._objects: ObjectsMap = {}
@@ -97,22 +95,4 @@ class Engine:
     def update(self, delta_time: Real, cwidth: int, cheight: int) -> None:
         for _, body in self.bodies:
             body.update(delta_time, gravity=self.gravity)
-        self.resolve_collisions()
 
-
-    def resolve_collisions(self) -> None:
-        for a, b in itertools.combinations(self.bodies, 2):
-            body_a: RigidBody = a[1]
-            body_b: RigidBody = b[1]
-
-            colliding: bool
-            normal: Vec2 | None
-            penetration: Real | None
-            contact: Vec2 | None
-
-            colliding, normal, penetration, contact, _ = sat.sat_collision(
-                body_a, body_b
-            )
-
-            if colliding and normal and penetration and contact is not None:
-                sat.resolve_collision(body_a, body_b, normal, penetration, contact)

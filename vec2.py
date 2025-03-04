@@ -33,6 +33,9 @@ class Vec2List:
     def append(self, item: Vec2) -> None:
         self.vectors.append(item)
 
+    def unpack(self):
+        return [vector for vec in self.vectors for vector in (vec.x, vec.y)]
+
 class Vec2:
     def __init__(self, x: Real = 0.0, y: Real = 0.0):
         self._x: Real = x

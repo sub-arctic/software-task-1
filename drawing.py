@@ -1,23 +1,18 @@
 import math
 
 from rigidbody import RigidBody
-from vec2 import Vec2
+from vec2 import Vec2, Vec2List
 
 type Real = int | float
 
-def draw_polygon(x: Real, y: Real, side_length: Real, sides: int) -> RigidBody:
+def draw_polygon(side_length: Real, sides: int) -> Vec2List:
     circumcircle_radius = side_length / (2 * math.sin(math.pi / sides))
-    vertices = []
+    vertices = Vec2List()
     for i in range(sides):
-        xi = x + circumcircle_radius * math.cos((2 * math.pi * i) / sides)
-        yi = y + circumcircle_radius * math.sin((2 * math.pi * i) / sides)
+        xi = circumcircle_radius * math.cos((2 * math.pi * i) / sides)
+        yi = circumcircle_radius * math.sin((2 * math.pi * i) / sides)
         vertices.append(Vec2(xi, yi))
-    return RigidBody(
-        vertices=vertices,
-        position=Vec2(x, y),
-        velocity=Vec2(),
-        constant_force=Vec2(),
-    )
+    return vertices
 
 
 def draw_velocity_arrows(x: Real, y: Real, velocity: Vec2) -> tuple[list[Real], list[Real]]:

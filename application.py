@@ -6,6 +6,7 @@ import datapoint
 import drawing
 import engine
 import physics
+import rigidbody
 import vec2
 
 
@@ -16,6 +17,7 @@ class Application(ttk.Frame):
         self.simulation_canvas = SimulationCanvas(self)
         self.properties_frame = PropertiesFrame(self)
         self.toolbar = Toolbar(self)
+        self.simulation_canvas.update_dimensions()
         self.simulation_canvas.grid(row=0, column=0, sticky="nsew")
         self.properties_frame.grid(row=0, column=1, sticky="nsew")
         self.toolbar.grid(row=1, column=0)
@@ -36,7 +38,7 @@ class SimulationCanvas(tk.Canvas):
         self.simulation_controller = SimulationController(self)
         self.body_renderer = BodyRenderer(self, self.simulation_controller)
         self.interaction_manager = InteractionManager(self, self.simulation_controller)
-        self.interaction_manager.setup_handlers()
+        # self.interaction_manager.setup_handlers()
 
     def update_dimensions(self):
         self.width = self.winfo_width()
@@ -56,14 +58,27 @@ class SimulationController:
         self.canvas.update_dimensions()
         self.physics_engine.update(scaled_dt, self.canvas.width, self.canvas.height)
         if self.running:
+            self.canvas.create_line(
+                0,
+                self.canvas.height / 2,
+                self.canvas.width,
+                self.canvas.height / 2,
+                fill="red",
+            )
+            self.canvas.create_line(
+                self.canvas.width / 2,
+                0,
+                self.canvas.width / 2,
+                self.canvas.height,
+                fill="red",
+            )
             self.update()
             self.canvas.after(int(dt * 1000 / speed_factor), self.step)
             self.canvas.parent.properties_frame.update_properties()
-            # self.canvas.body_renderer.draw_vector_lines()
 
     def update(self):
         for id, body in self.physics_engine.bodies:
-            self.canvas.coords(id, *body.get_vertices())
+            self.canvas.coords(id, *body.get_vertices().unpack())
 
 
 class BodyRenderer:
@@ -71,50 +86,18 @@ class BodyRenderer:
         self.canvas = canvas
         self.simulation_controller = simulation_controller
 
-    def clean_force_arrows(self):
-        self.canvas.delete("vec_line")
-
-    def draw_vector_lines(self):
-        if (
-            self.simulation_controller.physics_engine.bodies is None
-            or self.simulation_controller.force_arrows.get() == 0
-        ):
-            self.clean_force_arrows()
-            return
-        for id, body in self.simulation_controller.physics_engine.bodies:
-            state = body.get_state()
-            position = state["position"]
-            velocity = state["velocity"]
-            x, y = drawing.draw_velocity_arrows(position.x, position.y, velocity)
-            tag_x = f"{id}_vec_line_x"
-            tag_y = f"{id}_vec_line_y"
-            if self.canvas.find_withtag(tag_x):
-                self.canvas.coords(tag_x, *x)
-                self.canvas.coords(tag_y, *y)
-            else:
-                self.canvas.create_line(
-                    *x,
-                    arrow=tk.LAST,
-                    fill="green",
-                    tags=("vec_line", tag_x),
-                )
-                self.canvas.create_line(
-                    *y,
-                    arrow=tk.LAST,
-                    fill="red",
-                    tags=("vec_line", tag_y),
-                )
-
     def draw_square(self):
-        square = drawing.draw_polygon(100, 100, 100, 3)
-        canvas_id = self.draw_polygon(square.get_vertices(), outline="white")
-        engine_id = self.simulation_controller.physics_engine.bodies.add(
-            square, canvas_id
+        vertices = drawing.draw_polygon(100, 3)
+        position = vec2.Vec2(
+            self.canvas.winfo_width() / 2, self.canvas.winfo_height() / 2
         )
+        body = rigidbody.RigidBody(vertices, position, vec2.Vec2(0, 0), angle=90)
+        canvas_id = self.draw_polygon(*body.get_vertices().unpack(), outline="white")
+        self.simulation_controller.physics_engine.bodies.add(body, canvas_id)
 
     def draw_polygon(self, vertices, *args, **kwargs):
         tags = "body"
-        return self.canvas.create_polygon(*vertices, tags=tags, *args, **kwargs)
+        return self.canvas.create_polygon(vertices, tags=tags, *args, **kwargs)
 
 
 class InteractionManager:
