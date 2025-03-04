@@ -101,6 +101,3 @@ class Engine:
             collision, depth, normal, contact = sat.is_colliding(body_a, body_b)
             if (collision) and normal is not None:
                 resolve_collision(body_a, body_b, depth, normal, contact)
-
-
-

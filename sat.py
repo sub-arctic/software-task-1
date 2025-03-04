@@ -31,13 +31,13 @@ def is_colliding(a: RigidBody, b: RigidBody) -> tuple[bool, Real, Vec2 | None, V
     for axis in axes:
         min_a, max_a = project_polygon(axis, body_a)
         min_b, max_b = project_polygon(axis, body_b)
-        o: Real = overlap_intervals(min_a, max_a, min_b, max_b)
+        offset: Real = overlap_intervals(min_a, max_a, min_b, max_b)
 
-        if o < 0:
+        if offset < 0:
             return False, 0, Vec2(), Vec2()
 
-        if o < min_penetration:
-            min_penetration = o
+        if offset < min_penetration:
+            min_penetration = offset
             collision_normal = axis
 
     contact_point = (a.position + b.position) * 0.5

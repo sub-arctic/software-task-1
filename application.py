@@ -75,7 +75,7 @@ class BodyRenderer:
     def draw_square(self):
         cwidth = self.canvas.winfo_width()
         cheight = self.canvas.winfo_height()
-        vertices = drawing.draw_polygon(100, 4)
+        vertices = drawing.draw_polygon(100, 3)
         position = vec2.Vec2(cwidth / 2, cheight / 2)
         body = rigidbody.RigidBody(vertices, position, vec2.Vec2(0, 0), angle=90)
         canvas_id = self.draw_polygon(*body.get_vertices().unpack(), outline="white")

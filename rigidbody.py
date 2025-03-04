@@ -104,9 +104,13 @@ class RigidBody:
     def update(self, delta_time: Real, gravity: Real = 9.8) -> None:
         self.position = self.position + self.velocity * delta_time
         self.velocity.y += gravity * delta_time
-        angular_acc = self.torque / self.moment_of_inertia
-        self.angular_velocity += angular_acc * delta_time
+
+        angular_acceleration: Real = self.torque / self.moment_of_inertia if self.moment_of_inertia != 0 else 0
+        self.angular_velocity += angular_acceleration * delta_time
+
         self.angle += self.angular_velocity * delta_time
+
+        self.torque = 0
 
 
     def get_state(self) -> dict[str, Any]:
