@@ -1,6 +1,7 @@
 import math
 from typing import Any
 
+import physics
 from vec2 import Vec2, Vec2List
 
 type Real = int | float
@@ -16,6 +17,10 @@ class RigidBody:
         self._angle: Real = angle
         self._mass: Real = mass
         self._restitution: Real = restitution
+        self.moment_of_inertia = physics.compute_polygon_inertia(self.vertices, mass)
+        self.torque = 0
+        self.angular_velocity = 0
+
 
     @property
     def velocity(self) -> Vec2:
@@ -99,6 +104,10 @@ class RigidBody:
     def update(self, delta_time: Real, gravity: Real = 9.8) -> None:
         self.position = self.position + self.velocity * delta_time
         self.velocity.y += gravity * delta_time
+        angular_acc = self.torque / self.moment_of_inertia
+        self.angular_velocity += angular_acc * delta_time
+        self.angle += self.angular_velocity * delta_time
+
 
     def get_state(self) -> dict[str, Any]:
         return {

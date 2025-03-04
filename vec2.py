@@ -94,3 +94,6 @@ class Vec2:
 
     def perpendicular(self) -> Vec2:
         return Vec2(-self.y, self.x)
+
+    def length(self) -> Real:
+        return math.sqrt(self.x ** 2 + self.y ** 2)

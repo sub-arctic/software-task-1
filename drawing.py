@@ -14,6 +14,14 @@ def draw_polygon(side_length: Real, sides: int) -> Vec2List:
         vertices.append(Vec2(xi, yi))
     return vertices
 
+def draw_rectangle(width: float, height: float) -> Vec2List:
+    vertices = Vec2List()
+    vertices.append(Vec2(0, 0))
+    vertices.append(Vec2(width, 0))
+    vertices.append(Vec2(width, height))
+    vertices.append(Vec2(0, height))
+    return vertices
+
 
 def draw_velocity_arrows(x: Real, y: Real, velocity: Vec2) -> tuple[list[Real], list[Real]]:
     x2 = x + velocity.x

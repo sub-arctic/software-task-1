@@ -87,10 +87,17 @@ class BodyRenderer:
         self.simulation_controller = simulation_controller
 
     def draw_square(self):
-        vertices = drawing.draw_polygon(100, 3)
-        position = vec2.Vec2(
-            self.canvas.winfo_width() / 2, self.canvas.winfo_height() / 2
+        cwidth = self.canvas.winfo_width()
+        cheight = self.canvas.winfo_height()
+        vertices = drawing.draw_polygon(100, 4)
+        position = vec2.Vec2(cwidth / 2, cheight / 2)
+        floor = drawing.draw_rectangle(cwidth, 10)
+
+        floor = rigidbody.RigidBody(
+            floor, vec2.Vec2(0, cheight - 10), vec2.Vec2(), mass=float("inf")
         )
+        self.draw_polygon(*floor.get_vertices().unpack(), outline="white")
+
         body = rigidbody.RigidBody(vertices, position, vec2.Vec2(0, 0), angle=90)
         canvas_id = self.draw_polygon(*body.get_vertices().unpack(), outline="white")
         self.simulation_controller.physics_engine.bodies.add(body, canvas_id)
