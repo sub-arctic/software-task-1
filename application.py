@@ -59,11 +59,11 @@ class SimulationController:
             self.update()
             self.canvas.after(int(dt * 1000 / speed_factor), self.step)
             self.canvas.parent.properties_frame.update_properties()
-            self.canvas.body_renderer.draw_vector_lines()
+            # self.canvas.body_renderer.draw_vector_lines()
 
     def update(self):
         for id, body in self.physics_engine.bodies:
-            self.canvas.coords(id, *body.get_vertices(unpacked=True))
+            self.canvas.coords(id, *body.get_vertices())
 
 
 class BodyRenderer:
@@ -114,10 +114,7 @@ class BodyRenderer:
 
     def draw_polygon(self, vertices, *args, **kwargs):
         tags = "body"
-        new_vertices = []
-        for vertex in vertices:
-            new_vertices.extend([vertex.x, vertex.y])
-        return self.canvas.create_polygon(*new_vertices, tags=tags, *args, **kwargs)
+        return self.canvas.create_polygon(*vertices, tags=tags, *args, **kwargs)
 
 
 class InteractionManager:

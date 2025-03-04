@@ -1,7 +1,6 @@
 from rigidbody import RigidBody
-from vec2 import Vec2
+from vec2 import Vec2, Vec2List
 
-type Vec2List = list[Vec2]
 type Real = int | float
 type Irrational = float
 
@@ -16,9 +15,9 @@ def overlap_intervals(min_a: Real, max_a: Real, min_b: Real, max_b: Real) -> Rea
 
 
 def sat_collision(body_a: RigidBody, body_b: RigidBody) -> tuple[bool, Vec2 | None, Real | None, Vec2 | None, Vec2 | None]:
-    corners_a: Vec2List = body_a.get_vertices()
-    corners_b: Vec2List = body_b.get_vertices()
-    axes: Vec2List = []
+    corners_a: Vec2List = body_a.vertices
+    corners_b: Vec2List = body_b.vertices
+    axes: Vec2List = Vec2List()
 
     for poly in (corners_a, corners_b):
         poly_len = len(poly)

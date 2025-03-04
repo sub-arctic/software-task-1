@@ -1,9 +1,8 @@
 import math
 from typing import Any
 
-from vec2 import Vec2
+from vec2 import Vec2, Vec2List
 
-type Vec2List = list[Vec2]
 type Real = int | float
 
 
@@ -64,7 +63,7 @@ class RigidBody:
         cx = sum(x for x, _ in self.vertices) / len(self.vertices)
         cy = sum(y for y, y in self.vertices) / len(self.vertices)
 
-        rotated_vertices = []
+        rotated_vertices = Vec2List()
 
         for x, y in self.vertices:
             x_translated = x - cx
@@ -84,10 +83,10 @@ class RigidBody:
         return rotated_vertices
 
     def update_vertices(self) -> None:
-        self.transformed_vertices = []
+        self.transformed_vertices = Vec2List()
         self.rotated_vertices = self.rotate_vertices()
         for vertex in self.rotated_vertices:
-            new_vertex = vertex + self.position
+            new_vertex: Vec2 = vertex + self.position
             self.transformed_vertices.append(new_vertex)
 
     def update(self, delta_time: Real, gravity: Real = 9.8) -> None:
@@ -105,13 +104,11 @@ class RigidBody:
         self.force = self.constant_force
         self.torque = 0
 
-    def get_vertices(self, unpacked: bool | None=None) -> Vec2List:
-        if unpacked:
+    def get_vertices(self) -> list[Real]:
             vertices = []
             for vertex in self.transformed_vertices:
                 vertices.extend([vertex.x, vertex.y])
             return vertices
-        return self.transformed_vertices
 
     def get_state(self) -> dict[str, Any]:
         return {

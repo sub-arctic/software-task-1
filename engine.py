@@ -1,10 +1,10 @@
+import itertools
 from typing import Iterator
 
 import sat
 from rigidbody import RigidBody
-from vec2 import Vec2
+from vec2 import Vec2, Vec2List
 
-type Vec2List = list[Vec2]
 type Real = int | float
 type ObjectsMap = dict[int, RigidBody]
 
@@ -72,7 +72,6 @@ class Engine:
     def __init__(self, gravity: Real = 9.81) -> None:
         self._bodies = Bodies()
         self._gravity: Real = gravity
-        self.bounds = False
 
     @property
     def bodies(self) -> Bodies:
@@ -98,23 +97,22 @@ class Engine:
     def update(self, delta_time: Real, cwidth: int, cheight: int) -> None:
         for _, body in self.bodies:
             body.update(delta_time, gravity=self.gravity)
-        self.collisions()
+        self.resolve_collisions()
 
-    def collisions(self) -> None:
-        num_bodies = len(self.bodies)
-        for i in range(num_bodies):
-            for j in range(i + 1, num_bodies):
-                body_a: RigidBody = self.bodies[i]
-                body_b: RigidBody = self.bodies[j]
 
-                colliding: bool
-                normal: Vec2 | None
-                penetration: Real | None
-                contact: Vec2 | None
+    def resolve_collisions(self) -> None:
+        for a, b in itertools.combinations(self.bodies, 2):
+            body_a: RigidBody = a[1]
+            body_b: RigidBody = b[1]
 
-                colliding, normal, penetration, contact, _ = sat.sat_collision(
-                    body_a, body_b
-                )
-                if colliding and normal and penetration and contact is not None:
-                    sat.resolve_collision(body_a, body_b, normal, penetration, contact)
-    
+            colliding: bool
+            normal: Vec2 | None
+            penetration: Real | None
+            contact: Vec2 | None
+
+            colliding, normal, penetration, contact, _ = sat.sat_collision(
+                body_a, body_b
+            )
+
+            if colliding and normal and penetration and contact is not None:
+                sat.resolve_collision(body_a, body_b, normal, penetration, contact)
