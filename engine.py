@@ -4,6 +4,7 @@ from typing import Iterator
 import sat
 from collision import resolve_collision
 from rigidbody import RigidBody
+from vec2 import Vec2List
 
 type Real = int | float
 type ObjectsMap = dict[int, RigidBody]
@@ -70,6 +71,9 @@ class Engine:
     def __init__(self, gravity: Real = 9.81) -> None:
         self._bodies = Bodies()
         self._gravity: Real = gravity
+        self.contact = None
+        self.penetration = None
+        self.normal = None
 
     @property
     def bodies(self) -> Bodies:
@@ -98,6 +102,9 @@ class Engine:
         for body_a, body_b in combinations(self.bodies, 2):
             body_a = body_a[1]
             body_b = body_b[1]
-            collision, depth, normal, contact = sat.is_colliding(body_a, body_b)
+            collision, depth, normal, contacts = sat.is_colliding(body_a, body_b)
+            self.contact = contacts
+            self.penetration = depth
+            self.normal = normal
             if (collision) and normal is not None:
-                resolve_collision(body_a, body_b, depth, normal, contact)
+                resolve_collision(body_a, body_b, depth, normal, contacts)

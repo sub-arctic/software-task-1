@@ -20,6 +20,7 @@ class RigidBody:
         self.moment_of_inertia = physics.compute_polygon_inertia(self.vertices, mass)
         self.torque = 0
         self.angular_velocity = 0
+        self.pinned = False
 
 
     @property
@@ -102,7 +103,8 @@ class RigidBody:
         return rotated_vertices
 
     def update(self, delta_time: Real, gravity: Real = 9.8) -> None:
-        self.position = self.position + self.velocity * delta_time
+        if not self.pinned:
+            self.position = self.position + self.velocity * delta_time
         self.velocity.y += gravity * delta_time
 
         angular_acceleration: Real = self.torque / self.moment_of_inertia if self.moment_of_inertia != 0 else 0

@@ -1,3 +1,4 @@
+import random
 import time
 import tkinter as tk
 from tkinter import ttk
@@ -8,6 +9,7 @@ import engine
 import physics
 import rigidbody
 import vec2
+from vec2 import Vec2List
 
 
 class Application(ttk.Frame):
@@ -51,6 +53,7 @@ class SimulationController:
         self.running = False
         self.force_arrows = tk.IntVar(value=1)
         self.canvas = canvas
+        self.ran = False
         self.physics_engine = engine.Engine()
 
     def step(self, dt=0.016, speed_factor=2):
@@ -59,6 +62,23 @@ class SimulationController:
         self.physics_engine.update(scaled_dt, self.canvas.width, self.canvas.height)
         if self.running:
             self.update()
+            if self.physics_engine.contact is not None:
+                contact = self.physics_engine.contact
+                pos = (
+                    contact.x,
+                    contact.y,
+                    contact.x + 10,
+                    contact.y + 10,
+                )
+                if self.ran:
+                    self.canvas.coords("contact", pos)
+                else:
+                    self.canvas.create_rectangle(
+                        pos,
+                        fill="red",
+                        tags="contact",
+                    )
+                    self.ran = True
             self.canvas.after(int(dt * 1000 / speed_factor), self.step)
             self.canvas.parent.properties_frame.update_properties()
 
@@ -75,9 +95,11 @@ class BodyRenderer:
     def draw_square(self):
         cwidth = self.canvas.winfo_width()
         cheight = self.canvas.winfo_height()
-        vertices = drawing.draw_polygon(100, 3)
+        vertices = drawing.draw_polygon(100, 4)
         position = vec2.Vec2(cwidth / 2, cheight / 2)
-        body = rigidbody.RigidBody(vertices, position, vec2.Vec2(0, 0), angle=90)
+        body = rigidbody.RigidBody(
+            vertices, position, vec2.Vec2(0, 0), random.randint(0, 360)
+        )
         canvas_id = self.draw_polygon(*body.get_vertices().unpack(), outline="white")
         self.simulation_controller.physics_engine.bodies.add(body, canvas_id)
 
@@ -96,10 +118,19 @@ class InteractionManager:
 
     def setup_handlers(self):
         self.canvas.tag_bind("body", "<ButtonPress-1>", self.body_press)
+        self.canvas.tag_bind("body", "<ButtonPress-3>", self.body_pin)
         self.canvas.tag_bind("body", "<B1-Motion>", self.body_drag_motion)
         self.canvas.tag_bind("body", "<ButtonRelease-1>", self.body_drag_release)
 
-    def play_pause(self):
+    def body_pin(self, event) -> None:
+        self.search_body()
+        if self.current_body is not None:
+            if self.current_body.pinned:
+                self.current_body.pinned = False
+                return
+            self.current_body.pinned = True
+
+    def play_pause(self) -> None:
         if self.simulation_controller.running:
             self.simulation_controller.running = False
             self.canvas.parent.play_pause_text.set("Play")
@@ -108,12 +139,17 @@ class InteractionManager:
             self.canvas.parent.play_pause_text.set("Pause")
             self.simulation_controller.step(self.dt)
 
-    def body_press(self, _):
+    def search_body(self) -> None:
         self.pressed_body_id = self.canvas.find_withtag("current")[0]
         self.current_body = self.simulation_controller.physics_engine.get_body(
             self.pressed_body_id
         )
-        self.canvas.itemconfigure(self.pressed_body_id, dash=(3, 5))
+
+    def body_press(self, _):
+        self.search_body()
+        if self.current_body is not None:
+            self.current_body.pinned = True
+            self.canvas.itemconfigure(self.pressed_body_id, dash=(3, 5))
 
     def body_drag_motion(self, event):
         self.current_body = self.simulation_controller.physics_engine.get_body(
@@ -136,6 +172,7 @@ class InteractionManager:
         if self.current_body is None:
             return
         self.current_body.velocity = new_velocity
+        self.current_body.pinned = False
         self.canvas.itemconfigure(self.pressed_body_id, dash=())
 
 
