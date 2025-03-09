@@ -1,46 +1,66 @@
+from custom_types import CollisionResult, Scalar
 from rigidbody import RigidBody
 from vec2 import Vec2, Vec2List
 
-type Real = int | float
 
-def project_polygon(axis: Vec2, corners: Vec2List) -> tuple[Real, Real]:
+def project_polygon(axis: Vec2, corners: Vec2List) -> tuple[Scalar, Scalar]:
     dots = [corner.dot(axis) for corner in corners]
     return min(dots), max(dots)
 
-def overlap_intervals(min_a: Real, max_a: Real, min_b: Real, max_b: Real) -> Real:
+
+def overlap_intervals(
+    min_a: Scalar, max_a: Scalar, min_b: Scalar, max_b: Scalar
+) -> Scalar:
     return min(max_a, max_b) - max(min_a, min_b)
 
-def is_colliding(a: RigidBody, b: RigidBody) -> tuple[bool, Real, Vec2 | None, Vec2]:
+
+def find_contact_points(a: Vec2List, b: Vec2List, normal: Vec2) -> Vec2List:
+    min_a = min(a, key=lambda v: v.dot(-normal))
+    min_b = min(b, key=lambda v: v.dot(normal))
+
+    contacts = Vec2List()
+
+    if min_a == min_b:
+        contacts.append(min_a)
+    else:
+        contacts.append(min_a)
+        contacts.append(min_b)
+
+    return contacts
+
+
+def sat(a: RigidBody, b: RigidBody) -> CollisionResult:
     body_a = a.get_vertices()
     body_b = b.get_vertices()
     axes: Vec2List = Vec2List()
-    min_penetration = float('inf')
-    collision_normal = None
+    penetration = float("inf")
+    normal = Vec2()
+    contact_points = Vec2List()
 
     for poly in (body_a, body_b):
-        poly_len = len(poly)
-        for i, vector in enumerate(poly):
-            edge: Vec2 = poly[(i + 1) % poly_len] - vector
-            if edge.length() == 0:
-                continue
+        for i in range(len(poly)):
+            edge = poly[(i + 1) % len(poly)] - poly[i]
             axes.append(edge.perpendicular().normalized())
 
     if not axes:
-        return False, 0, Vec2(), Vec2()
+        return CollisionResult(False)
 
     for axis in axes:
         min_a, max_a = project_polygon(axis, body_a)
         min_b, max_b = project_polygon(axis, body_b)
-        offset: Real = overlap_intervals(min_a, max_a, min_b, max_b)
+        offset: Scalar = overlap_intervals(min_a, max_a, min_b, max_b)
 
-        if offset < 0:
-            return False, 0, Vec2(), Vec2()
+        if offset <= 0:
+            return CollisionResult(False)
 
-        if offset < min_penetration:
-            min_penetration = offset
-            collision_normal = axis
+        if offset < penetration:
+            penetration = offset
+            normal = axis
 
-    contact_point = (a.position + b.position) * 0.5
+    d = b.position - a.position
+    if d.dot(normal) < 0:
+        normal = -normal
 
-    return True, min_penetration, collision_normal, contact_point
+    contact_points = find_contact_points(body_a, body_b, normal)
 
+    return CollisionResult(True, penetration, normal, contact_points)

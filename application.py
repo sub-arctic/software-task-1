@@ -53,32 +53,14 @@ class SimulationController:
         self.running = False
         self.force_arrows = tk.IntVar(value=1)
         self.canvas = canvas
-        self.ran = False
-        self.physics_engine = engine.Engine()
+        self.physics_engine = engine.Engine(canvas=self.canvas)
 
     def step(self, dt=0.016, speed_factor=2):
         scaled_dt = dt * speed_factor
         self.canvas.update_dimensions()
-        self.physics_engine.update(scaled_dt, self.canvas.width, self.canvas.height)
+        self.physics_engine.update(scaled_dt)
         if self.running:
             self.update()
-            if self.physics_engine.contact is not None:
-                contact = self.physics_engine.contact
-                pos = (
-                    contact.x,
-                    contact.y,
-                    contact.x + 10,
-                    contact.y + 10,
-                )
-                if self.ran:
-                    self.canvas.coords("contact", pos)
-                else:
-                    self.canvas.create_rectangle(
-                        pos,
-                        fill="red",
-                        tags="contact",
-                    )
-                    self.ran = True
             self.canvas.after(int(dt * 1000 / speed_factor), self.step)
             self.canvas.parent.properties_frame.update_properties()
 
@@ -95,7 +77,7 @@ class BodyRenderer:
     def draw_square(self):
         cwidth = self.canvas.winfo_width()
         cheight = self.canvas.winfo_height()
-        vertices = drawing.draw_polygon(100, 4)
+        vertices = drawing.draw_polygon(100, random.randint(3, 4))
         position = vec2.Vec2(cwidth / 2, cheight / 2)
         body = rigidbody.RigidBody(
             vertices, position, vec2.Vec2(0, 0), random.randint(0, 360)

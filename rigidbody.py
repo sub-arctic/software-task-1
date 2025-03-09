@@ -2,26 +2,33 @@ import math
 from typing import Any
 
 import physics
+from custom_types import Scalar
 from vec2 import Vec2, Vec2List
-
-type Real = int | float
 
 
 class RigidBody:
     def __init__(
-        self, vertices: Vec2List, position: Vec2, velocity: Vec2, angle: Real = 0, mass: Real = 5, restitution: Real = 0.5
+        self,
+        vertices: Vec2List,
+        position: Vec2,
+        velocity: Vec2,
+        angle: Scalar = 0,
+        mass: Scalar = 5,
+        restitution: Scalar = 0.5,
     ):
         self._vertices: Vec2List = vertices
         self._position: Vec2 = position
         self._velocity: Vec2 = velocity
-        self._angle: Real = angle
-        self._mass: Real = mass
-        self._restitution: Real = restitution
-        self.moment_of_inertia = physics.compute_polygon_inertia(self.vertices, mass)
+        self._angle: Scalar = angle
+        self._mass: Scalar = mass
+        self._restitution: Scalar = restitution
+        self.moment_of_inertia: Scalar = physics.compute_polygon_inertia(
+            self.vertices, mass
+        )
+        self.angular_velocity: Scalar = 0
+        self.force = Vec2()
         self.torque = 0
-        self.angular_velocity = 0
         self.pinned = False
-
 
     @property
     def velocity(self) -> Vec2:
@@ -32,30 +39,30 @@ class RigidBody:
         self._velocity = new_velocity
 
     @property
-    def angle(self) -> Real:
+    def angle(self) -> Scalar:
         return self._angle
 
     @angle.setter
-    def angle(self, new_angle: Real):
+    def angle(self, new_angle: Scalar):
         self._angle = new_angle
 
     @property
-    def mass(self) -> Real:
+    def mass(self) -> Scalar:
         return self._mass
 
     @mass.setter
-    def mass(self, new_mass: Real):
+    def mass(self, new_mass: Scalar):
         self._mass = new_mass
 
     @property
-    def restitution(self) -> Real:
+    def restitution(self) -> Scalar:
         return self._restitution
 
     @restitution.setter
-    def restitution(self, new_restitution: Real):
+    def restitution(self, new_restitution: Scalar):
         if new_restitution < 0 or new_restitution > 1:
             raise ValueError("Restitution must be between 0 and 1")
-        if type(new_restitution) is not Real:
+        if type(new_restitution) is not Scalar:
             raise TypeError("Restitution must be a real number")
         self._restitution = new_restitution
 
@@ -71,49 +78,29 @@ class RigidBody:
     def vertices(self) -> Vec2List:
         return self._vertices
 
-    def get_vertices(self) -> Vec2List:
-        translated_vertices: Vec2List = Vec2List()
-        for vertex in self.rotate(self.vertices, self.angle):
-            translated_vertices.append(vertex + self.position)
-        return translated_vertices
+    def get_vertices(self):
+        return Vec2List([v.rotated(self.angle) + self.position for v in self.vertices])
 
-    def rotate(self, vertices: Vec2List, angle: Real) -> Vec2List:
-        angle_radians = math.radians(angle)
+    def apply_force(self, force, point=None):
+        self.force = self.force + force
+        if point is not None:
+            r = point - self.position
+            self.torque += r.cross(force)
 
-        cx = sum(x for x, _ in vertices) / len(vertices)
-        cy = sum(y for y, y in vertices) / len(vertices)
+    def update(self, delta_time: Scalar, gravity: Scalar = 9.8) -> None:
+        if self.pinned:
+            return
+        self.apply_force(Vec2(0, self.mass * gravity))
 
-        rotated_vertices = Vec2List()
+        acceleration = self.force / self.mass
+        self.velocity = self.velocity + acceleration * delta_time
+        self.position = self.position + self.velocity * delta_time
 
-        for x, y in vertices:
-            x_translated = x - cx
-            y_translated = y - cy
-
-            x_rotated = (
-                x_translated * math.cos(angle_radians)
-                - y_translated * math.sin(angle_radians)
-            ) + cx
-            y_rotated = (
-                x_translated * math.sin(angle_radians)
-                + y_translated * math.cos(angle_radians)
-            ) + cy
-
-            rotated_vertices.append(Vec2(x_rotated, y_rotated))
-
-        return rotated_vertices
-
-    def update(self, delta_time: Real, gravity: Real = 9.8) -> None:
-        if not self.pinned:
-            self.position = self.position + self.velocity * delta_time
-        self.velocity.y += gravity * delta_time
-
-        angular_acceleration: Real = self.torque / self.moment_of_inertia if self.moment_of_inertia != 0 else 0
-        self.angular_velocity += angular_acceleration * delta_time
-
+        angular_acc = self.torque / self.moment_of_inertia
+        self.angular_velocity += angular_acc * delta_time
         self.angle += self.angular_velocity * delta_time
 
-        self.torque = 0
-
+        self.force = Vec2()
 
     def get_state(self) -> dict[str, Any]:
         return {

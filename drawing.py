@@ -1,11 +1,10 @@
 import math
 
-from rigidbody import RigidBody
+from custom_types import Scalar
 from vec2 import Vec2, Vec2List
 
-type Real = int | float
 
-def draw_polygon(side_length: Real, sides: int) -> Vec2List:
+def draw_polygon(side_length: Scalar, sides: int) -> Vec2List:
     circumcircle_radius = side_length / (2 * math.sin(math.pi / sides))
     vertices = Vec2List()
     for i in range(sides):
@@ -13,6 +12,7 @@ def draw_polygon(side_length: Real, sides: int) -> Vec2List:
         yi = circumcircle_radius * math.sin((2 * math.pi * i) / sides)
         vertices.append(Vec2(xi, yi))
     return vertices
+
 
 def draw_rectangle(width: float, height: float) -> Vec2List:
     vertices = Vec2List()
@@ -23,7 +23,9 @@ def draw_rectangle(width: float, height: float) -> Vec2List:
     return vertices
 
 
-def draw_velocity_arrows(x: Real, y: Real, velocity: Vec2) -> tuple[list[Real], list[Real]]:
+def draw_velocity_arrows(
+    x: Scalar, y: Scalar, velocity: Vec2
+) -> tuple[list[Scalar], list[Scalar]]:
     x2 = x + velocity.x
     y2 = y - velocity.y
     x_component_line = [x, y, x2, y]

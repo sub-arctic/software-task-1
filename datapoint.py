@@ -1,23 +1,23 @@
+from custom_types import Scalar
 from vec2 import Vec2
 
-type Real = int | float
 
 class DataPoint:
-    def __init__(self, time: Real, position: Vec2) -> None:
+    def __init__(self, time: Scalar, position: Vec2) -> None:
         self._time = time
         self._x = position.x
         self._y = position.y
 
     @property
-    def time(self) -> Real:
+    def time(self) -> Scalar:
         return self._time
 
     @time.setter
-    def time(self, new_time: Real) -> None:
+    def time(self, new_time: Scalar) -> None:
         self.time = new_time
 
     @property
-    def x(self) -> Real:
+    def x(self) -> Scalar:
         return self._x
 
     @x.setter
@@ -25,7 +25,7 @@ class DataPoint:
         self.x = new_x
 
     @property
-    def y(self) -> Real:
+    def y(self) -> Scalar:
         return self._y
 
     @y.setter
@@ -41,7 +41,7 @@ class DataPointList:
     def __len__(self) -> int:
         return len(self.data_points)
 
-    def add_data_point(self, time: Real, position: Vec2) -> None:
+    def add_data_point(self, time: Scalar, position: Vec2) -> None:
         new_point = DataPoint(time, position)
         self.data_points.append(new_point)
 

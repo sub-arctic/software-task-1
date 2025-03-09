@@ -1,12 +1,10 @@
 from itertools import combinations
 from typing import Iterator
 
-import sat
-from collision import resolve_collision
+from collision import handle_collision
+from custom_types import Scalar
 from rigidbody import RigidBody
-from vec2 import Vec2List
 
-type Real = int | float
 type ObjectsMap = dict[int, RigidBody]
 
 class Bodies:
@@ -68,23 +66,21 @@ class Bodies:
 
 
 class Engine:
-    def __init__(self, gravity: Real = 9.81) -> None:
+    def __init__(self, gravity: Scalar = 9.81, canvas = None) -> None:
         self._bodies = Bodies()
-        self._gravity: Real = gravity
-        self.contact = None
-        self.penetration = None
-        self.normal = None
+        self._gravity: Scalar = gravity
+        self.canvas = canvas
 
     @property
     def bodies(self) -> Bodies:
         return self._bodies
 
     @property
-    def gravity(self) -> Real:
+    def gravity(self) -> Scalar:
         return self._gravity
 
     @gravity.setter
-    def gravity(self, new_gravity: Real) -> None:
+    def gravity(self, new_gravity: Scalar) -> None:
         self.gravity = new_gravity
 
     def __getitem__(self, id: int) -> RigidBody:
@@ -96,15 +92,10 @@ class Engine:
     def get_body(self, id: int) -> RigidBody | None:
         return self.bodies.get(id)
 
-    def update(self, delta_time: Real, cwidth: int, cheight: int) -> None:
+    def update(self, delta_time: Scalar) -> None:
         for _, body in self.bodies:
             body.update(delta_time)
         for body_a, body_b in combinations(self.bodies, 2):
             body_a = body_a[1]
             body_b = body_b[1]
-            collision, depth, normal, contacts = sat.is_colliding(body_a, body_b)
-            self.contact = contacts
-            self.penetration = depth
-            self.normal = normal
-            if (collision) and normal is not None:
-                resolve_collision(body_a, body_b, depth, normal, contacts)
+            handle_collision(body_a, body_b)
