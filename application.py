@@ -9,7 +9,9 @@ import engine
 import physics
 import rigidbody
 import vec2
-from vec2 import Vec2List
+
+DELTA_TIME = 0.016
+SPEED_FACTOR = 3
 
 
 class Application(ttk.Frame):
@@ -49,26 +51,29 @@ class SimulationCanvas(tk.Canvas):
 
 class SimulationController:
     def __init__(self, canvas):
-        self.dt = 0.016
         self.running = False
-        self.force_arrows = tk.IntVar(value=1)
+        self.dt = DELTA_TIME
+        self.speed = SPEED_FACTOR
         self.canvas = canvas
         self.physics_engine = engine.Engine(canvas=self.canvas)
 
-    def step(self, dt=0.016, speed_factor=2):
-        scaled_dt = dt * speed_factor
+    def step(self):
+        scaled_dt = self.dt * self.speed
         self.canvas.update_dimensions()
         self.physics_engine.update(
             scaled_dt, vec2.Vec2(self.canvas.width, self.canvas.height)
         )
         if self.running:
             self.update()
-            self.canvas.after(int(dt * 1000 / speed_factor), self.step)
+            self.canvas.after(int(self.dt * 1000 / self.speed), self.step)
             self.canvas.parent.properties_frame.update_properties()
 
     def update(self):
         for id, body in self.physics_engine.bodies:
             self.canvas.coords(id, *body.get_vertices().unpack())
+
+    def set_gravity(self, new_gravity):
+        self.physics_engine.gravity = float(new_gravity)
 
 
 class BodyRenderer:
@@ -98,7 +103,6 @@ class InteractionManager:
         self.current_body = None
         self.mouse_positions = datapoint.DataPointList(2)
         self.simulation_controller = simulation_controller
-        self.dt = 0.016
 
     def setup_handlers(self):
         self.canvas.tag_bind("body", "<ButtonPress-1>", self.body_press)
@@ -113,7 +117,7 @@ class InteractionManager:
         else:
             self.simulation_controller.running = True
             self.canvas.parent.play_pause_text.set("Pause")
-            self.simulation_controller.step(self.dt)
+            self.simulation_controller.step()
 
     def search_body(self) -> rigidbody.RigidBody:
         self.pressed_body_id = self.canvas.find_withtag("current")[0]
@@ -165,6 +169,14 @@ class Toolbar(ttk.Frame):
             text="Add square",
             command=self.simulation_canvas.body_renderer.draw_square,
         )
+        self.gravity_scale = ttk.Scale(
+            self,
+            command=self.simulation_canvas.simulation_controller.set_gravity,
+            from_=0,
+            to=20,
+            value=9.89,
+            orient=tk.HORIZONTAL,
+        )
         self.parent.play_pause_text.set("Play")
         self.play_pause_button = ttk.Button(
             self,
@@ -174,6 +186,7 @@ class Toolbar(ttk.Frame):
         )
         self.play_pause_button.grid(column=0, row=1)
         self.add_square_button.grid(column=1, row=1)
+        self.gravity_scale.grid(column=2, row=1)
 
 
 class PropertiesFrame(ttk.LabelFrame):
@@ -183,8 +196,11 @@ class PropertiesFrame(ttk.LabelFrame):
         )
         self.simulation_canvas = parent.simulation_canvas
         self.velocity = tk.StringVar()
+        self.mass = tk.StringVar()
         self.velocity_text = ttk.Label(self, textvariable=self.velocity)
+        self.mass_text = ttk.Label(self, textvariable=self.mass)
         self.velocity_text.grid()
+        self.mass_text.grid()
 
     def update_properties(self):
         if self.simulation_canvas.interaction_manager.current_body is None:
@@ -192,7 +208,9 @@ class PropertiesFrame(ttk.LabelFrame):
         state = self.simulation_canvas.interaction_manager.current_body.get_state()
         velocity_x = round(state["velocity"].x)
         velocity_y = round(state["velocity"].y)
-        self.velocity.set(f"x: {velocity_x}, y: {velocity_y}")
+        mass = state["mass"]
+        self.mass.set(f"mass: {mass}")
+        self.velocity.set(f"velocity: x: {velocity_x}, y: {velocity_y}")
 
 
 if __name__ == "__main__":

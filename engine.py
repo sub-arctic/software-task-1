@@ -1,12 +1,11 @@
 from itertools import combinations
-from typing import Optional
 
 import drawing
 from bodies import Bodies
 from collision import handle_collision
 from custom_types import Scalar
 from rigidbody import RigidBody
-from vec2 import Vec2, Vec2List
+from vec2 import Vec2
 
 
 class Engine:
@@ -25,7 +24,7 @@ class Engine:
 
     @gravity.setter
     def gravity(self, new_gravity: Scalar) -> None:
-        self.gravity = new_gravity
+        self._gravity = new_gravity
 
     def __getitem__(self, id: int) -> RigidBody:
         return self.bodies[id]
@@ -57,7 +56,7 @@ class Engine:
     def update(self, delta_time: Scalar, dimensions: Vec2) -> None:
         walls = self.create_bounds(dimensions)
         for _, body in self.bodies:
-            body.update(delta_time)
+            body.update(delta_time, gravity=self.gravity)
             for wall in walls:
                 handle_collision(body, wall)
         for body_a, body_b in combinations(self.bodies, 2):
