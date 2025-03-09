@@ -17,10 +17,10 @@ def handle_collision(body_a, body_b, method="sat"):
 
 
 def resolve_collision(body_a, body_b, result: CollisionResult):
-    if result is not False:
-        contacts = result.contacts
-        penetration = result.penetration
-        normal = result.normal
+    contacts = result.contacts
+    penetration = result.penetration
+    normal = result.normal
+
     if not contacts:
         return
 
@@ -61,11 +61,13 @@ def resolve_collision(body_a, body_b, result: CollisionResult):
 
         impulse = normal * j
 
-        body_a.velocity -= impulse * inv_mass_a
-        body_b.velocity += impulse * inv_mass_b
+        if not body_a.pinned:
+            body_a.velocity -= impulse * inv_mass_a
+            body_a.angular_velocity -= ra_cross_n * j * inv_inertia_a
 
-        body_a.angular_velocity -= ra_cross_n * j * inv_inertia_a
-        body_b.angular_velocity += rb_cross_n * j * inv_inertia_b
+        if not body_b.pinned:
+            body_b.velocity += impulse * inv_mass_b
+            body_b.angular_velocity += rb_cross_n * j * inv_inertia_b
 
     PERCENT = 0.8
     SLOP = 0.01
@@ -73,5 +75,7 @@ def resolve_collision(body_a, body_b, result: CollisionResult):
         return
     if penetration > SLOP:
         correction = normal * (penetration * PERCENT / (inv_mass_a + inv_mass_b))
-        body_a.position -= correction * inv_mass_a
-        body_b.position += correction * inv_mass_b
+        if not body_a.pinned:
+            body_a.position -= correction * inv_mass_a
+        if not body_b.pinned:
+            body_b.position += correction * inv_mass_b

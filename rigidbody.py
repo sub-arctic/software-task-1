@@ -1,5 +1,5 @@
 import math
-from typing import Any
+from typing import Any, Optional
 
 import physics
 from custom_types import Scalar
@@ -62,8 +62,6 @@ class RigidBody:
     def restitution(self, new_restitution: Scalar):
         if new_restitution < 0 or new_restitution > 1:
             raise ValueError("Restitution must be between 0 and 1")
-        if type(new_restitution) is not Scalar:
-            raise TypeError("Restitution must be a real number")
         self._restitution = new_restitution
 
     @property
@@ -86,6 +84,21 @@ class RigidBody:
         if point is not None:
             r = point - self.position
             self.torque += r.cross(force)
+
+    def pin(self, position: Optional[Vec2] = None) -> None:
+        if self.pinned:
+            self.unpin()
+            return
+
+        if position is not None:
+            self.position = position
+        self.velocity = Vec2()
+        self.angular_velocity = 0
+        self.restitution = 0.9
+        self.pinned = True
+
+    def unpin(self) -> None:
+        self.pinned = False
 
     def update(self, delta_time: Scalar, gravity: Scalar = 9.8) -> None:
         if self.pinned:

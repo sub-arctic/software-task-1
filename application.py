@@ -58,7 +58,9 @@ class SimulationController:
     def step(self, dt=0.016, speed_factor=2):
         scaled_dt = dt * speed_factor
         self.canvas.update_dimensions()
-        self.physics_engine.update(scaled_dt)
+        self.physics_engine.update(
+            scaled_dt, vec2.Vec2(self.canvas.width, self.canvas.height)
+        )
         if self.running:
             self.update()
             self.canvas.after(int(dt * 1000 / speed_factor), self.step)
@@ -104,14 +106,6 @@ class InteractionManager:
         self.canvas.tag_bind("body", "<B1-Motion>", self.body_drag_motion)
         self.canvas.tag_bind("body", "<ButtonRelease-1>", self.body_drag_release)
 
-    def body_pin(self, event) -> None:
-        self.search_body()
-        if self.current_body is not None:
-            if self.current_body.pinned:
-                self.current_body.pinned = False
-                return
-            self.current_body.pinned = True
-
     def play_pause(self) -> None:
         if self.simulation_controller.running:
             self.simulation_controller.running = False
@@ -121,22 +115,25 @@ class InteractionManager:
             self.canvas.parent.play_pause_text.set("Pause")
             self.simulation_controller.step(self.dt)
 
-    def search_body(self) -> None:
+    def search_body(self) -> rigidbody.RigidBody:
         self.pressed_body_id = self.canvas.find_withtag("current")[0]
         self.current_body = self.simulation_controller.physics_engine.get_body(
             self.pressed_body_id
         )
+        return self.current_body
 
     def body_press(self, _):
         self.search_body()
         if self.current_body is not None:
-            self.current_body.pinned = True
             self.canvas.itemconfigure(self.pressed_body_id, dash=(3, 5))
 
+    def body_pin(self, event) -> None:
+        self.search_body()
+        if self.current_body is not None:
+            self.current_body.pin(vec2.Vec2(event.x, event.y))
+
     def body_drag_motion(self, event):
-        self.current_body = self.simulation_controller.physics_engine.get_body(
-            self.pressed_body_id
-        )
+        self.search_body()
         if self.current_body is None:
             return
         new_position = vec2.Vec2(event.x, event.y)
@@ -154,7 +151,6 @@ class InteractionManager:
         if self.current_body is None:
             return
         self.current_body.velocity = new_velocity
-        self.current_body.pinned = False
         self.canvas.itemconfigure(self.pressed_body_id, dash=())
 
 
