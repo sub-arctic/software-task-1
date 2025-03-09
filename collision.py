@@ -1,5 +1,3 @@
-from typing import Optional
-
 from custom_types import CollisionResult
 from sat import sat
 
