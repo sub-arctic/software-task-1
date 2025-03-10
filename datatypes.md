@@ -75,9 +75,78 @@ While strings can be modified using operators such as +, they are *immutable*, m
 
 However, the primary use case for strings (in python), is most likely user input and output. A string in python can represent any Unicode character, including emojis, letters, numbers and other special characters. This makes them a safe datatype for handeling arbitrary user input without validation, or with delayed validation.
 
+```python
+var = string(input("Enter text: "))
+foo = "foo"
+bar = "bar"
+
+print(foo + bar) # foobar
+print(foo * 2) # foofoo
+print(foo[0]) # f
+print((foo+bar)[-1]) # r
+```
+
 In my project, strings are only used for label displays on text, applications and buttons, as well as for keys in dictionaries.
 
 ## Integer
 An integer (`int` in python) stores whole numbers; they cannot contain any decimals. Unlike other programming languages such as C++ where integers have limited precision, which defines how many digits can be stored in a variable of certain type, dictated by the underlying binary, python's integers have unlimited precision (as of python 3). This means that integers can be arbitrarily large, without the need for type qualifiers such as `long`. Integers can be positive or negative.
 
-Integers can 
+Integers can be operated on mathematically, using all of the most common methods and operators:
+
+```python
+a = 1
+b = 2
+
+print(a+b) # 3
+print(a-b) # -1
+print(a*b) # 2
+print(int(a/b)) # 0 (rounds back down)
+print(a**b) # 1
+# and so forth
+```
+
+Notice the statement where `int()` is called on the resultant of `a/b`. When we divide `a` and `b`, we get a floating point number. In the print expression, we assign it back to an integer using the function call `int()`. This will round it down to a whole number. It will never round up.
+
+```python
+print(int(0.9)) # 0
+```
+
+Integers can be used in complex mathematical calculations, but because of this limitation with rounding, you would never explicitly cast a floating point resultant back into an integer. Instead, the `round()` function should be used, where accuracy can be specified.
+
+Python is *dynamically typed*, which in short means that variables cannot be explicitly assigned to a datatype; instead, they can change after declaration. Because of this, integers cannot be "relied" on as as a datatype for calculations, especially when dealing with arbitrary data, as python will in most cases convert it to a floating point at the end of an expression. In other languages such as C++, which is statically typed, you cannot assign floating point values to integers, allowing much more declarative and rigid code.
+
+Hence, in my project, integers are primarily used as indexes into arrays, or for window coordinates that cannot be fractional. Compound datatypes (arrays, lists etc), as will be later explained, can return values given an index. These indices are *almost* always whole numbers.
+
+\**in a dunder \__iter__ method for a custom class, you could define whatever datatype you want to, in order to index a value from a list*
+
+## Floating point
+A floating point number shares all of the same properties as integers, including most of the same methods and functions. The primary difference in python is that floating point numbers can have arbitrary decimal precision. Floating point numbers, like integers, have unlimited precision.
+
+```python
+a = 0.1
+b = 0.5
+infinity = float('inf')
+
+print(a+b) # 0.6
+print(infinity) # inf
+print(infinity/2) # inf
+print(infinity*0) # nan
+```
+
+Notice the `float('inf')` casting. This is a special datatype that has infinite value. It is very useful for calculating the lowest value, as nothing can be higher than it. It is used in my code to calculate a lowest value:
+
+```python
+penetration = float('inf')
+
+# ...
+for value in something:
+    offset = some_calculation
+
+    if offset < penetration:
+        penetration = offset
+    # ...
+```
+
+I assign penetration infinity, and then traverse through a list to determine the lowest value for offset that is less than penetration. This could be achieved by setting penetration to an arbitrarily high number, like `99999`, but this does not account for a scenario where offset is initially potentially higher.
+
+Otherwise, floating points are used very frequently through my code, to store everything from gravity constants to restitution to delta times to times in nanoseconds.
