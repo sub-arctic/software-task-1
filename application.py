@@ -17,27 +17,54 @@ SPEED_FACTOR = 3
 class Application(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
+
         self.setup_grid()
-        self.simulation_canvas = SimulationCanvas(self)
+
+        self.pane = Pane(self, orient="horizontal", height=720)
+
+        self.simulation_canvas = SimulationCanvas(self.pane, self)
+        self.simulation_canvas.update_dimensions()
+
+        self.lesson_frame = LessonFrame(self.pane)
+
+        self.pane.add(self.lesson_frame, weight=1)
+        self.pane.add(self.simulation_canvas, weight=4)
+        self.pane.grid(row=0, column=0)
+
         self.properties_frame = PropertiesFrame(self)
         self.toolbar = Toolbar(self)
-        self.simulation_canvas.update_dimensions()
-        self.simulation_canvas.grid(row=0, column=0, sticky="nsew")
         self.properties_frame.grid(row=0, column=1, sticky="nsew")
-        self.toolbar.grid(row=1, column=0)
+
+        self.toolbar.grid(row=1, column=1)
 
     def setup_grid(self):
         top = self.winfo_toplevel()
         top.rowconfigure(0, weight=1)
         top.columnconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
+        # self.columnconfigure(1, weight=3)
         self.rowconfigure(0, weight=1)
         self.grid(sticky="nsew")
 
 
-class SimulationCanvas(tk.Canvas):
+class Pane(ttk.PanedWindow):
+    def __init__(self, parent, **kwargs):
+        super().__init__(parent, **kwargs)
+
+
+class LessonFrame(ttk.Frame):
     def __init__(self, parent):
-        super().__init__(parent, background="black")
+        super().__init__(parent)
+        text = """
+            Newton's laws of motion are three physical laws that describe the relationship between the motion of an object and the forces acting on it.
+        """
+        self.information = ttk.Label(self, text=text, wraplength=512)
+        self.information.grid(row=0, column=0)
+
+
+class SimulationCanvas(tk.Canvas):
+    def __init__(self, pane, parent):
+        super().__init__(pane, background="black")
         self.parent = parent
         self.simulation_controller = SimulationController(self)
         self.body_renderer = BodyRenderer(self, self.simulation_controller)
