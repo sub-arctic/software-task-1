@@ -211,12 +211,3 @@ class PropertiesFrame(ttk.LabelFrame):
         mass = state["mass"]
         self.mass.set(f"mass: {mass}")
         self.velocity.set(f"velocity: x: {velocity_x}, y: {velocity_y}")
-
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    root.rowconfigure(0, weight=1)
-    root.columnconfigure(0, weight=1)
-    app = Application(root)
-    app.pack(fill="both", expand=True)
-    root.mainloop()
