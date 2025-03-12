@@ -150,3 +150,72 @@ for value in something:
 I assign penetration infinity, and then traverse through a list to determine the lowest value for offset that is less than penetration. This could be achieved by setting penetration to an arbitrarily high number, like `99999`, but this does not account for a scenario where offset is initially potentially higher.
 
 Otherwise, floating points are used very frequently through my code, to store everything from gravity constants to restitution to delta times to times in nanoseconds.
+
+
+## Lists
+A list, or vector in C++, is a datatype that can store any other datatypes. It is a "container", where any element inside the list can be retrieved and indexed by its offset from the beginning. As touched on previously, a string is technically a list, as you can index any character in a string with its index, and preform most of the list operations on it. In python, list indices begin at 0 and continue for each entry in a list. It is created using square brackets.
+
+```python
+foo = ["b", "a", "r"]
+print(foo[0]) # b
+print(foo[1]) # a
+print(foo[-2]) # a
+print(foo[0:-1]) # a
+```
+
+A list item can be retrieved front to back using negative indices. It can also be "sliced" with `:`, which returns elements in a range. 
+
+New variables can be assigned to existing values:
+
+```python
+foo = ["b", "a", "r"]
+print(foo[0]) # b
+foo[b] = "c"
+
+print(foo[0]) # c
+```
+Elements can also be appended with the method `list.append()`, and removed with `list.pop(index)`. Popping an element out of the list will return it back.
+
+Lists are very useful when order matters and you need to return something by its index. Iteration through elements is simple, and the order will stay the same. However, removing elements from a position in the list can be impactful on performance, as python has to iterate through the entire list in order to move other elements down.
+
+Lists are used frequently throughout my application, for storing sequential vertices in a shape, bodies in an engine and more, where repeatable, sequential and indexable access is required.
+
+## Tuple
+A tuple is similar to a list in the sense that data can be retrieved by its index. However, tuples are immutable, so elements cannot be removed or added after creation. This is the main difference between the two.
+
+Their immutability has a few benefits over lists. Because their size is set at declaration, searching through elements by index is faster with lists, especially with an increase in items. They can also be used for dictionary keys, which will be explained later.
+
+```python
+foo = ("a", "b", "c")
+print(foo[0]) # a
+print("b" in foo) # True
+foo.pop(0) # error
+```
+Tuples are not used in my application, as all lists need to be dynamically allocated and modified due to the "updating" nature of a physics engine. There is one case where a tuple could be used inside a custom class, and in one instance it would improve performance, but to re-use code a list will suffice.
+
+## Dictionary
+A dictionary, or `dict` in python, is an ordered list where each item is indexed by a unique value, known as a key-value pair. Only immutable values can be used for keys, which means that lists and other dictionaries cannot be used in the key field.
+
+```python
+foo = {"big": True, "bar": "yes"}
+print(foo["big"]) # True
+```
+
+In the above example we return the value given a key. We cannot index an item in a dictionary given an index, unless the key is numerical, unless we iterate over all elements:
+
+```python
+foo = {"big": True, "bar": "yes"}
+counter = 0
+target = 1
+for key, value in foo:
+    if counter == target:
+        print(key, value)
+        break
+    counter += 1
+```
+
+For obvious reasons, this is not very performant. However, it is not an issue when you consider the types of data that is commonly stored in a dictionary; properties, pairings and more.
+
+A common use case for a dictionary, and one that is used in my application, is storing a list of dictionaries
+```
+
