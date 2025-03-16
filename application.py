@@ -26,8 +26,11 @@ class Application(ttk.Frame):
         self.lesson_frame = LessonFrame(self)
         self.simulation_canvas = SimulationCanvas(self)
 
+        self.toolbar = Toolbar(self)
+        self.toolbar.grid(row=1, column=0, sticky="nsew")
+
         self.lesson_manager = LessonManager(self, self.lesson_frame, self.simulation_canvas)
-        self.lesson_manager.load_lesson("gravity.md")  # Load default lesson
+        self.lesson_manager.load_lesson("gravity.md")
 
     def setup_grid(self):
         self.grid(sticky="nsew")
@@ -38,7 +41,8 @@ class Application(ttk.Frame):
 
 class SimulationCanvas(tk.Canvas):
     def __init__(self, parent):
-        super().__init__(parent, background="black")
+        self.parent = parent
+        super().__init__(self.parent, background="black")
         self.simulation_controller = SimulationController(self)
         self.body_renderer = BodyRenderer(self, self.simulation_controller)
         self.interaction_manager = InteractionManager(self, self.simulation_controller)
