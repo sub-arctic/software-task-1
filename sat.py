@@ -20,7 +20,7 @@ def find_contact_points(a: Vec2List, b: Vec2List, normal: Vec2) -> Vec2List:
 
     contacts = Vec2List()
 
-    if min_a == min_bb:
+    if min_a == min_b:
         contacts.append(min_a)
     else:
         contacts.append(min_a)
