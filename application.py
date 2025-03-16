@@ -25,6 +25,7 @@ class Application(ttk.Frame):
 
         self.lesson_frame = LessonFrame(self)
         self.simulation_canvas = SimulationCanvas(self)
+        self.simulation_canvas.update_dimensions()
 
         self.toolbar = Toolbar(self)
         self.toolbar.grid(row=1, column=0, sticky="nsew")
@@ -84,18 +85,23 @@ class BodyRenderer:
         self.canvas = canvas
         self.simulation_controller = simulation_controller
 
-    def draw_square(self):
-        cwidth = self.canvas.winfo_width()
-        cheight = self.canvas.winfo_height()
-        vertices = drawing.draw_polygon(100, random.randint(3, 4))
-        position = vec2.Vec2(cwidth / 2, cheight / 2)
+    def draw_polygon(self, position=None, velocity=None, sides=4, side_length=100, angle=0, mass=50, restitution=0.5):
+        vertices = drawing.draw_polygon(side_length, sides)
+
+        velocity = velocity if velocity is not None else vec2.Vec2()
+
+        if position == "center" or position is None:
+            cwidth = self.canvas.winfo_width()
+            cheight = self.canvas.winfo_height()
+            position = vec2.Vec2(cwidth / 2, cheight / 2)
+
         body = rigidbody.RigidBody(
-            vertices, position, vec2.Vec2(0, 0), random.randint(0, 360)
+            vertices, position, velocity, angle, mass, restitution
         )
-        canvas_id = self.draw_polygon(*body.get_vertices().unpack(), outline="white")
+        canvas_id = self.create_polygon(*body.get_vertices().unpack(), outline="white")
         self.simulation_controller.physics_engine.bodies.add(body, canvas_id)
 
-    def draw_polygon(self, vertices, *args, **kwargs):
+    def create_polygon(self, vertices, *args, **kwargs):
         tags = "body"
         return self.canvas.create_polygon(vertices, tags=tags, *args, **kwargs)
 
@@ -169,7 +175,7 @@ class Toolbar(ttk.Frame):
         self.add_square_button = ttk.Button(
             self,
             text="Add square",
-            command=self.simulation_canvas.body_renderer.draw_square,
+            command=self.simulation_canvas.body_renderer.draw_polygon,
         )
         self.gravity_scale = ttk.Scale(
             self,
@@ -193,7 +199,8 @@ class Toolbar(ttk.Frame):
 
 class LessonFrame(ttk.Frame):
     def __init__(self, parent):
-        super().__init__(parent)
+        self.parent = parent
+        super().__init__(self.parent)
         self.grid(row=0, column=0, sticky="nsew")
         self.content_frame = ttk.Frame(self)
         self.content_frame.grid(sticky="nsew")
@@ -201,6 +208,11 @@ class LessonFrame(ttk.Frame):
 
     def display_lesson(self, markdown_text):
         self.parser.parse(markdown_text)
+        if self.parser.bodies is None:
+            return
+        for body in self.parser.bodies:
+            for _, properties in body.items():
+                self.parent.simulation_canvas.body_renderer.draw_polygon(**properties)
 
 class LessonManager:
     def __init__(self, parent, lesson_frame, simulation_canvas):
