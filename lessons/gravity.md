@@ -1,7 +1,7 @@
 ---
 bodies:
-    1: [sides: 3, position: center, angle: 0, mass: 50, restitution: 0.5]
-    2: [sides: 5, position: center, angle: 0, mass: 50, restitution: 0.5]
+    1: [sides: 3, position: center, angle: 0, mass: 5, restitution: 0.5]
+    2: [sides: 5, position: center, angle: 0, mass: 5, restitution: 0.5]
 ---
 
 # Gravity

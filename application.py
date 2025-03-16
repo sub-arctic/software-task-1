@@ -1,4 +1,3 @@
-import random
 import time
 import tkinter as tk
 from tkinter import ttk
@@ -25,7 +24,6 @@ class Application(ttk.Frame):
 
         self.lesson_frame = LessonFrame(self)
         self.simulation_canvas = SimulationCanvas(self)
-        self.simulation_canvas.update_dimensions()
 
         self.toolbar = Toolbar(self)
         self.toolbar.grid(row=1, column=0, sticky="nsew")
@@ -85,23 +83,27 @@ class BodyRenderer:
         self.canvas = canvas
         self.simulation_controller = simulation_controller
 
-    def draw_polygon(self, position=None, velocity=None, sides=4, side_length=100, angle=0, mass=50, restitution=0.5):
+    def create_polygon(self, position=None, velocity=None, sides=4, side_length=100, angle=0, mass=5, restitution=0.5):
         vertices = drawing.draw_polygon(side_length, sides)
 
         velocity = velocity if velocity is not None else vec2.Vec2()
 
         if position == "center" or position is None:
-            cwidth = self.canvas.winfo_width()
-            cheight = self.canvas.winfo_height()
-            position = vec2.Vec2(cwidth / 2, cheight / 2)
+            self.canvas.update_dimensions()
+            cwidth = self.canvas.width
+            cheight = self.canvas.height
+            if cwidth < 10 and cheight < 10:
+                position = vec2.Vec2(200, 200)
+            else:
+                position = vec2.Vec2(cwidth / 2, cheight / 2)
 
         body = rigidbody.RigidBody(
             vertices, position, velocity, angle, mass, restitution
         )
-        canvas_id = self.create_polygon(*body.get_vertices().unpack(), outline="white")
+        canvas_id = self.draw_polygon(*body.get_vertices().unpack(), outline="white")
         self.simulation_controller.physics_engine.bodies.add(body, canvas_id)
 
-    def create_polygon(self, vertices, *args, **kwargs):
+    def draw_polygon(self, vertices, *args, **kwargs):
         tags = "body"
         return self.canvas.create_polygon(vertices, tags=tags, *args, **kwargs)
 
@@ -174,8 +176,8 @@ class Toolbar(ttk.Frame):
         self.parent.play_pause_text = tk.StringVar()
         self.add_square_button = ttk.Button(
             self,
-            text="Add square",
-            command=self.simulation_canvas.body_renderer.draw_polygon,
+            text="Add polygon",
+            command=self.simulation_canvas.body_renderer.create_polygon,
         )
         self.gravity_scale = ttk.Scale(
             self,
@@ -212,7 +214,7 @@ class LessonFrame(ttk.Frame):
             return
         for body in self.parser.bodies:
             for _, properties in body.items():
-                self.parent.simulation_canvas.body_renderer.draw_polygon(**properties)
+                self.parent.simulation_canvas.body_renderer.create_polygon(**properties)
 
 class LessonManager:
     def __init__(self, parent, lesson_frame, simulation_canvas):

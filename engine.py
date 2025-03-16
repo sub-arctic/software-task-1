@@ -48,6 +48,7 @@ class Engine:
                 drawing.draw_rectangle(width, height),
                 Vec2(x, y),
                 Vec2(),
+                mass=100,
                 restitution=0.9,
             )
             for width, height, x, y in walls
