@@ -216,6 +216,76 @@ for key, value in foo:
 
 For obvious reasons, this is not very performant. However, it is not an issue when you consider the types of data that is commonly stored in a dictionary; properties, pairings and more.
 
-A common use case for a dictionary, and one that is used in my application, is storing a list of dictionaries
+A common use case for a dictionary, and one that is used in my application, is storing a list of dictionaries:
+```python
+some_list = []
+
+for i in range(10):
+    some_list.append({"index": i, "value": f"foobar+{i}")
+
+print(next(item['value'] for item in some_list if item['index'] == 1)) # foobar1
 ```
 
+## Custom
+Custom datatypes are very powerful. They allow you to aggregate multiple other datatypes and control which methods do what with the data, making using them highly declarative. This can be accomplished in python using the `class` keyword, and similarly in other programming languages.
+
+```python
+class Dog:
+    def __init__(self, name, breed, weight, age):
+        self.name = name
+        self.breed = breed
+        self.weight = weight
+        self.age = age
+
+    def get_age(self, dog=False):
+        if not dog:
+            return self.age
+        if self.age <= 2:
+            dog_years = self.age * 10.5
+        else:
+            dog_years = 21 + (self.age - 2) * 4
+        return dog_years
+
+dog_1 = Dog("otis", "German Shorthaired Pointer", 35, 2.5)
+print(dog_1.name) # otis
+print(dog_1.get_age(dog=True)) # 23.0
+print(class(dog1)) # <class '__main__.Dog'>
+```
+
+This is a simple example of a custom datatype. We can set parameters in the dunder `__init__` (double undescore), which is a *magic method*, being a constructor. We can then define other arbitrary methods for manipulating, validating or returning our data.
+
+```python
+type Scalar = int | float
+class Vec2:
+    def __init__(self, x: Scalar = 0.0, y: Scalar = 0.0):
+        self._x: Scalar = x
+        self._y: Scalar = y
+
+    #...
+
+    def __add__(self, other: Vec2) -> Vec2:
+        return Vec2(self._x + other.x, self._y + other.y)
+```
+
+The above code is a more complicated example, and an excerpt from my program. It is intended to store vectors, which is an object that contains magnitude and direction. This is generalised to improve re-usability.
+
+We can annotate types using `varname: type = variable`, which informs python's type checker what datatype should be stored in a variable, and can help with lsp errors. It also improves the readability of code by defining what a variable might be, or what a function might return.
+
+A custom type can be defined using the `type` keyword, which is builtin as of python version 3.12. Here, we define a `Scalar`, which is a single numerical value; having only magnitude and no direction. We can specify that we want either an integer or a floating point number using the union type (`|`).
+
+Notice the `__add__` method. This is another magic method, and it instructs python on how to handle addition with a custom class. Here, we allow addition by summing the respective `x` and `y` properties of the new value, and return it.
+
+This would allow us to do the equivalent of:
+
+```python
+a = Vec2(1, 2)
+b = Vec2(1, 3)
+
+c = a+b
+
+print(c.x, c.y) # 2, 5
+```
+
+While this is a basic example, my code extends this greatly to allow various complicated vector operations, which greatly simplifies code and improves legibility over disjointed functions.
+
+As is probably obvious, custom datatypes are crucial to my code, but not absolutely critical. We could have used a list for `a` and `b`, but this is less readable, declarative and clean. Hence, they are used widely throughout, where builtin types won't suffice.
