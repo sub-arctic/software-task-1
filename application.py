@@ -2,6 +2,8 @@ import random
 import time
 import tkinter as tk
 from tkinter import ttk
+import os
+from markdown import MarkdownParser
 
 import datapoint
 import drawing
@@ -14,40 +16,38 @@ DELTA_TIME = 0.016
 SPEED_FACTOR = 3
 
 
+LESSONS_PATH = "lessons"
+
 class Application(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
         self.setup_grid()
+
+        self.lesson_frame = LessonFrame(self)
         self.simulation_canvas = SimulationCanvas(self)
-        self.properties_frame = PropertiesFrame(self)
-        self.toolbar = Toolbar(self)
-        self.simulation_canvas.update_dimensions()
-        self.simulation_canvas.grid(row=0, column=0, sticky="nsew")
-        self.properties_frame.grid(row=0, column=1, sticky="nsew")
-        self.toolbar.grid(row=1, column=0)
+
+        self.lesson_manager = LessonManager(self, self.lesson_frame, self.simulation_canvas)
+        self.lesson_manager.load_lesson("gravity.md")  # Load default lesson
 
     def setup_grid(self):
-        top = self.winfo_toplevel()
-        top.rowconfigure(0, weight=1)
-        top.columnconfigure(0, weight=1)
-        self.columnconfigure(0, weight=1)
-        self.rowconfigure(0, weight=1)
         self.grid(sticky="nsew")
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=3)
+        self.rowconfigure(0, weight=1)
 
 
 class SimulationCanvas(tk.Canvas):
     def __init__(self, parent):
         super().__init__(parent, background="black")
-        self.parent = parent
         self.simulation_controller = SimulationController(self)
         self.body_renderer = BodyRenderer(self, self.simulation_controller)
         self.interaction_manager = InteractionManager(self, self.simulation_controller)
         self.interaction_manager.setup_handlers()
+        self.grid(row=0, column=1, sticky="nsew")
 
     def update_dimensions(self):
         self.width = self.winfo_width()
         self.height = self.winfo_height()
-
 
 class SimulationController:
     def __init__(self, canvas):
@@ -66,7 +66,6 @@ class SimulationController:
         if self.running:
             self.update()
             self.canvas.after(int(self.dt * 1000 / self.speed), self.step)
-            self.canvas.parent.properties_frame.update_properties()
 
     def update(self):
         for id, body in self.physics_engine.bodies:
@@ -157,7 +156,6 @@ class InteractionManager:
         self.current_body.velocity = new_velocity
         self.canvas.itemconfigure(self.pressed_body_id, dash=())
 
-
 class Toolbar(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
@@ -189,25 +187,38 @@ class Toolbar(ttk.Frame):
         self.gravity_scale.grid(column=2, row=1)
 
 
-class PropertiesFrame(ttk.LabelFrame):
+class LessonFrame(ttk.Frame):
     def __init__(self, parent):
-        super().__init__(
-            parent, text="Properties", borderwidth=3, relief=tk.RIDGE, padding=10
-        )
-        self.simulation_canvas = parent.simulation_canvas
-        self.velocity = tk.StringVar()
-        self.mass = tk.StringVar()
-        self.velocity_text = ttk.Label(self, textvariable=self.velocity)
-        self.mass_text = ttk.Label(self, textvariable=self.mass)
-        self.velocity_text.grid()
-        self.mass_text.grid()
+        super().__init__(parent)
+        self.grid(row=0, column=0, sticky="nsew")
+        self.content_frame = ttk.Frame(self)
+        self.content_frame.grid(sticky="nsew")
+        self.parser = MarkdownParser(self.content_frame)
 
-    def update_properties(self):
-        if self.simulation_canvas.interaction_manager.current_body is None:
-            return
-        state = self.simulation_canvas.interaction_manager.current_body.get_state()
-        velocity_x = round(state["velocity"].x)
-        velocity_y = round(state["velocity"].y)
-        mass = state["mass"]
-        self.mass.set(f"mass: {mass}")
-        self.velocity.set(f"velocity: x: {velocity_x}, y: {velocity_y}")
+    def display_lesson(self, markdown_text):
+        self.parser.parse(markdown_text)
+
+class LessonManager:
+    def __init__(self, parent, lesson_frame, simulation_canvas):
+        self.parent = parent
+        self.lesson_frame = lesson_frame
+        self.simulation_canvas = simulation_canvas
+        self.lesson_selector = ttk.Combobox(parent, state="readonly")
+
+        self.lesson_files = [f for f in os.listdir(LESSONS_PATH) if f.endswith(".md")]
+        self.lesson_selector["values"] = self.lesson_files
+        self.lesson_selector.grid(row=1, column=0, columnspan=2, pady=10)
+        self.lesson_selector.bind("<<ComboboxSelected>>", self.switch_lesson)
+        if self.lesson_files:
+            self.lesson_selector.current(0)
+
+    def load_lesson(self, lesson_file):
+        lesson_path = os.path.join(LESSONS_PATH, lesson_file)
+        if os.path.exists(lesson_path):
+            with open(lesson_path, "r", encoding="utf-8") as f:
+                markdown_text = f.read()
+            self.lesson_frame.display_lesson(markdown_text)
+
+    def switch_lesson(self, _):
+        selected_lesson = self.lesson_selector.get()
+        self.load_lesson(selected_lesson)
