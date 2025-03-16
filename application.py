@@ -18,7 +18,7 @@ class Application(ttk.Frame):
         self.toolbar.grid(row=1, column=1, sticky="nsew")
 
         self.lesson_manager = LessonManager(self, self.lesson_frame, self.simulation_canvas)
-        self.lesson_manager.load_lesson("gravity.md")
+        self.lesson_manager.load_lesson("intro.md")
 
     def setup_grid(self) -> None:
         self.grid(sticky="nsew")

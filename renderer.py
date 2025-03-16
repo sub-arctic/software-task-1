@@ -22,6 +22,15 @@ class BodyRenderer:
                 position = vec2.Vec2(200, 200)
             else:
                 position = vec2.Vec2(cwidth / 2, cheight / 2)
+        elif position == "bottom":
+            self.canvas.update_dimensions()
+            cwidth = self.canvas.width
+            cheight = self.canvas.height
+            if cwidth < 10 and cheight < 10:
+                position = vec2.Vec2(200, 400)
+            else:
+                position = vec2.Vec2(cwidth / 2, cheight)
+
 
         body = rigidbody.RigidBody(
             vertices, position, velocity, angle, mass, restitution

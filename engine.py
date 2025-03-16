@@ -35,6 +35,9 @@ class Engine:
     def get_body(self, id: int) -> RigidBody | None:
         return self.bodies.get(id)
 
+    def reset(self) -> None:
+        self._bodies = Bodies()
+
     def create_bounds(self, dimensions: Vec2) -> list:
         walls = [
             (dimensions.x, 1, 0, 0),

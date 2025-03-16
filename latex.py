@@ -23,7 +23,7 @@ def render_latex(latex_expr):
 
     try:
         fig, ax = plt.subplots(figsize=(0.5, 0.5), dpi=300)
-        ax.text(0.5, 0.5, f"${latex_expr}$", fontsize=12, ha="center", va="center")
+        ax.text(0.5, 0.5, f"${latex_expr}$", fontsize=10, ha="center", va="center")
         ax.axis("off")
 
         plt.savefig(img_path, format="png", bbox_inches="tight", pad_inches=0.1)

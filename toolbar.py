@@ -40,6 +40,11 @@ class Toolbar(ttk.Frame):
             textvariable=self.parent.play_pause_text,
             command=self.simulation_canvas.interaction_manager.play_pause,
         )
+        self.clear_button = ttk.Button(
+            self,
+            text="Clear",
+            command=self.simulation_canvas.simulation_controller.reset,
+        )
 
         self.play_pause_button.grid(column=0, row=1)
         self.add_square_button.grid(column=1, row=1)
@@ -58,6 +63,8 @@ class Toolbar(ttk.Frame):
 
         self.gravity_scale.config(command=self.update_gravity_value)
         self.speed_factor_scale.config(command=self.update_speed_factor_value)
+
+        self.clear_button.grid(column=4, row=1)
 
     def set_speed_factor(self, value: str) -> None:
         self.simulation_canvas.simulation_controller.set_speed_factor(value)

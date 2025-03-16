@@ -22,6 +22,13 @@ class SimulationController:
             self.update()
             self.canvas.after(int(self.dt * 1000 / self.speed), self.step)
 
+    def reset(self) -> None:
+        self.dt = DELTA_TIME
+        self.running = False
+        self.speed = SPEED_FACTOR
+        self.physics_engine.reset()
+        self.canvas.delete("all")
+
     def update(self) -> None:
         for id, body in self.physics_engine.bodies:
             self.canvas.coords(id, *body.get_vertices().unpack())

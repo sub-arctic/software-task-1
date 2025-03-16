@@ -57,4 +57,5 @@ class LessonManager:
 
     def switch_lesson(self, _) -> None:
         selected_lesson = self.lesson_selector.get()
+        self.simulation_canvas.simulation_controller.reset()
         self.load_lesson(selected_lesson)
