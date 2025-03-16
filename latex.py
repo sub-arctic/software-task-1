@@ -1,6 +1,10 @@
-# import sys
-# sys.path.append('./libs')
-import matplotlib.pyplot as plt
+try:
+    import matplotlib.pyplot as plt
+except ImportError:
+    import sys
+    sys.path.append('./libs')
+    import matplotlib.pyplot as plt
+
 import hashlib
 import os
 
