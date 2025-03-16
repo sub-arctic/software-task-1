@@ -9,7 +9,7 @@ def safe_inverse(value):
 # interface, could interchange for gjk in future
 def handle_collision(body_a, body_b, method="sat"):
     if method == "sat":
-        result = sat(body_a, body_b)
+        result: CollisionResult = sat(body_a, body_b)
     else:
         return
     if result is not False:
