@@ -9,6 +9,7 @@ class InteractionManager:
     def __init__(self, canvas: "SimulationCanvas", simulation_controller: "SimulationController") -> None:
         self.canvas = canvas
         self.current_body = None
+        self.last_body = None
         self.mouse_positions = datapoint.DataPointList(2)
         self.simulation_controller = simulation_controller
 
@@ -37,7 +38,14 @@ class InteractionManager:
     def body_press(self, _) -> None:
         self.search_body()
         if self.current_body is not None:
-            self.canvas.itemconfigure(self.pressed_body_id, dash=(3, 5))
+            if self.current_body == self.last_body:
+                self.canvas.itemconfigure(self.pressed_body_id, fill="red")
+                self.last_body = None
+            else:
+                if self.last_body is not None:
+                    self.canvas.itemconfigure(self.last_body, fill="black")
+                self.canvas.itemconfigure(self.pressed_body_id, fill="red")
+                self.last_body = self.pressed_body_id
 
     def body_pin(self, event) -> None:
         self.search_body()
@@ -63,5 +71,4 @@ class InteractionManager:
         if self.current_body is None:
             return
         self.current_body.velocity = new_velocity
-        self.canvas.itemconfigure(self.pressed_body_id, dash=())
 

@@ -21,6 +21,7 @@ class SimulationController:
         if self.running:
             self.update()
             self.canvas.after(int(self.dt * 1000 / self.speed), self.step)
+        self.canvas.parent.properties_frame.update_properties()
 
     def reset(self) -> None:
         self.dt = DELTA_TIME
