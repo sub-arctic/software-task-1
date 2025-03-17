@@ -8,6 +8,23 @@ def safe_inverse(value):
 
 # interface, could interchange for gjk in future
 def handle_collision(body_a, body_b, method="sat"):
+    """Handles the collision between two bodies using the specified method.
+
+    This function checks for a collision between two rigid bodies (`body_a` and `body_b`)
+    using the specified collision detection method. Currently, it supports the
+    Separating Axis Theorem (SAT). If a collision is detected, it resolves the collision
+    by calling the appropriate resolution function.
+
+    Args:
+        body_a: The first rigid body involved in the collision.
+        body_b: The second rigid body involved in the collision.
+        method (str, optional): The method to use for collision detection.
+                                Defaults to "sat".
+
+    Returns:
+        None: The function does not return a value. It resolves the collision
+              if one is detected.
+    """
     if method == "sat":
         result: CollisionResult = sat(body_a, body_b)
     else:
@@ -17,6 +34,22 @@ def handle_collision(body_a, body_b, method="sat"):
 
 
 def resolve_collision(body_a, body_b, result: CollisionResult):
+    """Resolves the collision between two rigid bodies based on the collision result.
+
+    This function applies impulse-based resolution to two rigid bodies (`body_a` and `body_b`)
+    based on the collision information provided in the `result`. It updates the velocities and
+    positions of the bodies to reflect the collision response, taking into account restitution
+    and the physical properties of the bodies.
+
+    Args:
+        body_a: The first rigid body involved in the collision.
+        body_b: The second rigid body involved in the collision.
+        result (CollisionResult): An object containing the collision result, including
+                                  contact points, penetration depth, and collision normal.
+
+    Returns:
+        None: The function modifies the state of the bodies directly and does not return a value.
+    """
     contacts = result.contacts
     penetration = result.penetration
     normal = result.normal

@@ -1,6 +1,7 @@
 import re
 import tkinter as tk
 from tkinter import ttk
+
 from latex import render_latex
 
 type Properties = dict[str, object]
@@ -8,11 +9,35 @@ type Body = dict[str, Properties]
 type Bodies = list[dict[str, Properties]]
 
 class MarkdownParser:
+    """Parses Markdown text and creates corresponding widgets in a given Tkinter frame.
+
+    This class is responsible for interpreting Markdown formatted text, extracting 
+    metadata, and rendering the content as widgets in a specified parent frame. 
+    It supports headers, lists, bold and italic text, and LaTeX expressions.
+
+    Attributes:
+        parent_frame (ttk.Frame): The parent frame where the widgets will be created.
+        bodies (Bodies): A list to store parsed metadata bodies.
+
+    Args:
+        parent_frame (ttk.Frame): The Tkinter frame to which the parsed widgets will be added.
+    """
+
     def __init__(self, parent_frame: ttk.Frame) -> None:
+        """Initializes the MarkdownParser with a parent frame."""
         self.parent_frame = parent_frame
         self.bodies: Bodies = []
 
     def parse(self, md_text: str) -> None:
+        """Parses the provided Markdown text and creates widgets in the parent frame.
+
+        This method clears any existing widgets in the parent frame, extracts 
+        metadata if present, and creates new widgets based on the content of 
+        the Markdown text.
+
+        Args:
+            md_text (str): The Markdown text to parse.
+        """
         self.bodies.clear()
         content: str = md_text
 
@@ -29,6 +54,15 @@ class MarkdownParser:
                 widget.pack(anchor="w", padx=10, pady=2)
 
     def extract_metadata(self, md_text: str) -> tuple[list[str], str]:
+        """Extracts metadata from the Markdown text.
+
+        Args:
+            md_text (str): The Markdown text containing metadata.
+
+        Returns:
+            tuple[list[str], str]: A tuple containing a list of metadata lines 
+            and the remaining content of the Markdown text.
+        """
         lines: list[str] = md_text.split("\n")
         metadata_lines: list[str] = []
         content_start_index: int = 0
@@ -44,6 +78,14 @@ class MarkdownParser:
         return metadata_lines, content
 
     def parse_metadata(self, metadata_lines: list[str]) -> Bodies:
+        """Parses metadata lines into a structured format.
+
+        Args:
+            metadata_lines (list[str]): A list of metadata lines to parse.
+
+        Returns:
+            Bodies: A list of parsed bodies containing metadata properties.
+        """
         bodies: Bodies = []
 
         for line in metadata_lines:
@@ -62,6 +104,14 @@ class MarkdownParser:
         return bodies
 
     def parse_inline_properties(self, properties_str: str) -> Properties:
+        """Parses inline properties from a string into a dictionary.
+
+        Args:
+            properties_str (str): A string containing inline properties.
+
+        Returns:
+            Properties: A dictionary of parsed properties.
+        """
         properties: Properties = {}
         pairs: list[str] = properties_str.split(",")
 
@@ -73,6 +123,14 @@ class MarkdownParser:
         return properties
 
     def cast_value(self, value: str) -> object:
+        """Casts a string value to its appropriate type.
+
+        Args:
+            value (str): The string value to cast.
+
+        Returns:
+            object: The casted value, which can be a boolean, integer, float, or string.
+        """
         if value.lower() in ("true", "false"):
             return value.lower() == "true"
         try:
@@ -83,6 +141,14 @@ class MarkdownParser:
             return value
 
     def create_widget(self, line: str) -> ttk.Widget:
+        """Creates a Tkinter widget based on a Markdown line.
+
+        Args:
+            line (str): A line of Markdown text.
+
+        Returns:
+            ttk.Widget: A Tkinter widget corresponding to the Markdown line.
+        """
         if line.startswith("# "):
             return ttk.Label(self.parent_frame, text=line[2:], font=("Arial", 14, "bold"))
         elif line.startswith("## "):
@@ -100,11 +166,21 @@ class MarkdownParser:
         return ttk.Label(self.parent_frame, text=line, font=("Arial", 10))
 
     def create_latex_widget(self, latex_expr: str) -> ttk.Widget:
+        """Creates a widget for rendering a LaTeX expression.
+
+        Args:
+            latex_expr (str): The LaTeX expression to render.
+
+        Returns:
+            ttk.Widget: A Tkinter label containing the rendered LaTeX image, 
+            or a label with a fallback text if rendering fails.
+        """
         img_path: str | None = render_latex(latex_expr)
         if img_path:
-            img = tk.PhotoImage(file=img_path)
-            label = ttk.Label(self.parent_frame, image=img)
+            img: tk.PhotoImage = tk.PhotoImage(file=img_path)
+            label: ttk.Label = ttk.Label(self.parent_frame, image=img)
             label.image = img
             return label
         return ttk.Label(self.parent_frame, text=f"LaTeX: {latex_expr}", font=("Arial", 10))
+           
 

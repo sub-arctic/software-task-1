@@ -4,6 +4,20 @@ from vec2 import Vec2, Vec2List
 
 
 def project_polygon(axis: Vec2, corners: Vec2List) -> tuple[Scalar, Scalar]:
+    """Projects a polygon onto a given axis and returns the minimum and maximum
+    scalar values of the projection.
+
+    Args:
+        axis (Vec2): A vector representing the axis onto which the polygon
+                     will be projected.
+        corners (Vec2List): A list of 2D vectors representing the corners of
+                            the polygon.
+
+    Returns:
+        tuple[Scalar, Scalar]: A tuple containing the minimum and maximum
+                               scalar values of the projection of the polygon
+                               onto the specified axis.
+    """
     dots = [corner.dot(axis) for corner in corners]
     return min(dots), max(dots)
 
@@ -11,10 +25,43 @@ def project_polygon(axis: Vec2, corners: Vec2List) -> tuple[Scalar, Scalar]:
 def overlap_intervals(
     min_a: Scalar, max_a: Scalar, min_b: Scalar, max_b: Scalar
 ) -> Scalar:
+    """Calculates the overlap length between two intervals.
+
+    This function takes the minimum and maximum values of two intervals
+    and returns the length of their overlap. If the intervals do not
+    overlap, the function will return a negative value.
+
+    Args:
+        min_a (Scalar): The minimum value of the first interval.
+        max_a (Scalar): The maximum value of the first interval.
+        min_b (Scalar): The minimum value of the second interval.
+        max_b (Scalar): The maximum value of the second interval.
+
+    Returns:
+        Scalar: The length of the overlap between the two intervals.
+                 If there is no overlap, the result will be negative.
+    """
     return min(max_a, max_b) - max(min_a, min_b)
 
 
 def find_contact_points(a: Vec2List, b: Vec2List, normal: Vec2) -> Vec2List:
+    """Finds the contact points between two sets of 2D vectors based on a given normal vector.
+
+    This function identifies the closest points between two shapes represented by
+    lists of vectors (`a` and `b`) along a specified normal direction. If the
+    closest points are the same, only one contact point is returned; otherwise, both
+    contact points are returned.
+
+    Args:
+        a (Vec2List): A list of vectors representing the first shape.
+        b (Vec2List): A list of vectors representing the second shape.
+        normal (Vec2): A vector representing the normal direction for the contact
+                       point calculation.
+
+    Returns:
+        Vec2List: A list of vectors representing the contact points between the
+                   two shapes. The list may contain one or two contact points.
+    """
     min_a = min(a, key=lambda v: v.dot(-normal))
     min_b = min(b, key=lambda v: v.dot(normal))
 
@@ -30,10 +77,30 @@ def find_contact_points(a: Vec2List, b: Vec2List, normal: Vec2) -> Vec2List:
 
 
 def sat(a: RigidBody, b: RigidBody) -> CollisionResult:
+    """Performs the Separating Axis Theorem (SAT) test to determine
+    if two rigid bodies are colliding.
+
+    This function checks for collisions between two rigid
+    bodies by projecting their vertices onto potential
+    separating axes derived from their edges. If a collision
+    is detected, it calculates the penetration depth, the
+    collision normal, and the contact points.
+
+    Args:
+        a (RigidBody): The first rigid body to test for collision.
+        b (RigidBody): The second rigid body to test for collision.
+
+    Returns:
+        CollisionResult: An object containing the result of the
+                         collision test. If a collision occurs,
+                         it includes the penetration depth, the
+                         collision normal, and the contact points;
+                         otherwise, it indicates no collision.
+    """
     body_a = a.get_vertices()
     body_b = b.get_vertices()
     axes: Vec2List = Vec2List()
-    penetration = float("inf")
+    penetration = float("inf")  # arbitrary upper bound for searching
     normal = Vec2()
     contact_points = Vec2List()
 
@@ -58,6 +125,7 @@ def sat(a: RigidBody, b: RigidBody) -> CollisionResult:
             normal = axis
 
     d = b.position - a.position
+    # reverse the normal direction if it points away from the other body
     if d.dot(normal) < 0:
         normal = -normal
 
