@@ -1,3 +1,4 @@
+from __future__ import annotations
 import engine
 import vec2
 
@@ -5,7 +6,7 @@ DELTA_TIME = 0.016
 SPEED_FACTOR = 3
 
 class SimulationController:
-    def __init__(self, canvas: "SimulationCanvas") -> None:
+    def __init__(self, canvas) -> None:
         self.running = False
         self.dt = DELTA_TIME
         self.speed = SPEED_FACTOR

@@ -2,8 +2,6 @@ from typing import Optional
 
 import drawing
 import rigidbody
-from simulation_canvas import SimulationCanvas
-from simulation_controller import SimulationController
 from vec2 import Vec2
 
 
@@ -16,7 +14,7 @@ class BodyRenderer:
     """
 
     def __init__(
-        self, canvas: SimulationCanvas, simulation_controller: SimulationController
+        self, canvas, simulation_controller
     ) -> None:
         """Initializes the BodyRenderer with a canvas and a simulation controller.
 

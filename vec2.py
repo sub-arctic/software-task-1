@@ -242,3 +242,38 @@ class Vec2:
         sin_a = math.sin(angle)
         return Vec2(self.x * cos_a - self.y * sin_a, self.x * sin_a + self.y * cos_a)
 
+    def perpendicular(self) -> Vec2:
+        """Calculate the perpendicular vector.
+
+        This method returns a new vector that is perpendicular to the current vector.
+        The perpendicular vector is obtained by swapping the x and y components and 
+        negating the y component.
+
+        Returns:
+            Vec2: A new Vec2 instance representing the perpendicular vector.
+        """
+        return Vec2(-self._y, self._x)
+
+    def normalized(self) -> Vec2:
+        """Normalize the vector.
+
+        This method returns a new vector that is a normalized version of the current vector.
+        Normalization is the process of scaling the vector to have a length of 1 while 
+        maintaining its direction. If the vector is a zero vector (magnitude is zero), 
+        it will return a zero vector.
+
+        Returns:
+            Vec2: A new Vec2 instance representing the normalized vector. 
+                  If the vector is a zero vector, a zero vector is returned.
+
+        Example:
+            >>> v = Vec2(3, 4)
+            >>> normalized_v = v.normalized()
+            >>> print(normalized_v)  # Output: Vec2(0.6, 0.8)
+
+        Raises:
+            ValueError: If the vector is a zero vector, normalization is undefined.
+        """
+        mag = self.magnitude()
+        return self / mag if mag else Vec2(0, 0)
+
