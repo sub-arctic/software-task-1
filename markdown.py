@@ -178,6 +178,7 @@ class MarkdownParser:
         img_path: str | None = render_latex(latex_expr)
         if img_path:
             img: tk.PhotoImage = tk.PhotoImage(file=img_path)
+            print(img.__sizeof__())
             label: ttk.Label = ttk.Label(self.parent_frame, image=img)
             label.image = img
             return label
