@@ -32,7 +32,7 @@ fish: Job 1, './a.out' terminated by signal SIGABRT (Abort)
 
 In the above example, which is a C++ runtime error, we are still presented with useful information, but it is much more cryptic than the python (although it is a different case). Additionally, as C++ is a compiled language, compilation or even runtime errors in a large project can waste resources and time, especially if the issue is as simple as an out of bounds pointer.
 
-As shown in the above two examples, both errors are very straightforward to fix by just editing a line of code. However, it can be said that the most time consuming bugs don't throw verbose errors, instead they execute incorrectly; passing incorrect types, outputting incorrect information. It is with these that external tools (technically previous error messages are debugging tools) present themselves as a massive time save, allowing for rigorous dissasembly and examination of code.
+As shown in the above two examples, both errors are very straightforward to fix by just editing a line of code. However, it can be said that the most time consuming bugs don't throw verbose errors, instead they execute incorrectly; passing incorrect types, outputting incorrect information. It is with these that external tools (technically previous error messages are debugging tools) present themselves as a massive time save, allowing for rigorous disassembly and examination of code.
 
 ## Print statements
 One of the most straightforward yet powerful debugging tools in python is the inbuilt `print` function. It simply prints a variable to the terminal. When there is a situation where code is not executing as expected, printing out a variable can help in narrowing down why and how the error occurred.
@@ -68,7 +68,7 @@ Print statements are also very useful when debugging classes and methods. Often 
 command=self.simulation_canvas.simulation_controller.set_gravity
 ```
 
-Without looking manually back through all relevant class initalization, it is not clear what this could be; is it a function (ignore the set directive)? What class does it belong to?
+Without looking manually back through all relevant class initialization, it is not clear what this could be; is it a function (ignore the set directive)? What class does it belong to?
 
 We can gather information using the print function:
 
@@ -76,7 +76,7 @@ We can gather information using the print function:
 print(type(self.simulation_canavs.simulation_controller.set_gravity)) # <class 'method'>
 ```
 
-While still not overwhelmingly helpful, it does present itself handy in situtions when dealing with large applications. Printing out values can also be helpful where continuous streams of data are being passed between functions, in order to determine what can and will be passed and stored in variables.
+While still not overwhelmingly helpful, it does present itself handy in situations when dealing with large applications. Printing out values can also be helpful where continuous streams of data are being passed between functions, in order to determine what can and will be passed and stored in variables.
 
 ## Breakpoints
 A breakpoint is a point in code where execution is halted. Depending on the breakpoint tool and language it is being used on, you may be able to view contents of variables, proceed with line based stepping, or viewing memory (not usually applicable in python).
@@ -114,7 +114,7 @@ for i in range(10):
     print(add(i, i+1))
 ```
 
-If the above condition is met, the pdb module will break at the specified point and drop into an interactive console. Various keybindings are available to step through code, continue untill another breakpoint, as well as printing variables.
+If the above condition is met, the pdb module will break at the specified point and drop into an interactive console. Various keybindings are available to step through code, continue until another breakpoint, as well as printing variables.
 
 ```python
 > <stdin>(5)add()
@@ -159,11 +159,11 @@ def handle_collision(body_a, body_b, method="sat"):
 ```
 *we check for `is not False` and not just `True` as the sat's returned result is a custom class that can either be a list with first parameter True or a boolean False*
 
-In this interface excerpt, we call two functions, and pass the result of one into the other given a condition. This could be "simplied" by calling `resolve_collision` directly within `sat`, but this would mean that an update to how either function passes its parameters breaks the other function/s. Additionally, validation of passing parameters can be enforced to ensure that the correct variables are being passed.
+In this interface excerpt, we call two functions, and pass the result of one into the other given a condition. This could be "simplified" by calling `resolve_collision` directly within `sat`, but this would mean that an update to how either function passes its parameters breaks the other function/s. Additionally, validation of passing parameters can be enforced to ensure that the correct variables are being passed.
 
 Formally, it is akin to a "contract", specifying what is required of various workers, and most importantly handling **consistency**. It does not care how one function achieves its goal, only that it outputs the required data and then it can pass it to another function.
 
-In my example, I could replace the collision detection algorithm from SAT (seperating axis theory) to GJK (Gilbert-Johnson-Keerthi), so long as it returns a value of class CollisionResult.
+In my example, I could replace the collision detection algorithm from SAT (separating axis theory) to GJK (Gilbert-Johnson-Keerthi), so long as it returns a value of class CollisionResult.
 
 ## Experience
 Throughout the development of my application, I have faced various errors, as one would. However, most of my errors have been logic errors, rather than runtime or syntax errors. This is because I utilise lsp (language server protocols) plugins for my code editor, and use pyls (python language server). This runs checks during the editing of a file for syntax, formatting, and type checking.
@@ -180,11 +180,11 @@ Logic examples are worse in the sense that language server protocols and runtime
 
 In my program, I read in metadata from markdown "lesson" files that contain information about which objects to place in the simulation canvas. After making a slew of changes, I noticed that the bounds collisions were breaking; objects were phasing through the bounds as if it was jelly. I spent a few minutes analysing the collision algorithms, the engine, and rigidbody classes, all to no avail. A git diff with the previous commits also yielded no results.
 
-It turned out that in the metadata I had accidentially added extra zeros to the mass of the objects, taking them from 5 kg to hundreds of tonnes. These kind of logic errors don't crash the program, but they cause it to behave incorrectly, and are very annoying. Having a granular version control system such as git has saved me countless hours in issues like these.
+It turned out that in the metadata I had accidentally added extra zeros to the mass of the objects, taking them from 5 kg to hundreds of tonnes. These kind of logic errors don't crash the program, but they cause it to behave incorrectly, and are very annoying. Having a granular version control system such as git has saved me countless hours in issues like these.
 
 
 ### Runtime
-I did encounter several runtime errors in my development. This is because my application is heavily object oriented, using deep nested classes and such. Hence, the program could be deep into execution and meet a case that causes it to crash. This occurred several times when implementing the collision detection and resolution, as sometimes I accidentially preformed the wrong operation and threw an error within a class or similar. Often times the easiest way to quell runtime errors is to setup temporary try-except statements after an error.
+I did encounter several runtime errors in my development. This is because my application is heavily object oriented, using deep nested classes and such. Hence, the program could be deep into execution and meet a case that causes it to crash. This occurred several times when implementing the collision detection and resolution, as sometimes I accidentally preformed the wrong operation and threw an error within a class or similar. Often times the easiest way to quell runtime errors is to setup temporary try-except statements after an error.
 
 ```python
 def somefunction(a: int, b: int) -> None:

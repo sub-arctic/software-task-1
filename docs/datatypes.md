@@ -1,11 +1,11 @@
 *What is a datatype?*
 
-In programming, a datatype is a classification used to determine what type of data a given variable can store. The type of data influences how the variable can be manipulated, including what methods (operations) can be performed. Different datatypes have different purposes, hence why there is no "one" universal datatype. In theory, a universal datatype could be possible, but would be infeasable due to performance optimizations when working with specific types of data. 
+In programming, a datatype is a classification used to determine what type of data a given variable can store. The type of data influences how the variable can be manipulated, including what methods (operations) can be performed. Different datatypes have different purposes, hence why there is no "one" universal datatype. In theory, a universal datatype could be possible, but would be infeasible due to performance optimizations when working with specific types of data. 
 
 Python has several builtin datatypes, including but not limited to;
 - int (integer)
     - `1, 2, -100`
-- float (floting point number)
+- float (floating point number)
     - `1.0, 2.0, -100.995, float('inf')`
 - complex (complex numbers, with j referencing the imaginary unit)
     - `1 + 2j`
@@ -31,7 +31,7 @@ else:
     print("var_a is greater than var_b")
 ```
 
-The if statement evalates `var_a < var_b` using the relational operator `<`. The operator returns `True` if `var_a` is less than `var_b`, and `False` if the contrary is true. The if statement then proceeds with the code indented under the statement if that statement evaluated to `True`, and would proceed to the `else:` block if not.
+The if statement evaluates `var_a < var_b` using the relational operator `<`. The operator returns `True` if `var_a` is less than `var_b`, and `False` if the contrary is true. The if statement then proceeds with the code indented under the statement if that statement evaluated to `True`, and would proceed to the `else:` block if not.
 
 Boolean values can be assigned to as variables. The previous example could be written as:
 
@@ -73,7 +73,7 @@ A string (`str` in python) is a sequence of characters. Unlike other programming
 
 While strings can be modified using operators such as +, they are *immutable*, meaning their value cannot be changed after creation. Hence, an operator such as `+=`, which could be percieved as directly modifying the string, actually creates a temporary buffer that stores the old string, and the new value, then writes the buffer to back to the string. Because of this, using strings for any mathematical calculations or performant scenarios is not good practice.
 
-However, the primary use case for strings (in python), is most likely user input and output. A string in python can represent any Unicode character, including emojis, letters, numbers and other special characters. This makes them a safe datatype for handeling arbitrary user input without validation, or with delayed validation.
+However, the primary use case for strings (in python), is most likely user input and output. A string in python can represent any Unicode character, including emojis, letters, numbers and other special characters. This makes them a safe datatype for handling arbitrary user input without validation, or with delayed validation.
 
 ```python
 var = string(input("Enter text: "))
@@ -252,7 +252,7 @@ print(dog_1.get_age(dog=True)) # 23.0
 print(class(dog1)) # <class '__main__.Dog'>
 ```
 
-This is a simple example of a custom datatype. We can set parameters in the dunder `__init__` (double undescore), which is a *magic method*, being a constructor. We can then define other arbitrary methods for manipulating, validating or returning our data.
+This is a simple example of a custom datatype. We can set parameters in the dunder `__init__` (double underscore), which is a *magic method*, being a constructor. We can then define other arbitrary methods for manipulating, validating or returning our data.
 
 ```python
 type Scalar = int | float
@@ -289,3 +289,92 @@ print(c.x, c.y) # 2, 5
 While this is a basic example, my code extends this greatly to allow various complicated vector operations, which greatly simplifies code and improves legibility over disjointed functions.
 
 As is probably obvious, custom datatypes are crucial to my code, but not absolutely critical. We could have used a list for `a` and `b`, but this is less readable, declarative and clean. Hence, they are used widely throughout, where builtin types won't suffice.
+
+## Date and time
+Date and time could store a date in a given format based on locality. However, python does not have a built in date or time datatype, rather it is provided by the python module datetime.
+
+```python
+from datetime import datetime, timedelta
+dt = datetime(2008, 11, 15, 12, 30)
+
+print(dt) # 2008-11-15 12:30:00
+print(dt + timedelta(days=16 * 365)) # 2024-11-11 12:30:00
+```
+
+This allows for operations given dates and times, and would be useful for time-based records or timewise operations. In my application, I do not use the datetime module.
+
+Instead, I do use time based operations, but they are stored as floating point numbers; representing milliseconds and nanoseconds.
+
+```python
+import time
+time_ = time.perf_counter_ns()
+# some execution logic
+print(time_)  # 138851434332218
+
+```
+
+This function of the time module will return a nanosecond timestamp using the underlying operating systems best and most accurate clock. It measures millisecond offset from the start of program execution, which means it will never go backwards. Hence, it is very useful for calculating precise measurements of time. I use it in my program to determine how far a mouse cursor has moved over a given point in time to determine velocity ($v = d/t$). However, it is not actually a datatype, and uses integers for storage.
+
+
+## Real
+A real number is any number that can be placed on an infinite number line. It includes rational and irrational numbers, where rational numbers can be expressed as fractions and irrationals can't. It can be either negative or positive, with infinite precision. It encompasses all numbers besides irrational, complex and special numbers such as infinity.
+
+It is very useful as a broad "valid number" datatype. In python, Real is not considered a datatype on its. Own. However, it can be created as a type definition for simplicity sake. Type annotation in short tells python what datatype is expected of a function return or variable. It is not a requirement.
+
+```python
+type Real = int | float
+
+somenumber: Real = 0.9999
+somenumber += j # still works
+```
+
+However, if ensuring that **only** real numbers is stored within a variable, a custom Real class could be created:
+
+```python
+class Real:
+    def __init__(self, value: float):
+        self.value = value
+
+    @property
+    def value(self) -> float:
+        return self._value
+
+    @value.setter
+    def value(self, new_value: float):
+        if not isinstance(new_value, (int, float)):
+            raise ValueError("Value must be a real number (int or float).")
+        self._value = float(new_value)
+```
+
+Here we define a property and a setter using a method and a decorator. By creating a method with the same name as a property, we can control exactly what can and can't be assigned to the variable. We define two methods, as python supports overloading of functions, so calling `var.value` will be different to `var.value = foo` and will call the relevant functions. This is furthered by the decorators specified by `@`, which informs language servers (extensions) that the property is defined by the setter and the property. It can then enforce the logic found in the if statement within the setter, which ensures that the new set value will be either an integer or a float.
+
+## Array
+An array is analogous to a list.
+
+## Record
+A record is a collection of related information. A product may contain related information about origin, price, nature etc. In python, there is no "Record" per-se, however the closest datatype would be a dictionary which is defined above. A named tuple can also be used to explicitly define properties for a tuple:
+
+```python
+from collections import namedtuple
+
+Student = namedtuple('Student', ['name', 'age', 'DOB'])
+
+S = Student('Arthur', '16', 2008)
+
+print(s.name) # Arthur
+```
+
+This could also be achieved with a custom class.
+
+A record is very useful for storing related data and retrieving it later. In the above example, student records could be stored in a list, and individual fields can be returned. In my program, I don't explicitly use records or named tuples in my application, but the concept of a record is used to store rigid body properties.
+
+## Trees
+A tree is a hierarchical abstract datatype that consists of nodes (vertices) connected by edges. It can be considered a "tree" as it contains leaves and branches. Each node can be connected to other nodes and form a branch-like structure.
+```
+        Root
+       /    \
+   Child 1   Child 2
+   /    \
+Child 1.1 Child 1.2
+```
+
