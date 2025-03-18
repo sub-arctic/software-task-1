@@ -1,12 +1,13 @@
 import time
+
 import datapoint
 import physics
-import vec2
 import rigidbody
+import vec2
 
 
 class InteractionManager:
-    def __init__(self, canvas: "SimulationCanvas", simulation_controller: "SimulationController") -> None:
+    def __init__(self, canvas, simulation_controller) -> None:
         self.canvas = canvas
         self.current_body = None
         self.last_body = None
@@ -71,4 +72,3 @@ class InteractionManager:
         if self.current_body is None:
             return
         self.current_body.velocity = new_velocity
-
