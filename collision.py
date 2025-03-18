@@ -52,7 +52,7 @@ def resolve_collision(body_a, body_b, result: CollisionResult):
     """
     contacts = result.contacts
     penetration = result.penetration
-    normal = result.normal
+    collision_normal = result.normal
 
     if not contacts:
         return
@@ -64,51 +64,57 @@ def resolve_collision(body_a, body_b, result: CollisionResult):
     inv_inertia_a = safe_inverse(body_a.moment_of_inertia)
     inv_inertia_b = safe_inverse(body_b.moment_of_inertia)
 
-    for contact in contacts:
-        r_a = contact - body_a.position
-        r_b = contact - body_b.position
+    for contact_point in contacts:
+        vector_a_to_contact = contact_point - body_a.position
+        vector_b_to_contact = contact_point - body_b.position
 
         relative_velocity = (
-            body_b.velocity + r_b.perpendicular() * body_b.angular_velocity
-        ) - (body_a.velocity + r_a.perpendicular() * body_a.angular_velocity)
-        vel_along_normal = relative_velocity.dot(normal)
+            body_b.velocity + vector_b_to_contact.perpendicular() * body_b.angular_velocity
+        ) - (body_a.velocity + vector_a_to_contact.perpendicular() * body_a.angular_velocity)
+        
+        velocity_along_normal = relative_velocity.dot(collision_normal)
 
-        if vel_along_normal > 0:
+        if velocity_along_normal > 0:
             continue
 
-        ra_cross_n = r_a.cross(normal)
-        rb_cross_n = r_b.cross(normal)
-        denom = (
+        ra_cross_n = vector_a_to_contact.cross(collision_normal)
+        rb_cross_n = vector_b_to_contact.cross(collision_normal)
+        
+        denominator = (
             inv_mass_a
             + inv_mass_b
             + (ra_cross_n**2) * inv_inertia_a
             + (rb_cross_n**2) * inv_inertia_b
         )
 
-        if denom == 0:
+        if denominator == 0:
             continue
 
-        j = -(1 + restitution) * vel_along_normal
-        j /= denom
-        j /= len(contacts)
+        impulse_scalar = -(1 + restitution) * velocity_along_normal
+        impulse_scalar /= denominator
+        impulse_scalar /= len(contacts)
 
-        impulse = normal * j
+        impulse_vector = collision_normal * impulse_scalar
 
         if not body_a.pinned:
-            body_a.velocity -= impulse * inv_mass_a
-            body_a.angular_velocity -= ra_cross_n * j * inv_inertia_a
+            body_a.velocity -= impulse_vector * inv_mass_a
+            body_a.angular_velocity -= ra_cross_n * impulse_scalar * inv_inertia_a
 
         if not body_b.pinned:
-            body_b.velocity += impulse * inv_mass_b
-            body_b.angular_velocity += rb_cross_n * j * inv_inertia_b
+            body_b.velocity += impulse_vector * inv_mass_b
+            body_b.angular_velocity += rb_cross_n * impulse_scalar * inv_inertia_b
 
-    PERCENT = 0.8
-    SLOP = 0.01
-    if penetration is None or normal is None:
+    PENETRATION_CORRECTION_PERCENTAGE = 0.8
+    PENETRATION_THRESHOLD = 0.01
+
+    if penetration is None or collision_normal is None:
         return
-    if penetration > SLOP:
-        correction = normal * (penetration * PERCENT / (inv_mass_a + inv_mass_b))
+
+    if penetration > PENETRATION_THRESHOLD:
+        correction_vector = collision_normal * (penetration * PENETRATION_CORRECTION_PERCENTAGE / (inv_mass_a + inv_mass_b))
+        
         if not body_a.pinned:
-            body_a.position -= correction * inv_mass_a
+            body_a.position -= correction_vector * inv_mass_a
         if not body_b.pinned:
-            body_b.position += correction * inv_mass_b
+            body_b.position += correction_vector * inv_mass_b
+

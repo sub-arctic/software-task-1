@@ -8,7 +8,7 @@ from properties import PropertiesFrame
 LESSONS_PATH = "lessons"
 
 class Application(ttk.Frame):
-    def __init__(self, parent: tk.Widget) -> None:
+    def __init__(self, parent: tk.Tk) -> None:
         super().__init__(parent)
         self.setup_grid()
 

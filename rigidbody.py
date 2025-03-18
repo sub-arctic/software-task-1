@@ -170,8 +170,8 @@ class RigidBody:
                 body.
         """
         transformed_vertices = []
-        for v in self.vertices:
-            rotated_vertex = v.rotated(self.angle)
+        for vertex in self.vertices:
+            rotated_vertex = vertex.rotated(self.angle)
             translated_vertex = rotated_vertex + self.position
             transformed_vertices.append(translated_vertex)
 

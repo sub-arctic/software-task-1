@@ -24,16 +24,6 @@ class LessonFrame(ttk.Frame):
             for _, properties in body.items():
                 self.parent.simulation_canvas.body_renderer.create_polygon(**properties)
 
-
-    def load_lesson(self, lesson_filename: str) -> None:
-        lesson_file_path = os.path.join(LESSONS_PATH, lesson_filename)
-        if os.path.exists(lesson_file_path):
-            with open(lesson_file_path, "r") as file:
-                lesson_text = file.read()
-            self.display_lesson(lesson_text)
-        else:
-            print(f"Lesson {lesson_filename} not found!")
-
 class LessonManager:
     def __init__(self, parent: tk.Widget, lesson_frame: LessonFrame, simulation_canvas: SimulationCanvas) -> None:
         self.parent = parent
