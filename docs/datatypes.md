@@ -369,7 +369,7 @@ This could also be achieved with a custom class.
 A record is very useful for storing related data and retrieving it later. In the above example, student records could be stored in a list, and individual fields can be returned. In my program, I don't explicitly use records or named tuples in my application, but the concept of a record is used to store rigid body properties.
 
 ## Trees
-A tree is a hierarchical abstract datatype that consists of nodes (vertices) connected by edges. It can be considered a "tree" as it contains leaves and branches. Each node can be connected to other nodes and form a branch-like structure.
+A tree is a hierarchical abstract datatype that consists of nodes (vertices) connected by edges. It can be considered a "tree" because it contains leaves and branches. Each node can be connected to other nodes and form a branch-like structure.
 ```
         Root
        /    \
@@ -378,3 +378,40 @@ A tree is a hierarchical abstract datatype that consists of nodes (vertices) con
 Child 1.1 Child 1.2
 ```
 
+The topmost node is known as the root, and the bottom nodes with no children are considered "leaves". Because of the hierarchical structure of trees, they are excellent for representing relationships between data. For example, a filesystem directory structure could be stored as a tree, which would allow traversal and calculation of "depth" based on the number of node relationships. Trees and tree-based algorithms are prevalent in many builtin python functions, including the dictionary datatype which is actually stored like a tree. However, there is no user-facing tree datatype. Instead, it could be created using node and tree classes:
+
+```python
+class TreeNode:
+    def __init__(self, value):
+        self.value = value
+        self.children = []
+
+    def add_child(self, child_node):
+        self.children.append(child_node)
+
+class Tree:
+    def __init__(self, root_value):
+        self.root = TreeNode(root_value)
+    # ...
+```
+
+I do not explicitly use trees in my application, with the exception of dictionaries, as the nature of my application does not lend itself to it.
+
+## Sequential and random files
+Sequential files refer to files that are accessed sequentially (linearly), which means that data is written or read in a specific order, generally from top to bottom. They contrast with random access files, which allow seeking to any point in the file without reading the previous lines. Sequential file operations are typically preferred for larger files, as reading and writing can be optimized in single streams; reducing the need for seeking to different spots in the file. However, for random access, as the name implies, random access files are more performant than sequential files, but they do have added overhead. This is the premise of sequential access memory (sam), but physical media using sam is more uncommon and typically limited to specific cases such as magnetic tape drives, where data can only be accessed linearly. Modern storage media almost exclusively uses random access memory, and so does computer memory.
+
+In python, files can be read either sequentially or randomly using the builtin `open` function, but sequential access is much more common:
+
+```python
+with open('foobar.txt' 'w') as file:
+    for line in file:
+        print(line, end="")
+
+    file.write("baz")
+```
+
+Using the `with` keyword when calling open is best practice as python will handle closing the file when all operations are complete. This is important, as in the name of optimization, python may not always write changes to files immediately, instead waiting for a buffer to fill up and writing out the entire buffer to the file.
+
+We can also write content to a file. Again, once execution within the `with` statement finishes python will close the file. This is the same as calling `file.close()`.
+
+I use sequential files in my application to read in lesson content from markdown files, however it is readonly, and uses the `.read()` method on the file to assign its contents to a variable.
