@@ -10,13 +10,12 @@ def compute_polygon_inertia(vertices, mass):
     a counter-clockwise order.
 
     Args:
-        vertices (list[vec2.Vec2]): A list of Vec2 objects representing the
-                                      vertices of the polygon.
-        mass (float): The mass of the polygon.
+        vertices: A list of Vec2 objects representing the vertices of the polygon.
+        mass: The mass of the polygon.
 
     Returns:
-        float: The moment of inertia of the polygon. Returns 0 if the area of
-               the polygon is zero (i.e., the polygon is degenerate).
+        The moment of inertia of the polygon. Returns 0 if the area of
+               the polygon is zero (i.e., the polygon is degenerate (a line or point)).
     """
     area = compute_polygon_area(vertices)
     if area == 0:
@@ -40,11 +39,10 @@ def compute_polygon_area(vertices):
     counter-clockwise order.
 
     Args:
-        vertices (list[vec2.Vec2]): A list of Vec2 objects representing the
-                                      vertices of the polygon.
+        vertices: A list of Vec2 objects representing the vertices of the polygon.
 
     Returns:
-        float: The area of the polygon. Returns 0 if the polygon is degenerate.
+        The area of the polygon. Returns 0 if the polygon is degenerate.
     """
     area = 0
     for i, vertex in enumerate(vertices):
@@ -61,13 +59,12 @@ def calculate_velocity(data_points):
     If the calculated speed exceeds a maximum threshold, it normalizes the velocity.
 
     Args:
-        data_points (list[vec2.Vec2]): A list of Vec2 objects, each containing
-                                         position and time information.
+        data_points: DataPoint class, containing position and time information.
 
     Returns:
-        vec2.Vec2: A Vec2 object representing the calculated velocity. Returns
-                    a zero vector if there are fewer than two data points or if
-                    the time difference is non-positive.
+        A Vec2 object representing the calculated velocity. Returns
+        a zero vector if there are fewer than two data points or if
+        the time difference is non-positive.
     """
     if len(data_points) < 2:
         return vec2.Vec2(0, 0)

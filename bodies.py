@@ -8,9 +8,13 @@ type ObjectsMap = dict[int, RigidBody]
 class Bodies:
     """Manages a collection of RigidBody objects with unique IDs.
 
+    Used in Engine to allow more effective pairing of canvas IDs and
+    RigidBodies.
+
     Attributes:
-        objects (ObjectsMap): A mapping of IDs to RigidBody objects.
-        next_id (int): The next available ID for a new RigidBody.
+        objects: A dictionary mapping of IDs to RigidBody objects.
+        next_id: The next available ID for a new RigidBody.
+        iter_index: An index for dereferencing the objects for iteration.
     """
 
     def __init__(self):
@@ -28,13 +32,17 @@ class Bodies:
         """Adds a new RigidBody to the collection.
 
         If no ID is provided, a new unique ID is generated.
+        Typically a provided canvas ID would be provided to allow
+        analogous canvas and engine objects.
 
         Args:
-            new_body (RigidBody): The RigidBody to add.
-            id (int | None): The ID to assign to the new RigidBody.
+            new_body: The RigidBody to add.
+            id: The ID to assign to the new RigidBody.
+                If it is none next_id is assigned and
+                then incremented.
 
         Returns:
-            int: The ID assigned to the new RigidBody.
+            The ID assigned to the new RigidBody.
         """
         if id is None:
             id = self.next_id
@@ -52,10 +60,10 @@ class Bodies:
         """Sets the next available ID for a new RigidBody.
 
         Args:
-            increment (int): The amount to increment the next ID by.
+            increment: The amount to increment the next ID by.
 
         Returns:
-            int: The new next ID after incrementing.
+            The new next ID after incrementing.
         """
         new_id = self.next_id + increment
         self._next_id = new_id
@@ -74,7 +82,7 @@ class Bodies:
             StopIteration: If there are no more items to iterate over.
 
         Returns:
-            tuple[int, RigidBody]: The next ID and corresponding RigidBody.
+            The next ID and corresponding RigidBody as a tuple.
         """
         if self._iter_index < len(self._keys):
             key = self._keys[self._iter_index]
@@ -87,10 +95,10 @@ class Bodies:
         """Gets the RigidBody at the specified index.
 
         Args:
-            index (int): The index of the RigidBody to retrieve.
+            index: The index of the RigidBody to retrieve.
 
         Returns:
-            RigidBody: The RigidBody at the specified index.
+            The RigidBody at the specified index.
         """
         items = list(self.objects.items())
         return items[index][1]
@@ -103,7 +111,7 @@ class Bodies:
         """Deletes a RigidBody from the collection by its ID.
 
         Args:
-            id (int): The ID of the RigidBody to delete.
+            id: The ID of the RigidBody to delete.
         """
         if id in self.objects:
             del self.objects[id]
@@ -112,10 +120,10 @@ class Bodies:
         """Gets a RigidBody by its ID.
 
         Args:
-            id (int): The ID of the RigidBody to retrieve.
+            id: The ID of the RigidBody to retrieve.
 
         Returns:
-            RigidBody | None: The RigidBody if found, otherwise None.
+            The RigidBody if found, otherwise None.
         """
         return self.objects.get(id)
 
@@ -124,7 +132,6 @@ class Bodies:
             pairs in the collection.
 
         Returns:
-            Iterator[tuple[int, RigidBody]]: An iterator of
-                (ID, RigidBody) pairs.
+            An iterator of (ID, RigidBody) pairs.
         """
         return self.objects.items()

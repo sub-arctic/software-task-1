@@ -117,7 +117,7 @@ Python is *dynamically typed*, which in short means that variables cannot be exp
 
 Hence, in my project, integers are primarily used as indexes into arrays, or for window coordinates that cannot be fractional. Compound datatypes (arrays, lists etc), as will be later explained, can return values given an index. These indices are *almost* always whole numbers.
 
-\**in a dunder \__iter__ method for a custom class, you could define whatever datatype you want to, in order to index a value from a list*
+_\*in a dunder \_\_iter\_\_ method for a custom class, you could define whatever datatype you want to, in order to index a value from a list_
 
 ## Floating point
 A floating point number shares all of the same properties as integers, including most of the same methods and functions. The primary difference in python is that floating point numbers can have arbitrary decimal precision. Floating point numbers, like integers, have unlimited precision.

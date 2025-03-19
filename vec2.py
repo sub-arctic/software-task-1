@@ -10,14 +10,14 @@ class Vec2List:
     """A class to manage a list of 2D vectors.
 
     Attributes:
-        vectors (list[Vec2]): A list of Vec2 objects.
+        vectors: A list of Vec2 objects.
     """
 
     def __init__(self, vectors: list[Vec2] | None = None):
         """Initializes a Vec2List with an optional list of Vec2 vectors.
 
         Args:
-            vectors (list[Vec2] | None): A list of Vec2 objects. If None, initializes an empty list.
+            vectors: A list of Vec2 objects. If None, initializes an empty list.
         """
         if vectors is None:
             self._vectors = []
@@ -29,7 +29,7 @@ class Vec2List:
         """Gets the list of vectors.
 
         Returns:
-            list[Vec2]: The list of Vec2 objects.
+            The list of Vec2 objects.
         """
         return self._vectors
 
@@ -38,7 +38,7 @@ class Vec2List:
         """Sets the list of vectors.
 
         Args:
-            vectors (list[Vec2]): A new list of Vec2 objects.
+            vectors: A new list of Vec2 objects.
         """
         self._vectors = vectors
 
@@ -46,7 +46,7 @@ class Vec2List:
         """Iterates over the vectors in the list.
 
         Yields:
-            Vec2: Each Vec2 object in the list.
+            Each Vec2 object in the list.
         """
         for vector in self.vectors:
             yield vector
@@ -55,7 +55,7 @@ class Vec2List:
         """Gets a vector by index.
 
         Args:
-            index (int): The index of the vector to retrieve.
+            index: The index of the vector to retrieve.
 
         Returns:
             Vec2: The Vec2 object at the specified index.
@@ -66,7 +66,7 @@ class Vec2List:
         """Gets the number of vectors in the list.
 
         Returns:
-            int: The number of Vec2 objects in the list.
+            The number of Vec2 objects in the list.
         """
         return len(self.vectors)
 
@@ -74,7 +74,7 @@ class Vec2List:
         """Appends a Vec2 object to the list.
 
         Args:
-            item (Vec2): The Vec2 object to append.
+            item: The Vec2 object to append.
         """
         self.vectors.append(item)
 
@@ -82,7 +82,7 @@ class Vec2List:
         """Unpacks the list of vectors into a flat list of x and y coordinates.
 
         Returns:
-            list[Scalar]: A flat list containing the x and y coordinates of each vector.
+            A flat list containing the x and y coordinates of each vector.
         """
         return [vector for vec in self.vectors for vector in (vec.x, vec.y)]
 
@@ -91,16 +91,16 @@ class Vec2:
     """A class representing a 2D vector.
 
     Attributes:
-        x (Scalar): The x-coordinate of the vector.
-        y (Scalar): The y-coordinate of the vector.
+        x: The x-coordinate of the vector.
+        y: The y-coordinate of the vector.
     """
 
     def __init__(self, x: Scalar = 0.0, y: Scalar = 0.0):
         """Initializes a Vec2 object with x and y coordinates.
 
         Args:
-            x (Scalar): The x-coordinate. Defaults to 0.0.
-            y (Scalar): The y-coordinate. Defaults to 0.0.
+            x: The x-coordinate. Defaults to 0.0.
+            y: The y-coordinate. Defaults to 0.0.
         """
         self._x: Scalar = x
         self._y: Scalar = y
@@ -110,7 +110,7 @@ class Vec2:
         """Gets the x-coordinate of the vector.
 
         Returns:
-            Scalar: The x-coordinate.
+            The x-coordinate.
         """
         return self._x
 
@@ -119,7 +119,7 @@ class Vec2:
         """Gets the y-coordinate of the vector.
 
         Returns:
-            Scalar: The y-coordinate.
+            The y-coordinate.
         """
         return self._y
 
@@ -128,7 +128,7 @@ class Vec2:
         """Sets the x-coordinate of the vector.
 
         Args:
-            new_x (Scalar): The new x-coordinate.
+            new_x: The new x-coordinate.
         """
         self._x = new_x
 
@@ -137,15 +137,15 @@ class Vec2:
         """Sets the y-coordinate of the vector.
 
         Args:
-            new_y (Scalar): The new y-coordinate.
+            new_y: The new y-coordinate.
         """
         self._y = new_y
 
     def __iter__(self):
         """Iterates over the x and y coordinates of the vector.
 
-        Returns:
-            Iterator[Scalar]: An iterator over the x and y coordinates.
+        Yields:
+            An iterator over the x and y coordinates.
         """
         return iter((self._x, self._y))
 
@@ -153,19 +153,20 @@ class Vec2:
         """Adds another vector to this vector.
 
         Args:
-            other (Vec2): The vector to add.
+            other: The vector to add.
 
         Returns:
-            Vec2: The resulting vector after addition.
+            The resulting vector after addition.
         """
         return Vec2(self._x + other.x, self._y + other.y)
     def __sub__(self, other: Vec2) -> Vec2:
         """Subtracts another vector from this vector
-                    Args:
-            other (Vec2): The vector to subtract.
+
+        Args:
+            other: The vector to subtract.
 
         Returns:
-            Vec2: The resulting vector after subtraction.
+            The resulting vector after subtraction.
         """
         return Vec2(self._x - other.x, self._y - other.y)
 
@@ -173,10 +174,10 @@ class Vec2:
         """Multiplies this vector by a scalar.
 
         Args:
-            scalar (Scalar): The scalar to multiply by.
+            scalar: The scalar to multiply by.
 
         Returns:
-            Vec2: The resulting vector after multiplication.
+            The resulting vector after multiplication.
         """
         return Vec2(self._x * scalar, self._y * scalar)
 
@@ -184,10 +185,10 @@ class Vec2:
         """Divides this vector by a scalar.
 
         Args:
-            scalar (Scalar): The scalar to divide by.
+            The scalar to divide by.
 
         Returns:
-            Vec2: The resulting vector after division.
+            The resulting vector after division.
         """
         return Vec2(self._x / scalar, self._y / scalar)
 
@@ -195,7 +196,7 @@ class Vec2:
         """Negates the vector.
 
         Returns:
-            Vec2: The negated vector.
+            The negated vector.
         """
         return Vec2(-self.x, -self.y)
 
@@ -203,10 +204,10 @@ class Vec2:
         """Calculates the dot product with another vector.
 
         Args:
-            other (Vec2): The vector to calculate the dot product with.
+            other: The vector to calculate the dot product with.
 
         Returns:
-            Scalar: The dot product of the two vectors.
+            The dot product of the two vectors.
         """
         return self.x * other.x + self.y * other.y
 
@@ -214,10 +215,10 @@ class Vec2:
         """Calculates the cross product with another vector.
 
         Args:
-            other (Vec2): The vector to calculate the cross product with.
+            other: The vector to calculate the cross product with.
 
         Returns:
-            Scalar: The cross product of the two vectors.
+            The cross product of the two vectors.
         """
         return self.x * other.y - self.y * other.x
 
@@ -225,7 +226,7 @@ class Vec2:
         """Calculates the magnitude (length) of the vector.
 
         Returns:
-            Scalar: The magnitude of the vector.
+            The magnitude of the vector.
         """
         return math.hypot(self.x, self.y)
 
@@ -233,10 +234,10 @@ class Vec2:
         """Rotates the vector by a given angle in radians.
 
         Args:
-            angle (Scalar): The angle in radians to rotate the vector.
+            angle: The angle in radians to rotate the vector.
 
         Returns:
-            Vec2: A new Vec2 object representing the rotated vector.
+            A new Vec2 object representing the rotated vector.
         """
         cos_a = math.cos(angle)
         sin_a = math.sin(angle)
@@ -250,7 +251,7 @@ class Vec2:
         negating the y component.
 
         Returns:
-            Vec2: A new Vec2 instance representing the perpendicular vector.
+            A new Vec2 instance representing the perpendicular vector.
         """
         return Vec2(-self._y, self._x)
 
@@ -263,8 +264,8 @@ class Vec2:
         it will return a zero vector.
 
         Returns:
-            Vec2: A new Vec2 instance representing the normalized vector. 
-                  If the vector is a zero vector, a zero vector is returned.
+            A new Vec2 instance representing the normalized vector.
+                If the vector is a zero vector, a zero vector is returned.
 
         Example:
             >>> v = Vec2(3, 4)
@@ -276,4 +277,3 @@ class Vec2:
         """
         mag = self.magnitude()
         return self / mag if mag else Vec2(0, 0)
-

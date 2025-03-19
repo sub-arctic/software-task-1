@@ -5,29 +5,49 @@ from vec2 import Vec2, Vec2List
 
 
 def draw_polygon(side_length: Scalar, sides: int) -> Vec2List:
-    circumcircle_radius = side_length / (2 * math.sin(math.pi / sides))
-    vertices = Vec2List()
+    """Creates a polygon defined by vectors given quantity and length of sides
+
+    The polygon is expected to be regular, meaning all sides are of equal length
+    and all interior angles are equivalent. The radius of the circumcircle, which
+    is a circle that passes through all vertices, grows exponentially given higher
+    side counts.
+
+    Args:
+        side_length: The length of each equivalent side of the polygon.
+        sides: The quantity of sides
+
+    Returns:
+        A list of vectors defining the vertices of the polygon.
+
+    """
+    # Derives relationship between side length of a regular polygon and the
+    # radius of its circumcircle.
+    circumcircle_radius: Scalar = side_length / (2 * math.sin(math.pi / sides))
+    vertices: Vec2List = Vec2List()
+
     for i in range(sides):
-        xi = circumcircle_radius * math.cos((2 * math.pi * i) / sides)
-        yi = circumcircle_radius * math.sin((2 * math.pi * i) / sides)
+        xi: Scalar = circumcircle_radius * math.cos((2 * math.pi * i) / sides)
+        yi: Scalar = circumcircle_radius * math.sin((2 * math.pi * i) / sides)
         vertices.append(Vec2(xi, yi))
+
     return vertices
 
 
-def draw_rectangle(width: float, height: float) -> Vec2List:
+def draw_rectangle(width: Scalar, height: Scalar) -> Vec2List:
+    """Creates a rectangle defined by vertices given dimensions.
+
+    Used for bounding boxes.
+    
+    Args:
+        width: The width of the rectangle.
+        height: The height of the rectangle.
+
+    Returns:
+        A list of vectors defining the vertices of the rectangle.
+    """
     vertices = Vec2List()
     vertices.append(Vec2(0, 0))
     vertices.append(Vec2(width, 0))
     vertices.append(Vec2(width, height))
     vertices.append(Vec2(0, height))
     return vertices
-
-
-def draw_velocity_arrows(
-    x: Scalar, y: Scalar, velocity: Vec2
-) -> tuple[list[Scalar], list[Scalar]]:
-    x2 = x + velocity.x
-    y2 = y - velocity.y
-    x_component_line = [x, y, x2, y]
-    y_component_line = [x, y, x, y2]
-    return x_component_line, y_component_line

@@ -1,17 +1,34 @@
 import time
 
-import datapoint
+from datapoint import DataPointList
+from rigidbody import RigidBody
 import physics
-import rigidbody
 import vec2
 
 
 class InteractionManager:
+    """Handles all user-based interaction with bodies on the canvas.
+
+    Attributes:
+        canvas: A tkinter canvas element, which is where the handlers
+            will be bound to.
+        current_body: Keeps track of the currently pressed body for
+            dragging and related updates.
+        last_body: Keeps track of the last pressed body for highlighting
+            purposes.
+        mouse_positions: Stores cursor position data paired with time for
+            velocity calculations, used to update the velocity of the dragged
+            object on release.
+        simulation_controller: Parent object used to reference all RigidBodies
+            and call related functions for updating.
+
+    """
     def __init__(self, canvas, simulation_controller) -> None:
+        """Initializes the instance given parent elements"""
         self.canvas = canvas
         self.current_body = None
         self.last_body = None
-        self.mouse_positions = datapoint.DataPointList(2)
+        self.mouse_positions = DataPointList(2)
         self.simulation_controller = simulation_controller
 
     def setup_handlers(self) -> None:
@@ -29,7 +46,7 @@ class InteractionManager:
             self.canvas.parent.play_pause_text.set("Pause")
             self.simulation_controller.step()
 
-    def search_body(self) -> rigidbody.RigidBody:
+    def search_body(self) -> RigidBody | None:
         self.pressed_body_id = self.canvas.find_withtag("current")[0]
         self.current_body = self.simulation_controller.physics_engine.get_body(
             self.pressed_body_id

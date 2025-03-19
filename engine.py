@@ -12,8 +12,9 @@ class Engine:
     """A class to manage the physics engine, including bodies and gravity.
 
     Attributes:
-        bodies (Bodies): The collection of rigid bodies in the engine.
-        gravity (Scalar): The gravitational acceleration affecting the bodies.
+        bodies: The collection of rigid bodies in the engine, which is an
+            abstract class with id: body pairs.
+        gravity: The gravitational acceleration affecting the bodies.
         canvas: The canvas on which the bodies are drawn (optional).
     """
 
@@ -33,7 +34,7 @@ class Engine:
         """Gets the collection of bodies in the engine.
 
         Returns:
-            Bodies: The collection of rigid bodies.
+            The collection of rigid bodies.
         """
         return self._bodies
 
@@ -42,7 +43,7 @@ class Engine:
         """Gets the gravitational acceleration.
 
         Returns:
-            Scalar: The current gravitational acceleration.
+            The current gravitational acceleration.
         """
         return self._gravity
 
@@ -51,7 +52,7 @@ class Engine:
         """Sets the gravitational acceleration.
 
         Args:
-            new_gravity (Scalar): The new gravitational acceleration.
+            new_gravity: The new gravitational acceleration.
         """
         self._gravity = new_gravity
 
@@ -59,29 +60,21 @@ class Engine:
         """Gets a body by its ID.
 
         Args:
-            id (int): The ID of the body to retrieve.
+            id: The ID of the body to retrieve.
 
         Returns:
-            RigidBody: The RigidBody object associated with the given ID.
+            The RigidBody object associated with the given ID.
         """
         return self.bodies[id]
-
-    def get_bodies(self) -> Bodies:
-        """Returns all bodies in the engine.
-
-        Returns:
-            Bodies: The collection of all bodies.
-        """
-        return self.bodies
 
     def get_body(self, id: int) -> RigidBody | None:
         """Returns a body given its ID.
 
         Args:
-            id (int): The ID of the body to retrieve.
+            id: The ID of the body to retrieve.
 
         Returns:
-            RigidBody | None: The RigidBody object if found, otherwise None.
+            The RigidBody object if found, otherwise None.
         """
         return self.bodies.get(id)
 
@@ -93,11 +86,10 @@ class Engine:
         """Creates a rectangular boundary as rigid bodies given dimensions.
 
         Args:
-            dimensions (Vec2): The x-y dimensions of the canvas.
+            dimensions: The x-y dimensions of the canvas.
 
         Returns:
-            list[RigidBody]: A list of four walls represented as
-                RigidBody objects.
+            A list of four walls represented as RigidBody objects.
         """
         walls = [
             (dimensions.x, 1, 0, 0),
@@ -121,15 +113,20 @@ class Engine:
         """Updates the state of the engine, iterating through all bodies
             and resolving collisions.
 
+        Bodies are iterated over in pairs using itertools. This could
+        be done with two deep nested for loop, but itertools' solution
+        is more elegant and performant.
+
         Args:
-            delta_time (Scalar): The time step to update over.
-            dimensions (Vec2): The x-y dimensions of the canvas.
+            delta_time: The time step to update over.
+            dimensions: The x-y dimensions of the canvas.
         """
         walls = self.create_bounds(dimensions)
         for _, body in self.bodies:
             body.update(delta_time, gravity=self.gravity)
             for wall in walls:
                 handle_collision(body, wall)
+        # See docstring.
         for body_a, body_b in combinations(self.bodies, 2):
             body_a = body_a[1]
             body_b = body_b[1]

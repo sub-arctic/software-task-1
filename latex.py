@@ -1,36 +1,37 @@
+import hashlib
+import warnings
+import os
+
+
 try:
     import matplotlib.pyplot as plt
-except ImportError:
-    import sys
+    HAS_MATPLOTLIB = True
+except ImportError as error:
+    warnings.warn(
+        """Warning: matplotlib is not installed.
+        Please install it to render new expressions.""",
+        ImportWarning
+    )
+    HAS_MATPLOTLIB = False
+    raise error
 
-    sys.path.append("./libs")
-    import matplotlib.pyplot as plt
-
-import hashlib
-import os
-
-OUTPUT_DIR = "latex_images"
+OUTPUT_DIR: str = "latex_images"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-import hashlib
-import os
 
-import matplotlib.pyplot as plt
-
-
-def get_hashed_filename(latex_expr):
+def get_hashed_filename(latex_expr: str) -> str:
     """Generates a hashed filename for a given LaTeX expression.
 
     Args:
-        latex_expr (str): The LaTeX expression to hash.
+        latex_expr: The LaTeX expression to hash.
 
     Returns:
-        str: A hashed filename with a .png extension based on the LaTeX expression.
+        A hashed filename with a .png extension based on the LaTeX expression.
     """
     return hashlib.md5(latex_expr.encode()).hexdigest() + ".png"
 
 
-def render_latex(latex_expr):
+def render_latex(latex_expr: str) -> str | None:
     """Renders a LaTeX expression as a PNG image and saves it to a file.
 
     This function checks if an image for the given LaTeX expression already exists.
@@ -39,18 +40,20 @@ def render_latex(latex_expr):
     the path to the newly created image.
 
     Args:
-        latex_expr (str): The LaTeX expression to render.
+        latex_expr: The LaTeX expression to render.
 
     Returns:
-        str or None: The path to the rendered image if successful, or None if an error
+        The path to the rendered image if successful, or None if an error
                      occurs during rendering.
     """
-    img_filename = get_hashed_filename(latex_expr)
-    img_path = os.path.join(OUTPUT_DIR, img_filename)  # safe across platforms
+    img_filename: str = get_hashed_filename(latex_expr)
+    img_path: str = os.path.join(OUTPUT_DIR, img_filename)  # Safe across platforms.
 
     if os.path.exists(img_path):
         return img_path
-
+    elif not HAS_MATPLOTLIB:
+        warnings.warn("matplotlib is not imported and there is no cached image. Sorry!")
+        return None
     try:
         _, ax = plt.subplots(figsize=(0.5, 0.5), dpi=300)
         ax.text(0.5, 0.5, f"${latex_expr}$", fontsize=10, ha="center", va="center")

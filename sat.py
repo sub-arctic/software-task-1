@@ -8,9 +8,9 @@ def project_polygon(axis: Vec2, corners: Vec2List) -> tuple[Scalar, Scalar]:
     scalar values of the projection.
 
     Args:
-        axis (Vec2): A vector representing the axis onto which the polygon
+        axis: A vector representing the axis onto which the polygon
                      will be projected.
-        corners (Vec2List): A list of 2D vectors representing the corners of
+        corners: A list of 2D vectors representing the corners of
                             the polygon.
 
     Returns:
@@ -32,13 +32,13 @@ def overlap_intervals(
     overlap, the function will return a negative value.
 
     Args:
-        min_a (Scalar): The minimum value of the first interval.
-        max_a (Scalar): The maximum value of the first interval.
-        min_b (Scalar): The minimum value of the second interval.
-        max_b (Scalar): The maximum value of the second interval.
+        min_a: The minimum value of the first interval.
+        max_a: The maximum value of the first interval.
+        min_b: The minimum value of the second interval.
+        max_b: The maximum value of the second interval.
 
     Returns:
-        Scalar: The length of the overlap between the two intervals.
+        The length of the overlap between the two intervals.
                  If there is no overlap, the result will be negative.
     """
     return min(max_a, max_b) - max(min_a, min_b)
@@ -53,9 +53,9 @@ def find_contact_points(a: Vec2List, b: Vec2List, normal: Vec2) -> Vec2List:
     contact points are returned.
 
     Args:
-        a (Vec2List): A list of vectors representing the first shape.
-        b (Vec2List): A list of vectors representing the second shape.
-        normal (Vec2): A vector representing the normal direction for the contact
+        a: A list of vectors representing the first shape.
+        b: A list of vectors representing the second shape.
+        normal: A vector representing the normal direction for the contact
                        point calculation.
 
     Returns:
@@ -80,6 +80,9 @@ def sat(a: RigidBody, b: RigidBody) -> CollisionResult:
     """Performs the Separating Axis Theorem (SAT) test to determine
     if two rigid bodies are colliding.
 
+    Also known as the hyperplane seperation theorem:
+    https://en.wikipedia.org/wiki/Hyperplane_separation_theorem
+
     This function checks for collisions between two rigid
     bodies by projecting their vertices onto potential
     separating axes derived from their edges. If a collision
@@ -87,23 +90,24 @@ def sat(a: RigidBody, b: RigidBody) -> CollisionResult:
     collision normal, and the contact points.
 
     Args:
-        a (RigidBody): The first rigid body to test for collision.
-        b (RigidBody): The second rigid body to test for collision.
+        a: The first rigid body to test for collision.
+        b: The second rigid body to test for collision.
 
     Returns:
-        CollisionResult: An object containing the result of the
-                         collision test. If a collision occurs,
-                         it includes the penetration depth, the
-                         collision normal, and the contact points;
-                         otherwise, it indicates no collision.
+        An object containing the result of the
+            collision test. If a collision occurs,
+            it includes the penetration depth, the
+            collision normal, and the contact points;
+            otherwise, it indicates no collision.
     """
     body_a = a.get_vertices()
     body_b = b.get_vertices()
     axes: Vec2List = Vec2List()
-    penetration = float("inf")  # arbitrary upper bound for searching
+    penetration: float = float("inf") # Arbitrary upper bound for searching.
     normal = Vec2()
     contact_points = Vec2List()
 
+    # Find all axes to check seperation on.
     for poly in (body_a, body_b):
         for i in range(len(poly)):
             edge = poly[(i + 1) % len(poly)] - poly[i]
@@ -113,8 +117,16 @@ def sat(a: RigidBody, b: RigidBody) -> CollisionResult:
         return CollisionResult(False)
 
     for axis in axes:
+        # We project the polygon on the axis. The minimum and maximum
+        # of each respective body is the minimum and maximum vector,
+        # representing the vertex at that position.
         min_a, max_a = project_polygon(axis, body_a)
         min_b, max_b = project_polygon(axis, body_b)
+
+        # We overlap the minimum and maximum values of both bodies to
+        # get the offset, or translation vector. This is the overlap
+        # distance between both bodies. Negative values indicate that
+        # there is seperation between the bodies, and vice-versa.
         offset: Scalar = overlap_intervals(min_a, max_a, min_b, max_b)
 
         if offset <= 0:
@@ -125,7 +137,7 @@ def sat(a: RigidBody, b: RigidBody) -> CollisionResult:
             normal = axis
 
     d = b.position - a.position
-    # reverse the normal direction if it points away from the other body
+    # Reverse the normal direction if it points away from the other body.
     if d.dot(normal) < 0:
         normal = -normal
 

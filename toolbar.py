@@ -3,6 +3,27 @@ from tkinter import ttk
 
 
 class Toolbar(ttk.Frame):
+    """A toolbar for controlling the simulation.
+
+    This class provides buttons and sliders to interact with the simulation,
+    including adding polygons, adjusting gravity, and controlling the speed factor.
+
+    Attributes:
+        parent: The parent widget of this toolbar.
+        simulation_canvas: The canvas on which the simulation is rendered.
+        play_pause_button: A button to start or pause the simulation.
+        add_square_button: A button to add a polygon to the simulation.
+        gravity_scale: A scale widget to adjust the gravity in the simulation.
+        speed_factor_scale: A scale widget to adjust the speed factor of the simulation.
+        gravity_label: A label displaying the text "Gravity".
+        speed_factor_label: A label displaying the text "Speed Factor".
+        gravity_value_label: A label displaying the current gravity value.
+        speed_factor_value_label: A label displaying the current speed factor value.
+
+    Args:
+        parent: The parent widget to which this toolbar will be attached.
+    """
+
     def __init__(self, parent) -> None:
         super().__init__(parent)
         self.parent = parent
@@ -67,12 +88,27 @@ class Toolbar(ttk.Frame):
         self.clear_button.grid(column=4, row=1)
 
     def set_speed_factor(self, value: str) -> None:
+        """Sets the speed factor for the simulation.
+
+        Args:
+            value: A string representing the new speed factor to be set.
+        """
         self.simulation_canvas.simulation_controller.set_speed_factor(value)
 
     def update_gravity_value(self, value: str) -> None:
+        """Updates the gravity value in the simulation and the display label.
+
+        Args:
+            value: A string representing the new gravity value to be set.
+        """
         self.simulation_canvas.simulation_controller.set_gravity(value)
         self.gravity_value_label.config(text=str(value))
 
     def update_speed_factor_value(self, value: str) -> None:
+        """Updates the displayed speed factor value.
+
+        Args:
+            value: A string representing the current speed factor value.
+        """
         self.speed_factor_value_label.config(text=str(value))
 

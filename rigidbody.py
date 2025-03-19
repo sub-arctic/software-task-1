@@ -8,18 +8,26 @@ from vec2 import Vec2, Vec2List
 class RigidBody:
     """A class representing a rigid body in a physics simulation.
 
+    A rigidbody is a two dimensional shape that has rigid physics;
+    it's edges are 'strong' and cannot break. This is MUCH simpler
+    to work with than soft body objects.
+
+    Restitution is the elasticity coefficient. 0 is completely inelastic,
+    and 1 is perfectly elastic. It determines the collision response between
+    two RigidBodies.
+
     Attributes:
-        vertices (Vec2List): The vertices of the body.
-        position (Vec2): The current position of the body.
-        velocity (Vec2): The current velocity of the body.
-        angle (Scalar): The current rotation angle of the body in radians.
-        mass (Scalar): The mass of the body.
-        restitution (Scalar): The restitution coefficient of the body.
-        moment_of_inertia (Scalar): The moment of inertia of the body.
-        angular_velocity (Scalar): The current angular velocity of the body.
-        force (Vec2): The accumulated force applied to the body.
-        torque (Scalar): The accumulated torque applied to the body.
-        pinned (bool): Indicates whether the body is pinned in place.
+        vertices: The vertices of the body.
+        position: The current position of the body.
+        velocity: The current velocity of the body.
+        angle: The current rotation angle of the body in radians.
+        mass: The mass of the body.
+        restitution: The restitution coefficient of the body.
+        moment_of_inertia: The moment of inertia of the body.
+        angular_velocity: The current angular velocity of the body.
+        force: The accumulated force applied to the body.
+        torque: The accumulated torque applied to the body.
+        pinned: Indicates whether the body is pinned in place.
     """
 
     def __init__(
@@ -34,13 +42,13 @@ class RigidBody:
         """Initializes a RigidBody with the specified parameters.
 
         Args:
-            vertices (Vec2List): The vertices of the body.
-            position (Vec2): The initial position of the body.
-            velocity (Vec2): The initial velocity of the body.
-            angle (Scalar): The initial rotation angle of the body in radians.
+            vertices: The vertices of the body.
+            position: The initial position of the body.
+            velocity: The initial velocity of the body.
+            angle: The initial rotation angle of the body in degrees.
                 Defaults to 0.
-            mass (Scalar): The mass of the body. Defaults to 5.
-            restitution (Scalar): The restitution coefficient of the body.
+            mass: The mass of the body. Defaults to 5.
+            restitution: The restitution coefficient of the body.
                 Defaults to 0.5.
         """
         self._vertices: Vec2List = vertices
@@ -62,7 +70,7 @@ class RigidBody:
         """Gets the current velocity of the body.
 
         Returns:
-            Vec2: The current velocity of the body.
+            The current velocity of the body.
         """
         return self._velocity
 
@@ -71,7 +79,7 @@ class RigidBody:
         """Sets the current velocity of the body.
 
         Args:
-            new_velocity (Vec2): The new velocity to set.
+            new_velocity: The new velocity to set.
         """
         self._velocity = new_velocity
 
@@ -80,7 +88,7 @@ class RigidBody:
         """Gets the current rotation angle of the body.
 
         Returns:
-            Scalar: The current rotation angle in radians.
+            The current rotation angle in degrees.
         """
         return self._angle
 
@@ -89,7 +97,7 @@ class RigidBody:
         """Sets the current rotation angle of the body.
 
         Args:
-            new_angle (Scalar): The new angle to set in radians.
+            new_angle: The new angle to set in degrees.
         """
         self._angle = new_angle
 
@@ -98,7 +106,7 @@ class RigidBody:
         """Gets the mass of the body.
 
         Returns:
-            Scalar: The mass of the body.
+            The mass of the body.
         """
         return self._mass
 
@@ -107,7 +115,7 @@ class RigidBody:
         """Sets the mass of the body.
 
         Args:
-            new_mass (Scalar): The new mass to set.
+            new_mass: The new mass to set.
         """
         self._mass = new_mass
 
@@ -116,7 +124,7 @@ class RigidBody:
         """Gets the restitution coefficient of the body.
 
         Returns:
-            Scalar: The restitution coefficient.
+            The restitution coefficient.
         """
         return self._restitution
 
@@ -125,7 +133,7 @@ class RigidBody:
         """Sets the restitution coefficient of the body.
 
         Args:
-            new_restitution (Scalar): The new restitution coefficient to set.
+            new_restitution: The new restitution coefficient to set.
 
         Raises:
             ValueError: If the new restitution is not between 0 and 1.
@@ -139,7 +147,7 @@ class RigidBody:
         """Gets the current position of the body.
 
         Returns:
-            Vec2: The current position of the body.
+            The current position of the body.
         """
         return self._position
 
@@ -148,7 +156,7 @@ class RigidBody:
         """Sets the current position of the body.
 
         Args:
-            new_position (Vec2): The new position to set
+            new_position: The new position to set
         """
         self._position = new_position
 
@@ -157,7 +165,7 @@ class RigidBody:
         """Gets the vertices of the body.
 
         Returns:
-            Vec2List: The vertices of the body.
+            The vertices of the body.
         """
         return self._vertices
 
@@ -166,8 +174,7 @@ class RigidBody:
         its current angle and position.
 
         Returns:
-            Vec2List: A Vec2List containing the transformed vertices of the
-                body.
+            A Vec2List containing the transformed vertices of the body.
         """
         transformed_vertices = []
         for vertex in self.vertices:
@@ -181,8 +188,8 @@ class RigidBody:
         """Applies a force to the body at a specified point.
 
         Args:
-            force (Vec2): The force to apply to the body.
-            point (Optional[Vec2]): The point of application of the force.
+            force: The force to apply to the body.
+            point: The point of application of the force.
                 If provided, torque will be calculated.
         """
         self.force = self.force + force
@@ -194,7 +201,7 @@ class RigidBody:
         """Pins the body in place, preventing it from moving.
 
         Args:
-            position (Optional[Vec2]): The position to pin the body to.
+            position: The position to pin the body to.
                 If provided, updates the body's position.
         """
         if self.pinned:
@@ -216,8 +223,8 @@ class RigidBody:
         """Updates the state of the body based on the elapsed time and gravity.
 
         Args:
-            delta_time (Scalar): The time step for the update.
-            gravity (Scalar): The gravitational acceleration to apply.
+            delta_time: The time step for the update.
+            gravity: The gravitational acceleration to apply.
                 Defaults to 9.8 m/s².
         """
         if self.pinned:
@@ -238,7 +245,7 @@ class RigidBody:
         """Gets the current state of the body as a dictionary.
 
         Returns:
-            dict[str, Any]: A dictionary containing the position, velocity,
+            A dictionary containing the position, velocity,
                 angle, mass, and restitution of the body.
         """
         return {
