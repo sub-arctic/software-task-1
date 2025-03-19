@@ -4,6 +4,15 @@ from custom_types import Scalar
 from vec2 import Vec2, Vec2List
 
 
+def calculate_side_length(n: int, side_length: Scalar) -> Scalar:
+    """Calculate the side length of a regular polygon given the number of sides and side length of a square."""
+
+    # Calculate the circumradius (r) using the side length for a square (n=4)
+    r = side_length / (2 * math.sin(math.pi / 4))
+    
+    # Calculate the side length for the polygon with n sides
+    return 2 * r * math.sin(math.pi / n)
+
 def draw_polygon(side_length: Scalar, sides: int) -> Vec2List:
     """Creates a polygon defined by vectors given quantity and length of sides
 

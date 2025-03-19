@@ -4,6 +4,7 @@ import simulation
 from toolbar import Toolbar
 from lesson_manager import LessonManager, LessonFrame
 from properties import PropertiesFrame
+from styles import apply_dark_theme, apply_light_theme
 
 LESSONS_PATH = "lessons"
 
@@ -28,8 +29,12 @@ class Application(ttk.Frame):
         super().__init__(parent)
         self.setup_grid()
 
+
         self.lesson_frame = LessonFrame(self)
         self.simulation_canvas = simulation.Canvas(self)
+
+        self.dark_theme = True
+        apply_dark_theme(self)
 
         self.toolbar = Toolbar(self)
         self.toolbar.grid(row=1, column=1, sticky="nsew")
@@ -41,6 +46,7 @@ class Application(ttk.Frame):
             self, self.lesson_frame, self.simulation_canvas
         )
         self.lesson_manager.load_lesson("intro.md")
+
 
     def setup_grid(self) -> None:
         """Setup grid alignment.
@@ -54,5 +60,10 @@ class Application(ttk.Frame):
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=3)
         self.rowconfigure(0, weight=1)
-
-
+    
+    def toggle_theme(self):
+        if self.dark_theme:
+            apply_light_theme(self)
+        else:
+            apply_dark_theme(self)
+        self.dark_theme = not self.dark_theme

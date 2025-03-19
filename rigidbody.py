@@ -169,6 +169,15 @@ class RigidBody:
         """
         return self._vertices
 
+    @vertices.setter
+    def vertices(self, new_vertices: Vec2List):
+        """Sets the current vertices of the body.
+
+        Args:
+            new_vertices: The new vertices to set.
+        """
+        self._vertices = new_vertices
+
     def get_vertices(self) -> Vec2List:
         """Calculates and returns the rotated vertices of the body based on
         its current angle and position.

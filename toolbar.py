@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
 
-
 class Toolbar(ttk.Frame):
     """A toolbar for controlling the simulation.
 
@@ -30,7 +29,7 @@ class Toolbar(ttk.Frame):
         self.simulation_canvas = parent.simulation_canvas
         self.parent.play_pause_text = tk.StringVar()
 
-        self.add_square_button = ttk.Button(
+        self.add_polygon_button = ttk.Button(
             self,
             text="Add polygon",
             command=self.simulation_canvas.body_renderer.create_polygon,
@@ -68,7 +67,7 @@ class Toolbar(ttk.Frame):
         )
 
         self.play_pause_button.grid(column=0, row=1)
-        self.add_square_button.grid(column=1, row=1)
+        self.add_polygon_button.grid(column=1, row=1)
         self.gravity_scale.grid(column=2, row=1)
         self.speed_factor_scale.grid(column=3, row=1)
 
@@ -87,28 +86,25 @@ class Toolbar(ttk.Frame):
 
         self.clear_button.grid(column=4, row=1)
 
-    def set_speed_factor(self, value: str) -> None:
-        """Sets the speed factor for the simulation.
+        self.theme_toggle_var = tk.BooleanVar(value=False)
+        self.theme_toggle_check = ttk.Checkbutton(
+            self,
+            text="Dark Theme",
+            variable=self.theme_toggle_var,
+            command=self.parent.toggle_theme,
+        )
+        self.theme_toggle_check.grid(column=5, row=1)
 
-        Args:
-            value: A string representing the new speed factor to be set.
-        """
+    def set_speed_factor(self, value: str) -> None:
+        """Sets the speed factor for the simulation."""
         self.simulation_canvas.simulation_controller.set_speed_factor(value)
 
     def update_gravity_value(self, value: str) -> None:
-        """Updates the gravity value in the simulation and the display label.
-
-        Args:
-            value: A string representing the new gravity value to be set.
-        """
+        """Updates the gravity value in the simulation and the display label."""
         self.simulation_canvas.simulation_controller.set_gravity(value)
-        self.gravity_value_label.config(text=str(value))
+        self.gravity_value_label.config(text=str(round(float(value), 2)))
 
     def update_speed_factor_value(self, value: str) -> None:
-        """Updates the displayed speed factor value.
-
-        Args:
-            value: A string representing the current speed factor value.
-        """
+        """Updates the displayed speed factor value."""
         self.speed_factor_value_label.config(text=str(value))
 

@@ -2,6 +2,7 @@ from __future__ import annotations
 import tkinter as tk
 import engine
 import vec2
+import drawing
 from renderer import BodyRenderer
 from interaction_manager import InteractionManager
 
@@ -84,6 +85,24 @@ class Controller:
         """
         self.speed = float(value)
 
+    def modify_current_body(self) -> None:
+        """Updates the currently selected body with slider values."""
+        current_body = self.canvas.interaction_manager.current_body
+        if current_body is None:
+            return
+
+        mass = self.canvas.body_renderer.default_polygon_mass.get()
+        size = self.canvas.body_renderer.default_polygon_size.get()
+        sides = self.canvas.body_renderer.default_polygon_sides.get()
+
+        current_body.mass = mass
+
+        side_length = drawing.calculate_side_length(
+            sides, size
+        )
+        vertices = drawing.draw_polygon(side_length, sides)
+
+        current_body.vertices = vertices
 
 class Canvas(tk.Canvas):
     """A canvas for rendering the simulation.

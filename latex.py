@@ -1,19 +1,16 @@
 import hashlib
-import warnings
 import os
 
 
 try:
     import matplotlib.pyplot as plt
     HAS_MATPLOTLIB = True
-except ImportError as error:
-    warnings.warn(
+except:
+    print(
         """Warning: matplotlib is not installed.
-        Please install it to render new expressions.""",
-        ImportWarning
+        Please install it to render new expressions."""
     )
     HAS_MATPLOTLIB = False
-    raise error
 
 OUTPUT_DIR: str = "latex_images"
 os.makedirs(OUTPUT_DIR, exist_ok=True)

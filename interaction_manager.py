@@ -61,7 +61,7 @@ class InteractionManager:
                 self.last_body = None
             else:
                 if self.last_body is not None:
-                    self.canvas.itemconfigure(self.last_body, fill="black")
+                    self.canvas.itemconfigure(self.last_body, fill=self.canvas.polygon_fill)
                 self.canvas.itemconfigure(self.pressed_body_id, fill="red")
                 self.last_body = self.pressed_body_id
 

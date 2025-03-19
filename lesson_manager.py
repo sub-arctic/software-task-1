@@ -19,10 +19,15 @@ class LessonFrame(ttk.Frame):
     def __init__(self, parent) -> None:
         self.parent = parent
         super().__init__(self.parent)
+        
         self.grid(row=0, column=0, sticky="nsew")
+        
+        self.parent.grid_rowconfigure(0, weight=1)
+        self.parent.grid_columnconfigure(0, weight=1)
 
         self.canvas = tk.Canvas(self)
-        self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.yscrollbar = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.xscrollbar = ttk.Scrollbar(self, orient="horizontal", command=self.canvas.xview)
         self.scrollable_frame = ttk.Frame(self.canvas)
 
         self.scrollable_frame.bind(
@@ -33,11 +38,14 @@ class LessonFrame(ttk.Frame):
         )
 
         self.window = self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
-        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+        self.canvas.configure(yscrollcommand=self.yscrollbar.set, xscrollcommand=self.xscrollbar.set)
         
         self.canvas.grid(row=0, column=0, sticky="nsew")
-        self.scrollbar.grid(row=0, column=1, sticky="ns")
+        self.yscrollbar.grid(row=0, column=1, sticky="ns")
+        self.xscrollbar.grid(row=1, column=0, sticky="ew")
         
+        self.scrollable_frame.grid(row=0, column=0, sticky="nsew")
+
         self.parser = MarkdownParser(self.scrollable_frame)
 
     def display_lesson(self, markdown_text: str) -> None:

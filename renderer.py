@@ -1,8 +1,11 @@
 from typing import Optional
+import tkinter as tk
+from custom_types import Scalar
 
 import drawing
 import rigidbody
 from vec2 import Vec2
+
 
 
 class BodyRenderer:
@@ -24,13 +27,20 @@ class BodyRenderer:
         """
         self.canvas = canvas
         self.simulation_controller = simulation_controller
+        self.default_polygon_sides = tk.IntVar()
+        self.default_polygon_size = tk.DoubleVar()
+        self.default_polygon_mass = tk.DoubleVar()
+
+        self.default_polygon_sides.set(4)
+        self.default_polygon_size.set(100)
+        self.default_polygon_mass.set(5)
 
     def create_polygon(
         self,
         position: Optional[Vec2] = None,
         velocity: Optional[Vec2] = None,
         sides: int = 4,
-        side_length: int = 100,
+        side_length: Scalar = 100,
         angle: float = 0,
         mass: float = 5,
         restitution: float = 0.5,
@@ -48,6 +58,11 @@ class BodyRenderer:
             mass: The mass of the body. Defaults to 5.
             restitution: The restitution coefficient for the body. Defaults to 0.5.
         """
+        sides = self.default_polygon_sides.get()
+        side_length = drawing.calculate_side_length(
+            sides, self.default_polygon_size.get()
+        )
+        mass = self.default_polygon_mass.get()
         vertices = drawing.draw_polygon(side_length, sides)
 
         velocity = velocity if velocity is not None else Vec2()
@@ -73,7 +88,11 @@ class BodyRenderer:
         body = rigidbody.RigidBody(
             vertices, position, velocity, angle, mass, restitution
         )
-        canvas_id = self.draw_polygon(*body.get_vertices().unpack(), outline="white")
+        canvas_id = self.draw_polygon(
+            *body.get_vertices().unpack(),
+            outline=self.canvas.polygon_outline,
+            fill=self.canvas.polygon_fill
+        )
         self.simulation_controller.physics_engine.bodies.add(body, canvas_id)
 
     def draw_polygon(self, vertices: list[float], *args, **kwargs) -> int:
