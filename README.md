@@ -114,10 +114,10 @@ markdown.
 Please zoom in on the provided charts. Source files are provided under `src/`.
 
 ## Flowchart
-![](../src/main.drawio.svg)
+![](src/main.drawio.svg)
 
 ## Structure
-![](../src/structure.drawio.svg)
+![](src/structure.drawio.svg)
 
 # Datatypes
 *What is a datatype?*
