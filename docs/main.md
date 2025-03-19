@@ -75,9 +75,9 @@ My application should:
     - Detect LaTeX maths expressions and render them as images using matplotlib
 - Define cases for markdown elements to be different text sizes and styles
 - Parse properties denoted by a `---` block and read in yaml-style inline object properties for rendering on the canvas
-    - Ensure sanitzation
+    - Ensure sanitization
 - Render discovered text and elements in a tkinter frame
-- Use os.path.join for cross-platform compatability
+- Use os.path.join for cross-platform compatibility
 
 #### Interface
 - Display lesson frame next to canvas
@@ -107,7 +107,7 @@ My application should:
 - tkinter library required
 - matplotlib library required
 - Should work across various screen sizes
-markdown.
+- Users should be between ages 6 - 99
 
 
 # Design
@@ -782,12 +782,12 @@ I did encounter several runtime errors in my development. This is because my app
 
 ```python
 def somefunction(a: int, b: int) -> None:
-  try:
-    result = a / b
-  except ZeroDivisionError:
-    print(a, b)
-    print(type(a), type(b))
-  #...
+    try:
+        result = a / b
+    except ZeroDivisionError:
+        print(a, b)
+        print(type(a), type(b))
+    #...
 ```
 
 Try-except statements are bad practice in production: they are temporary solutions to a problem that could be better fixed elsewhere. However, they are good for detecting and debugging thrown errors during execution. In the above example, we handle a case where b is zero. This raises an error, and we can then determine type of both variables, and their values. This is a basic example, but it can help in narrowing down the source of an error.

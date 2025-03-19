@@ -19,6 +19,7 @@ class Application(ttk.Frame):
             shape properties.
         lesson_manager: An object handling parsing and rendering of
             markdown lessons.
+        dark_theme: A boolean flag that sets the application theme.
     """
     def __init__(self, parent: tk.Tk) -> None:
         """Initialises the tkinter frame on the parent.
@@ -33,8 +34,8 @@ class Application(ttk.Frame):
         self.lesson_frame = LessonFrame(self)
         self.simulation_canvas = simulation.Canvas(self)
 
-        self.dark_theme = True
-        apply_dark_theme(self)
+        self.dark_theme = False
+        apply_light_theme(self)
 
         self.toolbar = Toolbar(self)
         self.toolbar.grid(row=1, column=1, sticky="nsew")
