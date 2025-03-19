@@ -1,7 +1,7 @@
 ---
 bodies:
     1: [sides: 4, position: center, angle: 0, mass: 2, restitution: 0.7]
-    2: [sides: 6, position: bottom, angle: 0, mass: 3, restitution: 0.3]
+    2: [sides: 6, position: center, angle: 0, mass: 3, restitution: 0.3]
 ---
 
 # Newton's Third Law of Motion (Action and Reaction)

@@ -1,4 +1,5 @@
 import os
+import tkinter as tk
 from tkinter import ttk
 import simulation
 from markdown import MarkdownParser
@@ -6,10 +7,10 @@ from markdown import MarkdownParser
 LESSONS_PATH = "lessons"
 
 class LessonFrame(ttk.Frame):
-    """A frame that displays lessons in a Markdown format.
+    """A frame that displays lessons in a Markdown format with scrolling support.
 
     This class is responsible for rendering lesson content using a Markdown parser
-    and displaying it within a Tkinter frame.
+    and displaying it within a Tkinter frame with scrollability.
 
     Args:
         parent: The parent application which is referenced for body creation.
@@ -19,9 +20,25 @@ class LessonFrame(ttk.Frame):
         self.parent = parent
         super().__init__(self.parent)
         self.grid(row=0, column=0, sticky="nsew")
-        self.content_frame = ttk.Frame(self)
-        self.content_frame.grid(sticky="nsew")
-        self.parser = MarkdownParser(self.content_frame)
+
+        self.canvas = tk.Canvas(self)
+        self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.scrollable_frame = ttk.Frame(self.canvas)
+
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda _: self.canvas.configure(
+                scrollregion=self.canvas.bbox("all")
+            )
+        )
+
+        self.window = self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+        
+        self.canvas.grid(row=0, column=0, sticky="nsew")
+        self.scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.parser = MarkdownParser(self.scrollable_frame)
 
     def display_lesson(self, markdown_text: str) -> None:
         """Displays the lesson content parsed from the provided Markdown text.
@@ -32,6 +49,8 @@ class LessonFrame(ttk.Frame):
         Args:
             markdown_text: The Markdown text to be parsed and displayed.
         """
+        for widget in self.scrollable_frame.winfo_children():
+            widget.destroy()
         self.parser.parse(markdown_text)
         if self.parser.bodies is None:
             return

@@ -165,6 +165,9 @@ Formally, it is akin to a "contract", specifying what is required of various wor
 
 In my example, I could replace the collision detection algorithm from SAT (separating axis theory) to GJK (Gilbert-Johnson-Keerthi), so long as it returns a value of class CollisionResult.
 
+## Debugging output statements
+
+
 ## Experience
 Throughout the development of my application, I have faced various errors, as one would. However, most of my errors have been logic errors, rather than runtime or syntax errors. This is because I utilise lsp (language server protocols) plugins for my code editor, and use pyls (python language server). This runs checks during the editing of a file for syntax, formatting, and type checking.
 

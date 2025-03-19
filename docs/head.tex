@@ -1,0 +1,18 @@
+\usepackage{fontspec}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{lmodern}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\setmonofont{Mononoki Nerd Font}
+
+\definecolor{bgcolor}{HTML}{E0E0E0}
+\let\oldtexttt\texttt
+\renewcommand{\texttt}[1]{%
+  \colorbox{bgcolor}{\oldtexttt{#1}}%
+}
