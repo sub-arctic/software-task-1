@@ -23,6 +23,7 @@ Having the scene information defined in a markdown file reduces the amount of fo
 
 ## Requirements
 My application should:
+
 - Have a graphical user interface (gui)
 - Display an introductory screen, with information on how to navigate lessons and use the simulations
 - Allow switching between lessons
